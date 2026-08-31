@@ -43,14 +43,23 @@ design doc.
    actually requires.** An audit corrected our priors — flows are *already*
    encrypted; the real gaps are metadata, `%publ`-defaulting scry/attestation,
    and forward secrecy. Prioritized gap list + upstream bug findings.
-5. [`doc/05-open-questions.md`](doc/05-open-questions.md) — **the WG agenda.**
+5. [`doc/06-forward-secrecy.md`](doc/06-forward-secrecy.md) — the forward-
+   secrecy design space: why static ECDH + on-chain-priced rotation fails the
+   threat model, the four tensions (byte-identity, soft state, relay caching,
+   Arvo-never-forgets), and the FS0–FS3 option ladder with FS2
+   (namespace-published signed epoch prekeys) as the proposed lane.
+6. [`doc/05-open-questions.md`](doc/05-open-questions.md) — **the WG agenda.**
    Every open decision, tiered, each with a proposed default.
 
+Also: [`doc/00-kernel-baseline.md`](doc/00-kernel-baseline.md) — the tracked
+fork snapshot, the **pending snob doctrine** (deletes `%stale`; defines
+key-currency — attestations are bearer tokens), and the upstream-fix program
+with per-item dispositions.
+
 **Spec (`spec/`) — the skeleton that implementations conform to:**
-`00-scope` · `01-wire` · `03-namespace` · `04-flows` · `05-identity` ·
-`06-routing` · `07-transports`. Chapter outlines only; normative text lands
-per-milestone. (Numbering leaves room for `02-packets` between wire and
-namespace.)
+`00-scope` · `01-wire` · `02-packets` · `03-namespace` · `04-flows` ·
+`05-identity` · `06-routing` · `07-transports`. Chapter outlines only;
+normative text lands per-milestone.
 
 ## Grounding
 

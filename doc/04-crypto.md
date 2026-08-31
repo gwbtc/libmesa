@@ -86,13 +86,15 @@ in the `%page` `next` trailer.
 **C. Forward secrecy (the biggest cryptographic gap).**
 
 8. **`%chum` uses static ECDH over long-term keys**, rotated only on life
-   change. One key compromise decrypts all recorded history with that peer.
-   For the threat model that motivates this project (device seizure, coerced
-   key disclosure), this is the gap that matters most. A ratchet or ephemeral
-   DH exchange is a real protocol addition — the hardest and most valuable
-   item here, and the one most in tension with the stateless/soft-state
-   design (a ratchet is per-pair mutable state). Needs its own design pass;
-   flagged as the marquee open question.
+   change — and for a Groundwire comet a life rotation is a custody-log
+   event, i.e. **an on-chain transaction**, so key epochs are priced in sats
+   and realistically span weeks-to-years. One key compromise decrypts all
+   recorded history with that peer. For the threat model that motivates this
+   project (device seizure, coerced disclosure), this is the gap that
+   matters most. Full design space, tensions, and a proposed lane
+   (FS2: namespace-published signed epoch prekeys — no handshake, soft-state
+   compatible, and it fixes gap 7 as a side effect) in
+   **`06-forward-secrecy.md`**.
 
 **D. Independent bugs found in passing (fix regardless of E2E).**
 

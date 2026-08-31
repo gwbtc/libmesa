@@ -20,13 +20,32 @@ default so the meeting argues about a concrete position, not a blank page.
 3. **Transport mapping: pacts-verbatim, per-N-1-policy, or native framing?**
    Proposed: same pact everywhere, per-N-1 policy (delimiting/retransmit/
    congestion), so relays bridge transports statelessly. `02-rina.md` §6.2.
-4. **Forward secrecy — in v1 or deferred?** The marquee crypto question. Static
-   ECDH means one key compromise reads all history — squarely against the
-   device-seizure threat model. A ratchet is per-pair mutable state, in tension
-   with soft-state. Proposed: specify as Tier 3, design-doc it now, don't block
-   v1 messaging on it but commit to driving it upstream. `04-crypto.md` gap 8.
+4. **Forward secrecy — which lane?** The marquee crypto question, now mapped
+   in `06-forward-secrecy.md`. Static ECDH means one key compromise reads all
+   history, and rotation is priced in on-chain sats (a rekey is a sat move).
+   Proposed: adopt **FS2** (namespace-published signed epoch prekeys —
+   handshake-free, soft-state compatible, degrades gracefully to static ECDH
+   when no prekey is bound); reserve the `/epok` region and KDF labels in v1;
+   don't block v1 messaging; drive upstream. FS3 (double ratchet) declared an
+   application-layer concern. Also note the asymmetry worth an upstream
+   conversation: Arvo's event log retains secrets, so libmesa peers can honor
+   FS deletion guarantees Arvo ships structurally can't (yet).
 
 ## Tier 2 — decisions that shape the spec
+
+4a. **Adopt the snob doctrine as libmesa's baseline?** The in-process kernel
+   change (groundwire#129 / urbit#67, `ops/doc/snob-doctrine.md`) deletes
+   `%stale`, adds `%snob`/`%poof`/`snob-notice`, retains points while
+   snobbed, and defines **key-currency** (attestations are bearer tokens;
+   currency is chain-established, not signature-established). Proposed:
+   **yes** — libmesa implements post-snob semantics from day one (its
+   attestation state machine needs key-currency regardless), and the spec's
+   identity chapter tracks the snob ladder rather than the doomed `%stale`.
+   The doctrine's own three open decisions (accept the key-current
+   definition; unknown-class silence evaluated before attribution; the two
+   sharp rows — post-strike plain rekey = permanent snub, clean re-send with
+   sat unmoved = ignored) are WG items this repo inherits verbatim.
+   `00-kernel-baseline.md` § "Pending".
 
 5. **E2E default definition.** Adopt the three-tier definition (payload /
    metadata / relationship)? Proposed: yes; implement Tier 1 from day one,
@@ -35,7 +54,9 @@ default so the meeting argues about a concrete position, not a blank page.
    bug-class (default-flip to `%chum`, ECIES attestation, `peek-shut` gang
    `[~ ~]`, constant-time compare, unauth'd `%peek`). Proposed: file all
    bug-class items upstream; libmesa implements the hardened behavior
-   regardless. `04-crypto.md` D.
+   regardless. Per-item dispositions (*file* / *snob-PR vehicle* / *spec-led*)
+   are now in `00-kernel-baseline.md` § "Upstream program" — ratify or amend
+   them. `04-crypto.md` D.
 7. **Onion routing for who-talks-to-whom?** Destination ship is unhideable
    from a relay without it — a hard floor. Proposed: scope as a separate
    stacked DIF, out of v1, acknowledged in the threat model. `04-crypto.md`.
@@ -71,7 +92,8 @@ but the WG should know)
   version bump — a ship already running the earlier `%5` with a populated
   `dos` hits a mold mismatch. This is exactly the class of bug the
   confidential-comets todo warned against. Worth a `%5`→`%6` migration
-  alongside the deferred `%bane` tombstone.
+  alongside the deferred `%bane` tombstone — the snob PR (which already bumps
+  Ames state `%31`→`%32`) is a natural landing.
 - **Kernel:** `+pass-pki-dom` (ames) and the `%dome` scry (jael) are
   hand-duplicated with the `mat`-bound logic copied verbatim, sync enforced
   only by a comment. Drift hazard; libmesa's single implementation is the

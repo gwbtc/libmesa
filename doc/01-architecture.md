@@ -104,13 +104,17 @@ libmesa must mirror precisely:
   non-canonical `dat` would otherwise yield unboundedly many names per sat.
 - **Verdict vocabulary:** `$verdict` (`[dom ship (unit point)]`),
   `writ-result` `%full` / `%fail` / `%lost` / **`%stale`** / `%anew`, and the
-  unprompted `stale-notice`. Semantics libmesa adopts:
+  unprompted `stale-notice`. *(Pending: the snob doctrine deletes `%stale` in
+  favor of `[%snob dom ship]` + `snob-notice` + a `%poof` solicitation task —
+  libmesa targets the post-snob vocabulary; see `00-kernel-baseline.md`
+  § "Pending".)* Semantics libmesa adopts:
   - `%full` installs the point *and its fief* (the verdict is the only
     route-carrier for confidential identities);
   - `%fail` snubs **additively** (and `%full` un-snubs additively — exact
     inverses; snub state is a set with `%add`/`%del`, never wholesale);
-  - `%stale` demotes the peer to a fresh alien — *staleness is not fraud*:
-    no snub;
+  - `%stale`→`%snob`: soft-block the peer *keeping its point and flows*,
+    solicit a fresh attestation, and let attestation traffic through the
+    block — *staleness is not fraud*: no snub, no forgetting;
   - **an unevaluable check is not a verdict** — the `%gw-btc` agent's
     doctrine. Unknown protocol kelvin, unsynced chain view, undecodable
     input: emit nothing rather than `%fail`, because a false negative
