@@ -1,6 +1,7 @@
 # Golden vectors
 
-Normative cross-implementation test vectors (Hoon / C / Rust). Empty pending
+Normative cross-implementation test vectors (Hoon kernel / C runtime /
+libmesa in whatever language(s) — doc/07-language.md). Empty pending
 milestone 1. Planned classes:
 
 - `pact/` — packet etch/sift roundtrip + adversarial (extract via `pact.c`

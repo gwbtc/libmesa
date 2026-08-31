@@ -330,4 +330,4 @@ Adopt **"RINA-shaped, wire-compatible"**:
 - [Directed Messaging — roadmap.urbit.org](https://roadmap.urbit.org/project/directed-messaging) (NDN lineage).
 - [Urbit Networking: Ad Fontes — USTJ v01-i02](https://urbitsystems.tech/ustj/v01-i02/mss5-ad-fontes.html) (solid-state doctrine, oaths, seven-layer decomposition).
 - Van Jacobson et al., "Networking Named Content," 2009 (NDN/CCN).
-- This repo: `01-architecture.md` (engine/crate decomposition), `04-crypto.md` (E2E-by-default), kernel sources `pkg/arvo/sys/vane/ames.hoon` and `pkg/vere/io/mesa/{mesa,pact}.c` on the gwbtc forks.
+- This repo: `01-architecture.md` (engine/module decomposition), `04-crypto.md` (E2E-by-default), kernel sources `pkg/arvo/sys/vane/ames.hoon` and `pkg/vere/io/mesa/{mesa,pact}.c` on the gwbtc forks.

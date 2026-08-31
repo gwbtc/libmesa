@@ -7,7 +7,8 @@ discussions, `05-open-questions.md` for the working-group agenda.
 
 ## 1. What libmesa is
 
-A standalone Rust implementation, with a C FFI, of:
+A standalone implementation, exposing a C ABI (implementation language is an
+open question — `07-language.md`), of:
 
 - the **Mesa** ("directed messaging") network protocol — the `|mesa` core of
   `ames.hoon` *plus* the runtime half in `vere/pkg/vere/io/mesa/` (packet
@@ -66,9 +67,12 @@ deliberate unification of the Arvo/Vere division of labor):
   policy (bloq per N-1 class), LSS blake3 Merkle build/verify, SDU
   protection (spaces; E2E-by-default per `04-crypto.md`).
 
-## 4. Crate sketch
+## 4. Module sketch
 
-| Crate | Contents | Depends on |
+Language-neutral decomposition (names are illustrative; in Rust these are
+crates, in C libraries/translation units — see `07-language.md`):
+
+| Module | Contents | Depends on |
 |---|---|---|
 | `mesa-noun` | jam/cue, mug (murmur3), `+mat`/`+rub` (with the bounded-scan hardening from kernel commit `382243cd7c`), `@p`/`@q`/`@uv` rendering | — |
 | `mesa-crypto` | ed25519, X25519, blake3 (KDF / keyed-MAC / LSS tree), XChaCha8, secp256k1 Schnorr + tweaks (suite-%c), constant-time compares | — |
@@ -139,8 +143,9 @@ spec as a named trust mode rather than an app behavior.
 
 ## 6. Conformance strategy
 
-Three implementations of this protocol will exist (Hoon, C, Rust). The spec
-repo is where they agree:
+At least three implementations of this protocol will exist (the Hoon kernel,
+the C runtime driver, libmesa — four if the dual-implementation path of
+`07-language.md` is taken). The spec repo is where they agree:
 
 1. **Golden vectors** — `vectors/` here, shared with the groundwire repo's
    `vectors/gw-kelvin-9.json` pin (the cross-repo vector set is an open item
@@ -160,7 +165,7 @@ repo is where they agree:
 | Milestone | Deliverable | Gate |
 |---|---|---|
 | 0 | Spec skeleton + this doc set + WG review | today |
-| 1 | noun/crypto/wire crates + golden vectors extracted | vectors pass in Hoon+C+Rust |
+| 1 | noun/crypto/wire modules + golden vectors extracted | vectors pass in every implementation |
 | 2 | ident: pass/dat/attestation + mnemonyms + `PkiDomain` | adversarial vector set passes |
 | 3 | core: namespace + enrollment + peek/page over UDP | loopback peek interop vs fakeship |
 | 4 | flow engine (state vector + policies) | loopback poke/ack/rekey interop |

@@ -37,7 +37,7 @@ tiers, in ascending self-sufficiency:
   bootstraps circularly (you need a verified peer to verify peers) — fine as
   a refresh path, not as a root.
 - **N3 — chain watcher.** Full Ethereum L1 + naive-rollup L2 indexer.
-  Rejected: this is the thing we are demoting, reimplemented in Rust at
+  Rejected: this is the thing we are demoting, reimplemented from scratch at
   maximal cost.
 
 **Trust model:** N1/N2 trust the gateway/peer for *liveness and recency*, but

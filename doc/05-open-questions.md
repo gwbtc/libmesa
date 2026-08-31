@@ -14,6 +14,14 @@ default so the meeting argues about a concrete position, not a blank page.
 1. **RINA-shaped or monolithic engine?** Proposed: RINA-shaped (three-task
    IPCP decomposition = the deliberate Arvo/Vere unification), wire-compatible,
    no CDAP/RIB formalism beyond vocabulary. `02-rina.md` §8.
+1a. **Implementation language.** Rust vs C vs both-from-the-spec (Zig noted).
+   The safety/WASM/ecosystem case leans Rust (and Sword/NockVM supplies
+   existing noun infrastructure); the Vere-code-sharing and team-fluency
+   case leans C. Proposed framing: two votes — primary language, and
+   dual-implementation posture (suggested: one primary for v1, dual *wire
+   codec* early for differential testing, full second implementation
+   deferred to post-stabilization). Full pros/cons: `07-language.md`.
+
 2. **Flow engine: peek-only, monolithic port, or state-vector + policies?**
    Proposed: state-vector + policy modules (EFCP option C); peek-only is
    milestone 3, full flows milestone 4. `02-rina.md` §6.1.
@@ -81,9 +89,11 @@ default so the meeting argues about a concrete position, not a blank page.
     the fief advertise, how do senders choose? Proposed: defer, note the door.
 14. **Relay congestion role.** Stateless relays, or room for relay-assisted
     backpressure? Proposed: stateless bias, note the door. `02-rina.md` §7.4.
-15. **Noun crate sourcing.** Vendor from Nockchain/Sword vs write a small
-    clean jam/cue+mug+mat/rub. Proposed: write small and clean — we need
-    `mat`/`rub` with the bounded-scan hardening anyway, and the surface is tiny.
+15. **Noun-layer sourcing** (contingent on #1a). If Rust: vendor from
+    Nockchain/Sword vs write a small clean jam/cue+mug+mat/rub. If C: reuse
+    Vere's `ur` library (as tcp-sidecar does) vs write clean. Proposed either
+    way: write small and clean — we need `mat`/`rub` with the bounded-scan
+    hardening anyway, and the surface is tiny.
 
 ## Cross-repo hygiene items surfaced during exploration (not libmesa design,
 but the WG should know)
@@ -104,4 +114,5 @@ but the WG should know)
   `gw-btc/lib/gw-btc-pass.hoon` as ground truth, not the prose docs.
 - **Shared golden vectors** (`vectors/gw-kelvin-9.json` pin exists; the
   cross-repo positive/negative set does not). libmesa's `vectors/` is the
-  natural home; this unblocks three-way (Hoon/C/Rust) conformance.
+  natural home; this unblocks cross-implementation (kernel / runtime /
+  libmesa) conformance.

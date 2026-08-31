@@ -1,6 +1,7 @@
 # libmesa
 
-A standalone Rust implementation (with C FFI) of Urbit's **Mesa** ("directed
+A standalone implementation — exposing a C ABI; implementation language an
+open question, see `doc/07-language.md` — of Urbit's **Mesa** ("directed
 messaging") network protocol and **Groundwire** identity, lifted out of the
 split Arvo-vane + Vere-runtime implementation into one self-contained,
 transport-agnostic engine — usable by non-Arvo peers: Nostr clients, LND
@@ -8,7 +9,7 @@ nodes, Shrubbery ships, and ChatControl-threatened phones.
 
 > **Status: spec-first, pre-implementation.** This repository currently holds
 > design documents and a spec skeleton, prepared as a starting point for the
-> working group to argue over. No Rust yet. Nothing here is final except the
+> working group to argue over. No code yet. Nothing here is final except the
 > four decisions marked *settled* in `doc/05-open-questions.md`.
 
 ## Why
@@ -31,7 +32,7 @@ design doc.
 
 **Design (`doc/`) — the argument:**
 1. [`doc/01-architecture.md`](doc/01-architecture.md) — what libmesa is, the
-   engine decomposition, crate layout, the kernel contract it mirrors, roadmap.
+   engine decomposition, module layout, the kernel contract it mirrors, roadmap.
 2. [`doc/02-rina.md`](doc/02-rina.md) — **the RINA report.** Why a
    recursive-IPC shape, how Mesa already half-is one, the two-level
    packetization problem as policy, and the flow-engine/transport options
@@ -48,7 +49,11 @@ design doc.
    threat model, the four tensions (byte-identity, soft state, relay caching,
    Arvo-never-forgets), and the FS0–FS3 option ladder with FS2
    (namespace-published signed epoch prekeys) as the proposed lane.
-6. [`doc/05-open-questions.md`](doc/05-open-questions.md) — **the WG agenda.**
+6. [`doc/07-language.md`](doc/07-language.md) — implementation language as an
+   open question: Rust vs C (vs both from the agnostic spec), in general and
+   in the Urbit context (Vere is C; the existing Urbit-adjacent Rust is
+   Sword/NockVM).
+7. [`doc/05-open-questions.md`](doc/05-open-questions.md) — **the WG agenda.**
    Every open decision, tiered, each with a proposed default.
 
 Also: [`doc/00-kernel-baseline.md`](doc/00-kernel-baseline.md) — the tracked
