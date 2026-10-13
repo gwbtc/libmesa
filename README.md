@@ -1,7 +1,7 @@
 # libmesa
 
-A standalone implementation — exposing a C ABI; implementation language an
-open question, see `doc/07-language.md` — of Urbit's **Mesa** ("directed
+A standalone Rust implementation, exposing a C ABI (decision record:
+`doc/07-language.md`), of Urbit's **Mesa** ("directed
 messaging") network protocol and **Groundwire** identity, lifted out of the
 split Arvo-vane + Vere-runtime implementation into one self-contained,
 transport-agnostic engine — usable by non-Arvo peers: Nostr clients, LND

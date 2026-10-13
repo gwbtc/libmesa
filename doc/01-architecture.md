@@ -7,8 +7,8 @@ discussions, `05-open-questions.md` for the working-group agenda.
 
 ## 1. What libmesa is
 
-A standalone implementation, exposing a C ABI (implementation language is an
-open question — `07-language.md`), of:
+A standalone Rust implementation, exposing a C ABI (decision record:
+`07-language.md`), of:
 
 - the **Mesa** ("directed messaging") network protocol — the `|mesa` core of
   `ames.hoon` *plus* the runtime half in `vere/pkg/vere/io/mesa/` (packet

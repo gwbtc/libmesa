@@ -8,19 +8,20 @@ default so the meeting argues about a concrete position, not a blank page.
 - Wire-compatible with `hd/cc-kernel`; no wire-format redesign in v1. **Settled.**
 - Groundwire suite-%c comets are ground truth; Azimuth second-class. **Settled (soft).**
 - Everything E2E-encrypted by default; fix upstream over compromise. **Settled.**
+- Implementation language: **Rust primary**, C ABI exported from day one;
+  a C wire-codec stays available as a post-phase-1 conformance exercise.
+  **Settled 2026-10-13** (decision record: `07-language.md`).
 
 ## Tier 1 — decisions that set the architecture
 
 1. **RINA-shaped or monolithic engine?** Proposed: RINA-shaped (three-task
    IPCP decomposition = the deliberate Arvo/Vere unification), wire-compatible,
    no CDAP/RIB formalism beyond vocabulary. `02-rina.md` §8.
-1a. **Implementation language.** Rust vs C vs both-from-the-spec (Zig noted).
-   The safety/WASM/ecosystem case leans Rust (and Sword/NockVM supplies
-   existing noun infrastructure); the Vere-code-sharing and team-fluency
-   case leans C. Proposed framing: two votes — primary language, and
-   dual-implementation posture (suggested: one primary for v1, dual *wire
-   codec* early for differential testing, full second implementation
-   deferred to post-stabilization). Full pros/cons: `07-language.md`.
+1a. **Implementation language.** **Settled 2026-10-13: Rust primary** with
+   the C ABI committed from day one, so Vere can link libmesa and C hosts
+   need no binding layer. The dual-wire-codec option stays open as a
+   post-phase-1 conformance exercise. Rationale and the road not taken:
+   `07-language.md`.
 
 2. **Flow engine: peek-only, monolithic port, or state-vector + policies?**
    Proposed: state-vector + policy modules (EFCP option C); peek-only is

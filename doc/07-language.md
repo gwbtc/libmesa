@@ -1,10 +1,10 @@
-# Implementation language: an open question
+# Implementation language: decision record
 
-**Status:** open. Earlier drafts of this repo assumed "Rust with a C FFI."
-That was a default, not a decision — the spec is language-agnostic, and the
-choice deserves its own argument. This doc frames it: Rust vs C vs both, in
-general and in the Urbit context, plus what a dual-implementation program
-buys and costs.
+**Status: decided 2026-10-13 — Rust primary, C ABI from day one.** The
+prototype targets "Vere links libmesa" as a supported configuration (Vere's
+Zig build links a Rust staticlib), and the dual wire-codec remains open as a
+post-phase-1 conformance exercise. The spec stays language-agnostic. The
+analysis below is preserved as the decision's record.
 
 ## The decision actually being made
 
