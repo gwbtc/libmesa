@@ -72,6 +72,17 @@ default so the meeting argues about a concrete position, not a blank page.
 8. **Azimuth: native gateway resolver, cash-out, or both?** Proposed: ship N1
    gateway resolver as reference-optional; specify the cash-out linkage
    attestation; defer C-hard snapshot pinning. `03-azimuth.md`.
+8a. **Canonical wire strictness (from the 2026-10-13 C differential —
+   `vectors/pact/NOTES.md`).** Two codec divergences need normative
+   answers. (i) Fragment form: Hoon zero-strips fragment atoms
+   (`len = met3`), C carries explicit lengths — a legal fragment ending in
+   `0x00` self-sifts in C and is gum-rejected by Hoon, and is
+   unrepresentable in Hoon at all. Proposed: **zero-stripped canonical is
+   normative**, receivers reconstruct positionally and pad to the leaf; fix
+   C's etch upstream. (ii) Trailing bytes: C rejects, Hoon ignores.
+   Proposed: **exact-length is normative**; flag Hoon upstream. Everything
+   else matched byte-identically across all ten golden vectors.
+
 9. **Delta-t timer algebra.** Adopt the audit (map every ames/mesa timer to
    MPL/A/R or policy; prove exactly-once closes over reliable N-1s)? Proposed:
    yes — it's spec work we owe anyway, and it settles the cork question.

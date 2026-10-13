@@ -36,9 +36,46 @@ from dojo `@ux` output.
    it (gum covers only the parsed extent). Differential target: does C
    enforce exact-length sifts?
 
+## C differential results (2026-10-13, vere @ gw/next/kelvin/408)
+
+Driver: vere branch `libmesa/pact-vec` (fixes `u3_ship` bit-rot in the
+`PACT_TEST` block and adds a vector-mode `main`). Built inside vere's
+`nix develop` shell (zig 0.15.2; the homebrew zig on this host cannot link
+against the current macOS SDK). Run:
+`zig build pact-test && zig-out/bin/pact-test wires.txt`.
+
+**Headline: all 10 golden vectors sift in C and re-etch byte-identically.**
+The Hoon `plot` encoder and the hand-rolled C codec agree on every covered
+feature (ship widths, rift widths, wan coordinates, all three auth shapes,
+`%if` lanes, hop values, the short final fragment).
+
+Divergences, confirmed empirically:
+
+- **C1 — trailing-zero fragments cannot cross the C↔Hoon boundary.**
+  `u3_mesa_data` carries an explicit `len_w`, so C can emit a page whose
+  fragment ends in `0x00` and mugs it over the exact bytes
+  (`u3r_mug_bytes` does not strip). Hoon's `$data` fragment is an *atom*
+  (zero-stripped, `len = met3`), and the de-side gum recompute mugs the
+  stripped cut. Proof: the C-built `page-zero-tail-frag` wire
+  (`v0-divergence.json`) self-sifts in C and is rejected by
+  `de:pact:ames` with gum mismatch `[869.230 555.738]` =
+  `0xd436e` (exact) vs `0x87ada` (stripped). The reverse also holds: Hoon
+  cannot represent that wire at all. **Spec decision needed** — proposed:
+  zero-stripped canonical form is normative (`len = met3(frag)`, receivers
+  reconstruct positionally and pad to the leaf; matches Hoon and the
+  existing `page-short-final-frag` behavior), and C's etch/jumbo-cache
+  path gets an upstream fix to strip before writing `len_w`.
+- **C2 — trailing garbage.** `mesa_sift_pact_from_buf` rejects any wire
+  with bytes past the parse cursor ("trailing bytes"; confirmed on all 10
+  vectors +1 byte). Hoon's `de:pact` parses to a cursor and ignores the
+  rest (finding 6). Proposed: exact-length (C) is normative; Hoon's
+  tolerance is flagged upstream.
+- Finding 4 (gum over the parsed extent only) holds on both sides; the
+  disagreement is C1's strip semantics, not the extent.
+
 ## Still to extract (v1+)
 
-C-side vectors from `pact.c` `PACT_TEST`; name↔beam vectors; adversarial
-sifts (truncations at every field boundary, oversize path length, reserved
-`next` kinds 0b10/0b11, bad gum); jumbo bloq variants; `%is` (IPv6) lanes;
-multi-lane `next`.
+Name↔beam vectors; adversarial sifts (truncations at every field boundary,
+oversize path length, reserved `next` kinds 0b10/0b11, bad gum); jumbo bloq
+variants; `%is` (IPv6) lanes; multi-lane `next`; C-emitted golden set once
+C1's canonical form is settled.

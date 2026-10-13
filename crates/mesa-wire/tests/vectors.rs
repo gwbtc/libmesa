@@ -52,6 +52,25 @@ fn headers_sift() {
     }
 }
 
+/// The C-built divergence wire (vectors/pact/v0-divergence.json): its
+/// header must sift (valid page, gum = C's exact-bytes mug 0xd436e) even
+/// though Hoon rejects the packet at the body-gum recompute — pinning the
+/// C1 finding until the spec settles the canonical fragment form.
+#[test]
+fn divergence_wire_header() {
+    let path = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../vectors/pact/v0-divergence.json"
+    );
+    let vs: Vec<serde_json::Value> =
+        serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
+    let wire = unhex(vs[0]["wire"].as_str().unwrap());
+    let head = sift_head(&wire).unwrap();
+    assert_eq!(head.typ, PactType::Page);
+    assert_eq!(head.gum, 0xd436e);
+    assert_eq!(head.gum as u64, vs[0]["gum_on_wire"].as_u64().unwrap());
+}
+
 #[test]
 fn corrupted_headers_rejected() {
     for v in load() {

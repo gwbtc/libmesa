@@ -84,6 +84,15 @@ crates, in C libraries/translation units — see `07-language.md`):
 | `mesa-dom-azimuth` | Gateway-backed Azimuth resolver (optional; see `03-azimuth.md`) | ident |
 | `mesa-ffi` | C ABI over core + ident | all |
 
+**Integrator requirements** (relayed from a prospective embedder,
+2026-10-13): *C bindings, nix flake, reasonably simple API.* All three are
+commitments: the C ABI ships from day one (language decision), the repo
+carries a flake (dev shell now; a `packages.default` exporting the staticlib
++ generated header lands with `mesa-ffi`), and "reasonably simple" is the
+design bar for the FFI surface — the embedder-facing API is the mini-ship
+model of §2 (make an identity, bind paths, peek paths, send/receive
+messages, pump the transport), not the engine internals of §3.
+
 ## 5. The kernel contract libmesa mirrors (as of `hd/cc-kernel` / `hd/cc-snob`)
 
 The kernel spec is `pkg/arvo/doc/spec/pluggable-comet-pki.md` (status:
