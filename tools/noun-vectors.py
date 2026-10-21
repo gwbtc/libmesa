@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Source-derived mat and suite-C layout fixtures; does not call Rust or a ship.
+"""Source-derived mat, jam, and suite-C fixtures; does not call Rust or a ship.
 
 The arithmetic below transcribes ++mat at the pinned kernel revision. Keys
 and evidence in the suite-C layout cases are synthetic, not crypto vectors.
@@ -39,6 +39,30 @@ def concat(fields):
     return size, value
 
 
+def jam(noun):
+    """Transcribe Hoon's noun-to-first-bit-offset map and atom size choice."""
+    seen = {}
+
+    def visit(value, offset):
+        previous = seen.get(value)
+        if previous is not None:
+            if not isinstance(value, int) or value.bit_length() > previous.bit_length():
+                return concat([(2, 3), mat(previous)])
+        else:
+            seen[value] = offset
+        if isinstance(value, int):
+            return concat([(1, 0), mat(value)])
+        head = visit(value[0], offset + 2)
+        tail = visit(value[1], offset + 2 + head[0])
+        return concat([(2, 1), head, tail])
+
+    return visit(noun, 0)
+
+
+def noun_json(noun):
+    return le(noun) if isinstance(noun, int) else [noun_json(n) for n in noun]
+
+
 def fixtures():
     values = [0, 1, 2, 3, 4, 7, 8, 15, 16, 127, 128, 255, 256,
               int.from_bytes(b'gw-btc', 'little'), (1 << 256) - 1]
@@ -51,6 +75,7 @@ def fixtures():
     layouts = []
     genesis = int.from_bytes(bytes(range(32)), 'little')
     live = int.from_bytes(bytes(range(32, 64)), 'little')
+    seed = int.from_bytes(bytes(range(64, 96)), 'little')
     for name, domain, evidence in [('no-evidence', 'gw-btc', 0),
                                    ('unaligned-evidence', 'gw-btc', 0x1234),
                                    ('other-domain', 'test-pki', 0x80)]:
@@ -63,17 +88,32 @@ def fixtures():
         offset = 8 + 256 + 256 + data_field[0]
         total, public = concat([(8, ord('c')), (256, genesis), (256, live),
                                 data_field, (evidence.bit_length(), evidence)])
+        ring_bits, ring = concat([(8, ord('C')), (256, seed), (256, genesis),
+                                  data_field, (evidence.bit_length(), evidence)])
+        assert ring_bits == total
         layouts.append(dict(name=name, pass_atom=le(public), bits=total,
                             genesis=le(genesis, 256), live=le(live, 256),
+                            ring_atom=le(ring), live_seed=le(seed, 256),
                             dat=le(dat), dat_bits=dat_bits, domain=domain,
                             domain_field_bits=domain_field[0],
                             domain_tail=le(tail[1]), domain_tail_bits=tail[0],
                             xtr=le(evidence), xtr_offset=offset))
     provenance = dict(kernel_revision=REVISION,
-                      source='pkg/arvo/sys/hoon.hoon ++mat; pkg/arvo/sys/zuse.hoon ++pub:ex:cric',
+                      source='pkg/arvo/sys/hoon.hoon ++mat; pkg/arvo/sys/zuse.hoon ++pub:ex:cric/++sec:ex:cric/++nol:nu:cric',
                       method='Independent Python transcription; not live Hoon extraction or cryptographic evidence')
+    big = (1 << 256) - 1
+    shared = (big, (0, 1))
+    nouns = [0, 1, 2, 255, big, (0, 0), (1, 1), (big, big),
+             ((0, 1), (0, 1)), (shared, shared),
+             ((big, big), (big, (0, big))), ((1, 2), (3, (1, 2)))]
+    jams = []
+    for noun in nouns:
+        size, encoded = jam(noun)
+        jams.append(dict(noun=noun_json(noun), bits=size, encoded=le(encoded)))
     return {'vectors/noun/mat.json': dict(provenance=provenance, cases=fields),
-            'vectors/pass/suite-c-layout.json': dict(provenance=provenance, cases=layouts)}
+            'vectors/pass/suite-c-layout.json': dict(provenance=provenance, cases=layouts),
+            'vectors/noun/jam.json': dict(provenance=dict(provenance,
+                source='pkg/arvo/sys/hoon.hoon ++jam/++cue/++mat'), cases=jams)}
 
 
 def main():

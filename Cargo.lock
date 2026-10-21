@@ -22,6 +22,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "mesa-identity"
+version = "0.0.1"
+dependencies = [
+ "mesa-noun",
+ "mesa-wire",
+ "serde_json",
+]
+
+[[package]]
 name = "mesa-noun"
 version = "0.0.1"
 dependencies = [

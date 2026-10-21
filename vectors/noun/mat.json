@@ -1,7 +1,7 @@
 {
   "provenance": {
     "kernel_revision": "734ac17cfb88e571081b84406319a17d3d5e79dd",
-    "source": "pkg/arvo/sys/hoon.hoon ++mat; pkg/arvo/sys/zuse.hoon ++pub:ex:cric",
+    "source": "pkg/arvo/sys/hoon.hoon ++mat; pkg/arvo/sys/zuse.hoon ++pub:ex:cric/++sec:ex:cric/++nol:nu:cric",
     "method": "Independent Python transcription; not live Hoon extraction or cryptographic evidence"
   },
   "cases": [

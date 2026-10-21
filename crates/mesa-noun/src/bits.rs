@@ -1,14 +1,39 @@
 //! Borrowed LSB-first bit spans. Explicit lengths distinguish padding from data.
 use crate::{atom::Atom, mat::Error};
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy)]
 pub struct Bits<'a> {
     bytes: &'a [u8],
     start: usize,
     len: usize,
 }
 
+// The backing buffer can contain private fields outside this view (for example
+// a ring seed before dat). Debug must never dump it, even for a public subspan.
+impl std::fmt::Debug for Bits<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Bits")
+            .field("len", &self.len)
+            .finish_non_exhaustive()
+    }
+}
+
 impl<'a> Bits<'a> {
+    /// View a canonical little-endian atom without copying it. Zero is empty;
+    /// an explicit high zero byte is noncanonical. The final byte's unused bits
+    /// are excluded by the atom's numeric bit length.
+    pub fn from_atom_bytes(bytes: &'a [u8]) -> Result<Self, Error> {
+        let len = match bytes.last() {
+            None => 0,
+            Some(0) => return Err(Error::NonCanonical),
+            Some(last) => (bytes.len() - 1)
+                .checked_mul(8)
+                .and_then(|n| n.checked_add(8 - last.leading_zeros() as usize))
+                .ok_or(Error::Limit)?,
+        };
+        Self::new(bytes, len)
+    }
+
     /// Select the low `len` bits. Bits outside that span are not inspected.
     pub fn new(bytes: &'a [u8], len: usize) -> Result<Self, Error> {
         let available = bytes.len().checked_mul(8).ok_or(Error::Limit)?;

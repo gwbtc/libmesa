@@ -1,7 +1,8 @@
 # libmesa spec — 5: Identity
 
-**Status: domain-first design contract, 2026-10-21.** Identity is not yet
-implemented in the Rust library or C ABI. This chapter replaces the earlier
+**Status: domain-first design contract, 2026-10-21.** Rust implements bounded
+noun and suite-C framing parsers; identity authorization, cryptography, and
+lifecycle state are not implemented in Rust or the C ABI. This chapter replaces the earlier
 Azimuth convention and immutable-signer sketch. It follows the composed
 key-rotation and snob kernel stack pinned in
 [the baseline](../doc/00-kernel-baseline.md). The selected compatibility and bootstrap policies are explicit in §4;
@@ -42,6 +43,12 @@ without being forced into that representation. Opt-in life-1 fallback is
 specific to suite C, not a generic bypass for an unknown domain.
 
 ## 2. Current suite-C profile: identity and live keys
+
+`mesa_identity::suite_c` implements bounded public-pass and explicitly selected
+current-ring framing. It validates canonical atom bytes and the committed domain
+against an expected selector, then returns unverified claims. Curve checks,
+name derivation, evidence semantics, key activation, and authority are separate
+requirements. A parsed ring must never be treated as an authorized key.
 
 The reviewed kernel encodes the following fields, in low-to-high atom order:
 
@@ -101,6 +108,14 @@ representations and trailing data. A foreign domain version is unevaluable;
 it is not evidence against the claimed identity. All noun decoding, including
 the domain's `xtr` decoder, must bound input size, depth, and backreferences
 before allocating from peer-supplied lengths.
+
+`mesa_noun::serial::cue` now validates canonical jam into a bounded arena of
+borrowed atoms and shared cells. It limits literal nodes, backreferences, input,
+output, atom size, and expanded depth, and compares canonical re-encoding.
+It does not recursively expand references. Domain consumers must also bound
+their traversal work; a shared graph can denote an exponentially larger tree.
+The suite-C framing parser leaves `domain_tail` and `evidence` opaque, because
+their noun shape and semantics belong to the selected domain.
 
 An accepted point supplies life, rift, the public-key history and current
 pass, sponsor, and fief. The core rechecks every positive verdict:

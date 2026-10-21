@@ -20,10 +20,27 @@ hostile prefixes, and source-derived suite-C layout fixtures. The fixtures use
 synthetic keys and opaque evidence: they validate layout, not cryptography or
 domain authority. See [fixture provenance](../vectors/noun/README.md).
 
-Implement the noun primitives needed by the current suite-C profile, including
-safe jam/cue handling on top of these bit primitives. Pin complete input consumption,
-canonical forms, byte/bit order, depth, and backreference/resource bounds with
-positive and hostile fixtures. Decode failure must not poison a claimed name.
+**Second increment implemented:** `mesa_noun::serial` decodes canonical jam into
+an immutable arena of borrowed atoms and shared cells. It bounds input/output,
+literal nodes, atom sizes, backreferences, and expanded depth. Parsing, encoding,
+and destruction use no recursion. A bottom-up equality table lets re-encoding
+enforce Hoon's canonical reference choices without expanding shared subtrees.
+Historical live-Hoon fixtures and a freshly compiled Vere serializer provide
+independent checks. Consumers must retain sharing and bound their own traversal.
+
+`mesa_identity::suite_c` parses public passes and explicitly selected current
+rings, checks the committed domain against the expected selector, and exposes
+the exact domain-data and evidence spans. Private seeds remain borrowed,
+bit-span Debug output hides its backing buffer, and the ring type has no Debug
+implementation. The parser cannot identify an old
+two-secret-seed ring from its unchanged `'C'` tag; the caller must establish
+current-layout provenance. All results remain unverified claims, with no peer
+registry or key-activation effects.
+
+The next increment must add domain-specific evidence schemas, curve validation,
+name derivation, and actual cryptographic tests. The generic suite-C parser
+deliberately leaves `domain_tail` and `evidence` opaque. Decode failure must
+not poison a claimed name when peer state is introduced.
 
 Add kernel-derived vectors for suite-C public passes, private rings, permanent
 name derivation, live signing, and agreement. Verify that changing the live seed
