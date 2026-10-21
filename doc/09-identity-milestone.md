@@ -7,8 +7,21 @@ key possession before any claimed identity becomes an accepted peer.
 
 ## 1. Bounded parsing and cryptographic primitives
 
+**First increment implemented:** `mesa_noun::bits::Bits` exposes bounded borrowed
+bit spans; `mesa_noun::mat` encodes canonical atoms and decodes length-prefixed
+fields without allocation. `rub` reports consumed bits for nested fields;
+`decode` requires complete consumption of the supplied bit span. Both bound
+the prefix scan and declared payload, reject truncated/nonminimal encodings,
+and preserve the exact start of the next field. Byte padding belongs to the
+enclosing format and must be excluded explicitly.
+
+The tests include all 65,536 two-byte atoms, bit truncations, unaligned fields,
+hostile prefixes, and source-derived suite-C layout fixtures. The fixtures use
+synthetic keys and opaque evidence: they validate layout, not cryptography or
+domain authority. See [fixture provenance](../vectors/noun/README.md).
+
 Implement the noun primitives needed by the current suite-C profile, including
-bounded `mat` parsing and safe jam/cue handling. Pin complete input consumption,
+safe jam/cue handling on top of these bit primitives. Pin complete input consumption,
 canonical forms, byte/bit order, depth, and backreference/resource bounds with
 positive and hostile fixtures. Decode failure must not poison a claimed name.
 

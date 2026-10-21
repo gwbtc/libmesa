@@ -7,6 +7,11 @@ fields, and terminal zeros. Signature fixtures establish framing only.
 `python3 tools/v2-vectors.py --check` verifies the checked-in bytes without
 calling the Rust encoder; `tools/conformance-v2.py` exercises the v2 runner.
 
+The noun fixtures cover `mat`/`rub` and the bit boundaries of suite-C public
+passes. They come from an independent Python transcription of pinned kernel
+source, with synthetic keys and evidence. They are not live Hoon extractions
+or cryptographic vectors. See [provenance and limits](noun/README.md).
+
 Historical v1 cross-implementation fixtures for the Hoon kernel, C runtime, and Rust codec.
 `pact/v0-basic.json` contains ten live Hoon extractions. The divergence and
 checksum files record known incompatibilities; `pact/v1-reassembly.json`

@@ -15,3 +15,4 @@ jobs:
       - run: cargo test --workspace
       - run: bash tools/test-ffi.sh
       - run: python3 tools/conformance-v2.py
+      - run: python3 tools/noun-vectors.py --check

@@ -11,8 +11,8 @@ nodes, Shrubbery ships, and ChatControl-threatened phones.
 > bodies in experimental v2: fixed 128-bit names, explicit domain selectors,
 > exact-byte checksums, length-prefixed signatures, and none/IPv4 trailers.
 > Decoding is bounded and allocation-free. V1 remains an explicit compatibility
-> module. Canonical atoms, byte mug, fragment reconstruction, and C APIs for
-> both profiles are implemented. Identity, cryptography, LSS verification,
+> module. Canonical atoms, byte mug, bounded mat/rub, fragment reconstruction,
+> and C APIs for both profiles are implemented. Identity, cryptography, LSS verification,
 > networking, and flows remain unimplemented. The design beyond the codec is
 > still a working-group draft.
 
@@ -24,6 +24,7 @@ cargo clippy --workspace --all-targets -- -D warnings
 cargo fmt --all -- --check
 bash tools/test-ffi.sh
 python3 tools/conformance-v2.py
+python3 tools/noun-vectors.py --check
 ```
 
 The C header is `crates/mesa-ffi/include/mesa.h`; `cargo build -p mesa-ffi`
@@ -139,6 +140,11 @@ vectors, asynchronous domain verification/resolution, accepted-point lifecycle,
 explicit trust modes, and exact public/private activation. Define v2's protected
 context before network identity acceptance. See
 [the identity milestone](doc/09-identity-milestone.md).
+
+The first increment implements allocation-free `mat`/`rub` over borrowed bit
+spans. Source-derived fixtures cover nested domain data and unaligned suite-C
+evidence boundaries. Jam/cue, complete pass validation, and cryptographic
+vectors remain to be implemented.
 
 ## Outside the current implementation
 
