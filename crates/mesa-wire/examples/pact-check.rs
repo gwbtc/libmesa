@@ -12,7 +12,9 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         }
         let bytes: Vec<u8> = hex
             .as_bytes()
-            .chunks_exact(2)
+            .as_chunks::<2>()
+            .0
+            .iter()
             .map(|p| u8::from_str_radix(std::str::from_utf8(p)?, 16).map_err(Into::into))
             .collect::<Result<_, Box<dyn std::error::Error>>>()?;
         let parsed = decode(&bytes, Checksum::VereBytes, Limits::DATAGRAM);

@@ -19,12 +19,11 @@ fn mix(mut k: u32) -> u32 {
 
 fn murmur3(bytes: &[u8], seed: u32) -> u32 {
     let mut h = seed;
-    let mut chunks = bytes.chunks_exact(4);
-    for chunk in &mut chunks {
-        h ^= mix(u32::from_le_bytes(chunk.try_into().unwrap()));
+    let (chunks, tail) = bytes.as_chunks::<4>();
+    for chunk in chunks {
+        h ^= mix(u32::from_le_bytes(*chunk));
         h = h.rotate_left(13).wrapping_mul(5).wrapping_add(0xe654_6b64);
     }
-    let tail = chunks.remainder();
     if !tail.is_empty() {
         let mut word = [0; 4];
         word[..tail.len()].copy_from_slice(tail);
