@@ -1,4 +1,4 @@
-//! Mesa pact codec (spec ch. 1).
+//! Experimental Mesa v2 pact codec (spec ch. 1).
 //!
 //! Decodes and encodes the three packet types (%peek, %page, %poke) with
 //! the normative validation order of spec ch. 2 §2: cookie/version gate,
@@ -6,8 +6,17 @@
 //! bounds-checked before allocation. Vector-driven against
 //! `../../vectors/pact/`.
 
+mod codec;
+mod fragment;
+mod identity;
+/// Explicit historical v1 codec for compatibility tests; no automatic fallback.
+pub mod legacy_v1;
+pub use codec::{decode, encode, Auth, Body, Data, Error, Fragment, Limits, Name, Packet};
+pub use fragment::reconstruct_data_fragment;
+pub use identity::{DomainTag, PeerId};
+
 /// Protocol version carried in every header (3 bits on the wire).
-pub const VERSION: u8 = 1;
+pub const VERSION: u8 = 2;
 
 /// Header magic cookie, little-endian on the wire at byte offset 4.
 pub const COOKIE: u32 = 0x67e0_0200;
@@ -30,8 +39,7 @@ pub fn is_mesa(buf: &[u8]) -> bool {
 }
 
 /// Decoded packet header. `gum` is the 20-bit truncated mug of the body,
-/// NOT yet verified against the body here (spec ch. 2 §2 stage 3 does that
-/// once the mug function lands in mesa-noun).
+/// NOT verified against the body by `sift_head`; use `decode` for that check.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Head {
     pub nex: u8,
@@ -44,6 +52,10 @@ pub struct Head {
 /// version, type tag. Field layout (LSB-first within the first LE word):
 /// res(2) nex(2) ver(3) tip(2) hop(3) gum(20), then the 32-bit cookie.
 pub fn sift_head(buf: &[u8]) -> Option<Head> {
+    sift_head_version(buf, VERSION)
+}
+
+pub(crate) fn sift_head_version(buf: &[u8], version: u8) -> Option<Head> {
     if !is_mesa(buf) {
         return None;
     }
@@ -51,7 +63,7 @@ pub fn sift_head(buf: &[u8]) -> Option<Head> {
     if w & 0b11 != 0 {
         return None; // reserved bits
     }
-    if (w >> 4) & 0b111 != VERSION as u32 {
+    if (w >> 4) & 0b111 != version as u32 {
         return None;
     }
     let typ = match (w >> 7) & 0b11 {

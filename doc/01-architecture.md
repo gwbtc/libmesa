@@ -16,7 +16,7 @@ A standalone Rust implementation, exposing a C ABI (decision record:
   unified as one engine;
 - **Groundwire identity** — suite-%c comet keys, attestation
   verification, and the pluggable PKI-domain verdict contract that the gwbtc
-  kernel branch (`hd/cc-kernel`) now implements vendor-neutrally;
+  key-rotation/snob stack implements through registered domain authorities;
 - **mnemonym** naming as the primary human-facing name form.
 
 Target embedders: Nostr clients, LND nodes, Shrubbery ships, mobile clients —
@@ -26,8 +26,12 @@ Explicit non-goals (settled):
 
 - **No legacy interop.** No pre-mesa ames packets, no Fine, no `%ahoy`
   migration. libmesa speaks Mesa only.
-- **No wire-format redesign.** v1 is wire-compatible with ships on the gwbtc
-  kernel branch.
+- **Standardize fixed 128-bit names.** The target protocol removes Mesa v1's
+  width selector and treats Azimuth short names as future aliases. The domain
+  selector is canonical ASCII; the prototype implements experimental v2.
+  Historical v1 fixtures remain compatibility evidence. See
+  [names and domains](08-names-and-domains.md).
+  Upstream also needs Mesa-only rekey announcements.
 - **No Nock.** libmesa is identity + namespace + flows; payloads are bytes
   (noun-encoded where Arvo interop requires it).
 
@@ -49,9 +53,9 @@ deliberate unification of the Arvo/Vere division of labor):
 
 **Layer management (slow path)**
 - *Enrollment:* attestation intake (`+sift-open-packet` / `+al-take-proof`
-  semantics: name = hash-of-pass, signature, life monotonicity, suite
-  dispatch), PKI-domain verdict handling (the Jael contract, below), peer
-  table (`chum-state` equivalent).
+  semantics: immutable `ugn/dat` name binding, live-key signature, domain
+  dispatch and point invariants), PKI-domain verdict handling, and peer
+  trust status (verified, provisional, or explicit life-1 fallback).
 - *RIB / namespace:* path → page bindings; the `/flow`, `/publ`, `/chum`,
   `/shut`, `/pawn/proof`, `/muth` regions; host-facing publish/bind API.
 - *Flow allocation:* bone/side allocation, per-flow policy selection.
@@ -75,80 +79,68 @@ crates, in C libraries/translation units — see `07-language.md`):
 | Module | Contents | Depends on |
 |---|---|---|
 | `mesa-noun` | jam/cue, mug (murmur3), `+mat`/`+rub` (with the bounded-scan hardening from kernel commit `382243cd7c`), `@p`/`@q`/`@uv` rendering | — |
-| `mesa-crypto` | ed25519, X25519, blake3 (KDF / keyed-MAC / LSS tree), XChaCha8, secp256k1 Schnorr + tweaks (suite-%c), constant-time compares | — |
+| `mesa-crypto` | Kernel-compatible Edwards signing/name tweaks, Montgomery agreement, blake3 (KDF / MAC / LSS), XChaCha8, constant-time compares | — |
 | `mesa-wire` | pact codec: header/name/data/auth etch+sift; golden-vector driven | noun |
-| `mesa-ident` | pass/suite codec (%a/%b/%c), `dat` build/parse with canonicality check (see §6), point model, attestation state machine, `PkiDomain` trait, mnemonyms | noun, crypto |
+| `mesa-ident` | Suite-C pass/ring codec, bounded domain-tag parsing, point and trust-status models, attestation/rotation state machine, domain interface, mnemonyms | noun, crypto |
 | `mesa-core` | namespace, flow engine (state vector + policy modules), peer/enrollment state machine, `Transport` (N-1 DIF) + `SponsorResolver` + storage traits, forwarding/relay role | all above |
 | `mesa-udp` / `mesa-tcp` / `mesa-ws` | N-1 adapters; UDP gets STUN + hole-punch + forwarding parity with `mesa.c` | core |
-| `mesa-dom-gwbtc` | Groundwire domain verifier: custody-log walk over a Bitcoin light-client backend trait (BIP-158 scan model, per `gw-btc/lib/lc-attestation.hoon`) | ident |
-| `mesa-dom-azimuth` | Gateway-backed Azimuth resolver (optional; see `03-azimuth.md`) | ident |
+| `mesa-dom-gwbtc` | Groundwire `dat/xtr` codec, canonicality, Bitcoin/secp256k1 custody verification, chain-currency policy over a light-client backend | ident |
+| Future domain adapters | Additional authorities, including a possible Azimuth adapter; no mandatory resolver or gateway | ident |
 | `mesa-ffi` | C ABI over core + ident | all |
 
 **Integrator requirements** (relayed from a prospective embedder,
 2026-10-13): *C bindings, nix flake, reasonably simple API.* All three are
 commitments: the C ABI ships from day one (language decision), the repo
-carries a flake (dev shell now; a `packages.default` exporting the staticlib
-+ generated header lands with `mesa-ffi`), and "reasonably simple" is the
+carries a flake (`packages.default` exports the staticlib and checked-in
+header alongside the dev shell), and "reasonably simple" is the
 design bar for the FFI surface — the embedder-facing API is the mini-ship
 model of §2 (make an identity, bind paths, peek paths, send/receive
 messages, pump the transport), not the engine internals of §3.
 
-## 5. The kernel contract libmesa mirrors (as of `hd/cc-kernel` / `hd/cc-snob`)
+## 5. Identity through registered domains
 
-The kernel spec is `pkg/arvo/doc/spec/pluggable-comet-pki.md` (status:
-implemented; the base kernel now "names no vendor and no domain"). Points
-libmesa must mirror precisely:
+[Spec chapter 5](../spec/05-identity.md) is the identity contract.
+[The baseline](00-kernel-baseline.md) pins the composed kernel stack and
+separates its implemented mechanics from companion gaps.
 
-- **Domain identity is threefold-equal by construction:** verifier name =
-  Jael domain = the term at the head of the key tweak. In Jael this is
-  enforced by deriving the domain from the registering agent's own duct, by
-  poking the agent *named by* the tweak's domain, and by accepting verdicts
-  only from that same name. In libmesa terms: the `PkiDomain`
-  implementation's registered name **is** the tweak-prefix term (`%gw-btc`),
-  and dispatch is by that term. No routing table.
-- **Suite-%c `dat` layout** (from `gw-btc/lib/gw-btc-pass.hoon`, which
-  supersedes older docs):
-  `dat = (can 0 ~[(mat domain) (mat kelvin) (mat (jam spawn-satpoint))])` —
-  domain term, **protocol kelvin** (currently 9), and the *plaintext*
-  canonical jam of the spawn satpoint. The earlier hiding-commitment design
-  was reverted (pass and attestation are one object; every pass-holder holds
-  the opening). **Canonicality must be enforced on parse** — re-encode and
-  compare byte-for-byte — because `cue` tolerates trailing bits and a
-  non-canonical `dat` would otherwise yield unboundedly many names per sat.
-- **Verdict vocabulary:** `$verdict` (`[dom ship (unit point)]`),
-  `writ-result` `%full` / `%fail` / `%lost` / **`%stale`** / `%anew`, and the
-  unprompted `stale-notice`. *(Pending: the snob doctrine deletes `%stale` in
-  favor of `[%snob dom ship]` + `snob-notice` + a `%poof` solicitation task —
-  libmesa targets the post-snob vocabulary; see `00-kernel-baseline.md`
-  § "Pending".)* Semantics libmesa adopts:
-  - `%full` installs the point *and its fief* (the verdict is the only
-    route-carrier for confidential identities);
-  - `%fail` snubs **additively** (and `%full` un-snubs additively — exact
-    inverses; snub state is a set with `%add`/`%del`, never wholesale);
-  - `%stale`→`%snob`: soft-block the peer *keeping its point and flows*,
-    solicit a fresh attestation, and let attestation traffic through the
-    block — *staleness is not fraud*: no snub, no forgetting;
-  - **an unevaluable check is not a verdict** — the `%gw-btc` agent's
-    doctrine. Unknown protocol kelvin, unsynced chain view, undecodable
-    input: emit nothing rather than `%fail`, because a false negative
-    becomes a sticky snub (and kelvin-mismatch snubs would partition the
-    network on upgrade). libmesa's `PkiDomain` trait must expose this
-    three-valued result (verdict / no-verdict / stale), not a boolean.
-- **Re-attestation on rekey:** a comet has no chain peers can read passively,
-  so on a life change it pushes fresh self-attestations to all known peers;
-  attestations are recognized by packet *shape*, not peer state, so
-  re-attestation works post-rekey.
-- **Known accepted gaps** (upstream, tracked there, mirrored here so the spec
-  can take positions): `%anew`-refreshed pass not persisted to the boot
-  keyfile; `%lost` still a no-op; breach recovery at equal-or-lower life
-  still `XX`; domain names not tombstoned after `%bane`.
+The current suite-C profile commits names to immutable `ugn/dat`. Other
+domains may bind fixed 128-bit names through their own identity ledger. The
+live key `cry` signs and derives channel keys, and rotates without renaming
+the peer. Attestation establishes possession and name binding; the committed
+domain authorizes the current key and point. First contact and PKI updates
+use the same verifier interface. Generic point feeds cannot bypass it.
 
-**Enrollment bootstrap (from `%gevulot`):** sponsor-mediated attestation
-push with **provisional trust** — install now, re-verify through the ordinary
-on-chain path when the light client syncs, demote (never snub) on failure.
-This is directly the story for phone-class libmesa peers that can't complete
-a BIP-158 sync before first use, and belongs in the identity chapter of the
-spec as a named trust mode rather than an app behavior.
+The core owns bounded parsing, domain-authorized authentication, the registry,
+point invariants, admission, and public/private activation. A domain owns the
+meaning of its evidence and its currency policy. The suite-C parser extracts a leading domain
+term from `dat`; the target wire design makes domain selection explicit. `%gw-btc` owns kelvin 9, spawn satpoints, custody logs,
+and Bitcoin validation. A later Azimuth adapter uses the same authority
+boundary without becoming a prerequisite for boot or routing.
+
+The proposed domain interface is asynchronous and host-authenticated:
+verification requests carry a candidate pass; results distinguish accepted
+point, rejected candidate, and unavailable/unevaluable work. Withdrawal is a
+separate event for a previously vouched peer; own-evidence refresh is another
+operation. Registration binds an adapter to its domain. The interface must
+preserve these distinctions before a concrete Rust trait or C ABI is frozen.
+
+A rejection drops a candidate without damaging an accepted peer. Withdrawal
+soft-blocks traffic while retaining point and flows, then solicits a new
+attestation. An accepted point advances keys and fief, releases the soft gate,
+and preserves any independent hard block. Life rotation preserves continuity;
+a higher remote rift breaches it. The core activates a private ring only when
+its exact derived pass matches current public authorization.
+
+The host may opt into life-1 unregistered-domain fallback or sponsor-assisted
+provisional bootstrap. The API exposes each trust status and its source;
+neither becomes domain-verified without the committed verifier's acceptance.
+Provisional expiry and revalidation are explicit embedding policies.
+
+Mesa-only operation remains a requirement. The kernel currently announces
+rekeys using legacy control packets even for Mesa peers. A compatible Mesa
+announcement/recovery path must land upstream before full rekey interop.
+Verifier readiness, causal freshness after withdrawal, own-rift quiescence,
+and bounded evidence remain separately tracked release gates.
 
 ## 6. Conformance strategy
 
@@ -174,10 +166,11 @@ the C runtime driver, libmesa — four if the dual-implementation path of
 | Milestone | Deliverable | Gate |
 |---|---|---|
 | 0 | Spec skeleton + this doc set + WG review | today |
-| 1 | noun/crypto/wire modules + golden vectors extracted | vectors pass in every implementation |
-| 2 | ident: pass/dat/attestation + mnemonyms + `PkiDomain` | adversarial vector set passes |
+| 1a | Bounded wire codec, atom/mug, reconstruction, minimal C ABI | Full packet vectors, adversarial corpus, compiled C smoke test |
+| 1b | Remaining noun primitives, crypto, LSS verification | Authenticated fragment and seal/open vectors |
+| 2 | Domain-first identity: pass/ring, attestations, point transitions, trust modes, host verifier interface | Kernel-derived positive/negative vectors and real activation-path tests |
 | 3 | core: namespace + enrollment + peek/page over UDP | loopback peek interop vs fakeship |
-| 4 | flow engine (state vector + policies) | loopback poke/ack/rekey interop |
+| 4 | Flow engine and upstream Mesa identity announcements | Loopback poke/ack, loss and simultaneous-rekey recovery without legacy control packets |
 | 5 | TCP/WSS N-1s + relay role | phone-class client through a relay |
-| 6 | domains: gw-btc walker + azimuth gateway | verdict parity vs `%gw-btc` on vectors |
-| 7 | FFI + first embedding (Nostr client) | demo |
+| 6 | Groundwire adapter: bounded evidence and authority-backed verification | Verdict/currency parity and multilateral rotation tests; Azimuth deferred |
+| 7 | Extend the C ABI to core/identity + first embedding (Nostr client) | demo |

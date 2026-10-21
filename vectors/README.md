@@ -1,8 +1,17 @@
 # Golden vectors
 
-Normative cross-implementation test vectors (Hoon kernel / C runtime /
-libmesa in whatever language(s) — doc/07-language.md). Empty pending
-milestone 1. Planned classes:
+The v2 prototype fixtures (`pact/v2-basic.json`) contain eight hand-specified
+bodies with checksums from an independent Python implementation. They cover
+peek/page/poke, explicit domains, fixed names, variable signatures, MAC/hash
+fields, and terminal zeros. Signature fixtures establish framing only.
+`python3 tools/v2-vectors.py --check` verifies the checked-in bytes without
+calling the Rust encoder; `tools/conformance-v2.py` exercises the v2 runner.
+
+Historical v1 cross-implementation fixtures for the Hoon kernel, C runtime, and Rust codec.
+`pact/v0-basic.json` contains ten live Hoon extractions. The divergence and
+checksum files record known incompatibilities; `pact/v1-reassembly.json`
+defines logical-byte reconstruction cases, not LSS proof verification.
+See `pact/NOTES.md` for provenance and executable checks. Remaining classes:
 
 - `pact/` — packet etch/sift roundtrip + adversarial (extract via `pact.c`
   `PACT_TEST` and fakeship dojo `++etch`/`++sift`)

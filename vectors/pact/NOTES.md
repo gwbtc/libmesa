@@ -1,3 +1,9 @@
+> **Version scope:** the Hoon/Vere findings below concern the historical v1
+> profile, now exposed explicitly as `mesa_wire::legacy_v1`. The default codec
+> is v2. `v2-basic.json` is independently specified prototype data, not a Hoon
+> extraction; reproduce it with `python3 tools/v2-vectors.py --check` and test
+> its CLI with `python3 tools/conformance-v2.py`.
+
 # pact vectors: provenance and findings
 
 ## Provenance
@@ -79,3 +85,38 @@ Name↔beam vectors; adversarial sifts (truncations at every field boundary,
 oversize path length, reserved `next` kinds 0b10/0b11, bad gum); jumbo bloq
 variants; `%is` (IPv6) lanes; multi-lane `next`; C-emitted golden set once
 C1's canonical form is settled.
+
+## Review follow-up (2026-10-19)
+
+C1's fragment-only diagnosis above was incomplete. The checksum covers the
+whole body, including the lane trailer. `v1-checksum.json` changes the port
+of `page-next-if-hop3` to 80 while leaving its nonzero-ended fragment intact.
+The exact-byte gum is `0x188b9`; the body-atom gum is `0xe0e53`. The patched
+C driver accepts the former and rejects the latter. These two variants are
+source-derived; they have not been extracted again from a live Hoon ship.
+
+The fragment-stripping proposal above is superseded by spec chapter 1:
+checksum selection is explicit and fragment length is preserved independently.
+No common upstream checksum rule is claimed. Rust enforces exact frame
+consumption even in Hoon-atom mode; it does not copy Hoon's trailing-garbage
+tolerance. The `v0-*` fixtures remain unchanged as historical evidence.
+
+`v1-reassembly.json` records logical bytes that must be supplied to a future
+LSS verifier after restoring omitted zeros. It covers a short final fragment,
+an interior fragment, all-zero data, an exact-multiple final fragment, and a
+single-leaf message. These are reconstruction tests, not proof-verification
+or authenticated end-to-end tests.
+
+The Rust suite now decodes and re-encodes full packets. `tools/conformance.py`
+builds a common exact-byte corpus from the fixtures, including every prefix
+truncation with a recomputed checksum, invalid init flags, invalid headers,
+unsupported trailer kinds, and trailing bytes. It also checks that malformed
+or empty input files and false rejection expectations produce a failing exit
+status. Invoke it with a freshly built patched Vere `pact-test` binary; the
+runner does not build or discover that binary implicitly.
+
+The patched C driver rejects init-name flags without asserting and checks
+header length, reserved header fields, supported type/trailer, and full-frame
+checksum before structural parsing. Rust additionally requires minimal
+integer widths and nonempty paths. C is a differential reference, not the
+complete normative parser.

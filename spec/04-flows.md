@@ -21,5 +21,23 @@
    necessary or an optimization (open — doc/02-rina.md §7.3).
 7. **Backpressure.** clog/flub/halt semantics toward the host.
 8. **Policies.** retransmission (on/off), congestion (gauge port / off),
-   delimiting bloq; derivation from N-1 class, no negotiation (open —
-   doc/02-rina.md §7.2).
+   delimiting bloq; derivation from complete-path guarantees (ch. 7).
+
+## Host durability contract (required before flow implementation)
+
+The engine must expose a delivery identifier containing the peer, epoch,
+flow, and sequence. The host must durably record the accepted delivery and
+its deduplication state before the engine publishes an acknowledgment that
+permits the sender to discard the message.
+
+Exactly-once application effects require the host to atomically commit the
+effect and that delivery identifier, or make the effect idempotent under the
+identifier. An ordinary callback followed by an ack cannot guarantee this:
+a crash between the effect and the durable record permits duplicate effects.
+A crash after an early ack can lose the message.
+
+Define recovery of pending deliveries, durable sequence state, outbox state,
+and stale epochs before implementing the flow API. Test crashes before and
+after each commit/ack boundary. Timer algebra addresses packet lifetime and
+state reclamation; it does not replace host transactions. These guarantees
+are requirements for later work, not properties of the current wire codec.

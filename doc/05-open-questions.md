@@ -5,8 +5,18 @@ default so the meeting argues about a concrete position, not a blank page.
 
 ## Settled going in (not for debate, listed for the record)
 - Mesa-only, no legacy ames / Fine / `%ahoy`. **Settled.**
-- Wire-compatible with `hd/cc-kernel`; no wire-format redesign in v1. **Settled.**
-- Groundwire suite-%c comets are ground truth; Azimuth second-class. **Settled (soft).**
+- Fixed 128-bit names; no target wire width selector; Azimuth short names are
+  future aliases. This supersedes preserving v1 name encoding.
+  **Settled direction 2026-10-21.**
+- Globally unique 128-bit names with an explicit domain selector.
+  Experimental v2 uses canonical ASCII selectors and exact-byte checksums.
+  **Approved and implemented at the codec layer.** Authority association and
+  Mesa-only announcements remain identity/upstream work.
+- Groundwire's comet/domain model is the native identity convention; Azimuth
+  is a possible later domain adapter. **Settled 2026-10-21.**
+- Life-1 unregistered-domain fallback is opt-in. Sponsor-assisted provisional
+  bootstrap is explicit and distinguishable from domain verification.
+  **Settled 2026-10-21.**
 - Everything E2E-encrypted by default; fix upstream over compromise. **Settled.**
 - Implementation language: **Rust primary**, C ABI exported from day one;
   a C wire-codec stays available as a post-phase-1 conformance exercise.
@@ -15,8 +25,8 @@ default so the meeting argues about a concrete position, not a blank page.
 ## Tier 1 — decisions that set the architecture
 
 1. **RINA-shaped or monolithic engine?** Proposed: RINA-shaped (three-task
-   IPCP decomposition = the deliberate Arvo/Vere unification), wire-compatible,
-   no CDAP/RIB formalism beyond vocabulary. `02-rina.md` §8.
+   IPCP decomposition = the deliberate Arvo/Vere unification), with an explicit
+   v2 wire profile and no CDAP/RIB formalism beyond vocabulary. `02-rina.md` §8.
 1a. **Implementation language.** **Settled 2026-10-13: Rust primary** with
    the C ABI committed from day one, so Vere can link libmesa and C hosts
    need no binding layer. The dual-wire-codec option stays open as a
@@ -28,13 +38,15 @@ default so the meeting argues about a concrete position, not a blank page.
    milestone 3, full flows milestone 4. `02-rina.md` §6.1.
 3. **Transport mapping: pacts-verbatim, per-N-1-policy, or native framing?**
    Proposed: same pact everywhere, per-N-1 policy (delimiting/retransmit/
-   congestion), so relays bridge transports statelessly. `02-rina.md` §6.2.
+   congestion), with endpoint recovery across lossy relay legs and explicit
+   path-size bounds. Relays retain PIT state (spec chapter 7). `02-rina.md` §6.2.
 4. **Forward secrecy — which lane?** The marquee crypto question, now mapped
    in `06-forward-secrecy.md`. Static ECDH means one key compromise reads all
    history, and rotation is priced in on-chain sats (a rekey is a sat move).
    Proposed: adopt **FS2** (namespace-published signed epoch prekeys —
-   handshake-free, soft-state compatible, degrades gracefully to static ECDH
-   when no prekey is bound); reserve the `/epok` region and KDF labels in v1;
+   asynchronous prekey discovery, with authenticated capability selection
+   and explicit compatibility policy for any static-ECDH fallback); reserve
+   the `/epok` region and KDF labels in v1;
    don't block v1 messaging; drive upstream. FS3 (double ratchet) declared an
    application-layer concern. Also note the asymmetry worth an upstream
    conversation: Arvo's event log retains secrets, so libmesa peers can honor
@@ -42,19 +54,26 @@ default so the meeting argues about a concrete position, not a blank page.
 
 ## Tier 2 — decisions that shape the spec
 
-4a. **Adopt the snob doctrine as libmesa's baseline?** The in-process kernel
-   change (groundwire#129 / urbit#67, `ops/doc/snob-doctrine.md`) deletes
-   `%stale`, adds `%snob`/`%poof`/`snob-notice`, retains points while
-   snobbed, and defines **key-currency** (attestations are bearer tokens;
-   currency is chain-established, not signature-established). Proposed:
-   **yes** — libmesa implements post-snob semantics from day one (its
-   attestation state machine needs key-currency regardless), and the spec's
-   identity chapter tracks the snob ladder rather than the doomed `%stale`.
-   The doctrine's own three open decisions (accept the key-current
-   definition; unknown-class silence evaluated before attribution; the two
-   sharp rows — post-strike plain rekey = permanent snub, clean re-send with
-   sat unmoved = ignored) are WG items this repo inherits verbatim.
-   `00-kernel-baseline.md` § "Pending".
+4a. **Identity contract.** **Settled direction 2026-10-21:** use the composed
+   key-rotation/snob kernel contract, with rotating signer/agreement key,
+   registered-domain point authority, non-terminal candidate rejection, and
+   withdrawal followed by re-attestation. The earlier terminal moved/strike
+   ladder is not the core contract. `../spec/05-identity.md` defines the model;
+   `00-kernel-baseline.md` pins its sources and implementation status.
+4b. **Identity release gates.** Resolve verifier readiness, delayed pre-withdrawal
+   completions, overlapping policy ownership, and live own-rift quiescence.
+   Define provisional expiry/persistence and transition from fallback after
+   verifier installation. A process restart or stale verdict must not silently
+   restore authority. These remain design and implementation work.
+4c. **Mesa-only rekey interoperability.** **Selected:** change upstream to
+   announce through Mesa; do not add legacy identity-control packets to
+   libmesa. Specify receiver-life handling, lost announcements, simultaneous
+   rotations, and recovery. Existing proof messages provide a starting point,
+   not a completed convergence protocol.
+4d. **Evidence bounds.** A complete first-contact proof must fit one 1,024-byte
+   fragment under the current kernel. Growing custody logs eventually violate
+   that constraint. Choose bounded/compact evidence or specify proof transfer;
+   pin the complete encoded-size boundary in interoperability tests.
 
 5. **E2E default definition.** Adopt the three-tier definition (payload /
    metadata / relationship)? Proposed: yes; implement Tier 1 from day one,
@@ -63,25 +82,23 @@ default so the meeting argues about a concrete position, not a blank page.
    bug-class (default-flip to `%chum`, ECIES attestation, `peek-shut` gang
    `[~ ~]`, constant-time compare, unauth'd `%peek`). Proposed: file all
    bug-class items upstream; libmesa implements the hardened behavior
-   regardless. Per-item dispositions (*file* / *snob-PR vehicle* / *spec-led*)
-   are now in `00-kernel-baseline.md` § "Upstream program" — ratify or amend
-   them. `04-crypto.md` D.
+   where they preserve the chosen protocol. Revalidate the source findings in
+   `04-crypto.md` D against the pinned stack before implementation; the identity
+   baseline does not establish that those separate crypto fixes have landed.
 7. **Onion routing for who-talks-to-whom?** Destination ship is unhideable
    from a relay without it — a hard floor. Proposed: scope as a separate
    stacked DIF, out of v1, acknowledged in the threat model. `04-crypto.md`.
-8. **Azimuth: native gateway resolver, cash-out, or both?** Proposed: ship N1
-   gateway resolver as reference-optional; specify the cash-out linkage
-   attestation; defer C-hard snapshot pinning. `03-azimuth.md`.
-8a. **Canonical wire strictness (from the 2026-10-13 C differential —
-   `vectors/pact/NOTES.md`).** Two codec divergences need normative
-   answers. (i) Fragment form: Hoon zero-strips fragment atoms
-   (`len = met3`), C carries explicit lengths — a legal fragment ending in
-   `0x00` self-sifts in C and is gum-rejected by Hoon, and is
-   unrepresentable in Hoon at all. Proposed: **zero-stripped canonical is
-   normative**, receivers reconstruct positionally and pad to the leaf; fix
-   C's etch upstream. (ii) Trailing bytes: C rejects, Hoon ignores.
-   Proposed: **exact-length is normative**; flag Hoon upstream. Everything
-   else matched byte-identically across all ten golden vectors.
+8. **Azimuth aliases.** Selected direction: short names resolve to underlying
+   128-bit identities. Authority, reassignment, and expiry remain to be specified.
+   `03-azimuth.md` and `08-names-and-domains.md`.
+8a. **Name/domain association.** The globally unique-name model and v2 selector
+   bytes are settled. The next milestone must authenticate initial authority
+   association and reject conflicting claims. Domain migration requires an
+   explicit rule; packet arrival order is not authority.
+8b. **Checksum and fragment compatibility.** V2 uses exact body bytes, with no
+   alternate checksum mode. The explicit v1 reference retains the historical
+   Hoon/Vere disagreement. Fragment normalization and LSS checks remain separate;
+   receivers reconstruct omitted data zeros before verification.
 
 9. **Delta-t timer algebra.** Adopt the audit (map every ames/mesa timer to
    MPL/A/R or policy; prove exactly-once closes over reliable N-1s)? Proposed:
@@ -107,15 +124,12 @@ default so the meeting argues about a concrete position, not a blank page.
     way: write small and clean — we need `mat`/`rub` with the bounded-scan
     hardening anyway, and the surface is tiny.
 
-## Cross-repo hygiene items surfaced during exploration (not libmesa design,
-but the WG should know)
+## Cross-repo follow-up
 
-- **Kernel:** `dek` was added to `dom-state` inside Jael `state-5` without a
-  version bump — a ship already running the earlier `%5` with a populated
-  `dos` hits a mold mismatch. This is exactly the class of bug the
-  confidential-comets todo warned against. Worth a `%5`→`%6` migration
-  alongside the deferred `%bane` tombstone — the snob PR (which already bumps
-  Ames state `%31`→`%32`) is a natural landing.
+The current baseline supersedes the older Jael-migration and Mesa-not-tested
+claims. Consult the pinned lifecycle/rebase evidence rather than carrying
+those historical findings forward as current defects.
+
 - **Kernel:** `+pass-pki-dom` (ames) and the `%dome` scry (jael) are
   hand-duplicated with the `mat`-bound logic copied verbatim, sync enforced
   only by a comment. Drift hazard; libmesa's single implementation is the
