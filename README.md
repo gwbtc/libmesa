@@ -153,8 +153,12 @@ announcement/recovery change is required for full identity interoperability.
 
 The first two peer-engine steps now have an in-memory implementation:
 preconfigured peers, bounded namespace reads, fragmentation, and timers.
-Next, define and implement LSS and the protected v2 context, then exercise
-loopback UDP before starting message flows and transport policies.
+The immediate target is a pinned Groundwire suite-C comet exchange by
+October 23, using preconfigured keys, an explicit Mesa v1 compatibility adapter,
+real signature/LSS verification, and loopback UDP. See the
+[comet interoperability work order](doc/13-comet-interop.md). V2 remains the
+default; its protected context remains separate work. Message flows follow
+authenticated named reads.
 Generalized identity and the Groundwire verifier remain separate integration
 work. See the
 [peer-engine milestone and fresh-task handoff](doc/11-peer-engine-handoff.md).
