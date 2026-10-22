@@ -96,7 +96,12 @@ The new strict point/signature checks intentionally narrow hostile-input
 acceptance. Valid-input Hoon vectors support compatibility, but do not prove
 an identical acceptance set or a complete protocol security argument.
 
-## 4. Next executable milestone
+## 4. Identity integration sequence (deferred)
+
+**Priority update, 2026-10-22:** the sequence below is retained for identity
+integration. It no longer gates peer-engine development. Follow the
+[peer-engine handoff](11-peer-engine-handoff.md) for current work with
+preconfigured peers and a deterministic test harness.
 
 Build the authority and activation engine with deterministic test authorities
 before attaching sockets. Use an event/action interface so the host owns its

@@ -138,11 +138,13 @@ announcement/recovery change is required for full identity interoperability.
 
 ## Next implementation milestone
 
-Build authenticated identity: bounded suite-C parsing and real cryptographic
-vectors, asynchronous domain verification/resolution, accepted-point lifecycle,
-explicit trust modes, and exact public/private activation. Define v2's protected
-context before network identity acceptance. See
-[the identity milestone](doc/09-identity-milestone.md).
+Build the peer engine with explicitly preconfigured peers: deterministic
+namespace reads, bounded interests and fragmentation, timers, then message flows
+and transport policies. Generalized identity and the Groundwire verifier are
+separate integration work, not prerequisites for core bring-up. See the
+[peer-engine milestone and fresh-task handoff](doc/11-peer-engine-handoff.md).
+The [identity milestone](doc/09-identity-milestone.md) retains the eventual
+admission and activation requirements.
 
 Noun decoding now preserves sharing in a bounded arena, checks expanded depth,
 and enforces canonical jam output. Suite-C parsers bind the committed domain

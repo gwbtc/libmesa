@@ -1,9 +1,15 @@
-# Next milestone: authenticated identity
+# Deferred integration track: authenticated identity
+
+**Scheduling update, 2026-10-22:** the
+[peer-engine milestone](11-peer-engine-handoff.md) takes priority. Preconfigured
+peers and test-only protection outcomes allow engine work without this track.
+The requirements below apply when implementing domain-authenticated enrollment
+and activation; they are not prerequisites for the deterministic core harness.
 
 **Starting point:** experimental v2 encodes globally unique `PeerId` values,
 explicit `DomainTag` selectors, and length-delimited signatures. It validates
-structure and checksums only. The next milestone must establish authority and
-key possession before any claimed identity becomes an accepted peer.
+structure and checksums only. Domain-authenticated enrollment must establish authority and
+key possession before treating a received identity claim as an accepted peer.
 
 ## 1. Bounded parsing and cryptographic primitives
 

@@ -77,7 +77,8 @@ deliberate unification of the Arvo/Vere division of labor):
 Target decomposition, not a list of completed modules. The current implementation
 contains noun, wire, crypto, identity primitives, and wire-only FFI. See
 [the implementation review](10-implementation-review.md) for the dependency
-boundary to fix before adding the authority engine.
+boundaries. The [peer-engine handoff](11-peer-engine-handoff.md) now sets the
+implementation order; authority integration is deferred.
 
 | Module | Contents | Depends on |
 |---|---|---|
@@ -166,14 +167,19 @@ the C runtime driver, libmesa — four if the dual-implementation path of
 
 ## 7. Roadmap
 
+The milestone numbers identify workstreams, not a strict dependency order.
+Current priority is the [peer engine with preconfigured peers](11-peer-engine-handoff.md):
+namespace/interest machinery and flows can progress before generalized identity.
+Jael and userspace verifier responsibilities stay behind host-supplied services.
+
 | Milestone | Deliverable | Gate |
 |---|---|---|
 | 0 | Spec skeleton + this doc set + WG review | today |
 | 1a | Bounded wire codec, atom/mug, reconstruction, minimal C ABI | Full packet vectors, adversarial corpus, compiled C smoke test |
 | 1b | Remaining noun primitives, crypto, LSS verification | Authenticated fragment and seal/open vectors |
 | 2 | Domain-first identity: pass/ring, attestations, point transitions, trust modes, host verifier interface | Kernel-derived positive/negative vectors and real activation-path tests |
-| 3 | core: namespace + enrollment + peek/page over UDP | loopback peek interop vs fakeship |
-| 4 | Flow engine and upstream Mesa identity announcements | Loopback poke/ack, loss and simultaneous-rekey recovery without legacy control packets |
+| 3 | core: namespace + peek/page with preconfigured peers; enrollment integrated later | Deterministic lossy harness, then protected libmesa UDP reads; upstream interop separately |
+| 4 | Flow engine: sequencing, acknowledgment, recovery, backpressure and policy | Loss/reordering and durable delivery tests; upstream announcements and simultaneous-rekey interop follow identity integration |
 | 5 | TCP/WSS N-1s + relay role | phone-class client through a relay |
 | 6 | Groundwire adapter: bounded evidence and authority-backed verification | Verdict/currency parity and multilateral rotation tests; Azimuth deferred |
 | 7 | Extend the C ABI to core/identity + first embedding (Nostr client) | demo |
