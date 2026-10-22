@@ -14,6 +14,8 @@ jobs:
       - run: cargo clippy --workspace --all-targets -- -D warnings
       - run: cargo test --workspace
       - run: cargo run -p mesa-core --example two-peer
+      - run: python3 tools/protection-vector.py --check
+      - run: python3 tools/test-protected-udp.py
       - run: bash tools/test-ffi.sh
       - run: python3 tools/conformance-v2.py
       - run: python3 tools/conformance-noun.py

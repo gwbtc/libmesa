@@ -8,6 +8,11 @@
 > fast-path. Processing that requires per-peer or per-flow *state* belongs to
 > chapters 4 (flows) and 5 (identity); forwarding belongs to chapter 6.
 
+The implemented protection subset is the explicit
+[v2 signed-public profile](08-signed-public.md). Its fixed proof-first exchange
+and signing context take precedence over the broader space/Init proposals below
+for that profile. The remaining spaces and attestation paths remain proposals.
+
 ## 1. Roles per packet
 
 Validate the packet under §2 before selecting its role. Dispatch depends on
@@ -181,7 +186,7 @@ performed as-requester, not as-local.
   carries the proof spine; `%data` leaves carry pair hashes sufficient for
   incremental verification in order.
 - A receiver MUST verify each leaf against the root chain as it arrives
-  (streaming, O(1) pending hashes) and MUST NOT deliver a partially
+  (streaming, O(log n) verifier hashes) and MUST NOT deliver a partially
   verified message. Out-of-order leaves MAY be buffered unverified but MUST
   be bounded (§8) and MUST NOT be delivered before in-order verification.
 - The authenticated object is *(beam, root)*: integrity is end-to-end and

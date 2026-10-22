@@ -7,6 +7,11 @@ Tests connect two preconfigured peers with a virtual clock and controlled
 protection outcomes. They establish engine behavior, not cryptographic packet
 compatibility or network interoperability.
 
+This document describes the original fixture profile. The engine now also
+implements [signed-public v2 reads](../spec/08-signed-public.md) with real LSS
+and signatures, plus a separate UDP host. That profile changes proof discovery,
+verification, and unverified-buffer accounting as specified there.
+
 ## Run
 
 ```sh
@@ -100,13 +105,15 @@ protection context before any network read is described as authenticated.
 
 ## Protection and peer updates
 
-The production crate requires a `Protection` implementation and supplies no
-accepting implementation. After structural decode and peer/route/service gates,
+The fixture profile requires a supplied `Protection::verify` implementation.
+After structural decode and peer/route/service gates,
 the core calls `verify(local, current_peer, exact_packet_bytes)`. Failure prevents
 namespace service and fragment storage. The claimed transport peer, source
 attachment, packet publisher, and checksum provide no authentication by
 themselves. A future real adapter must check keys and the protected context;
-the trait alone is not a security implementation.
+the fixture trait alone is not a security implementation. The current
+`SignedPublic` implementation uses root signatures and LSS instead of this
+fixture hook, and the UDP host accepts only that concrete profile.
 
 `tests/support/mod.rs` provides the example's test-only adapter. The harness
 issues one-shot out-of-band tickets bound to exact packet bytes, the local view,
@@ -162,7 +169,8 @@ event can emit at most `max_reads * window` packets.
 
 ## Remaining work
 
-Real LSS, packet protection and context binding, UDP, upstream interoperability,
+Real LSS, signed-public context binding, and UDP now have an implementation and
+tests in the separate profile. Private-space encryption, upstream interoperability,
 relay/PIT forwarding, congestion control, and message flows remain unimplemented.
 Flow state and durable acknowledgments require the contract in
 [spec chapter 4](../spec/04-flows.md). Generalized PKI, Jael, userspace verifiers,

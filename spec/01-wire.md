@@ -166,9 +166,11 @@ truncations, reserved bits, version separation, and failure reporting. Rust
 adds domain grammar, fixed-name width, signature lengths/borrowing, limits,
 and canonical mutation coverage. The separate Vere comparison remains v1-only.
 
-The next milestone is [authenticated identity](../doc/09-identity-milestone.md).
-It must define the protected v2 context, including domain/name binding, before
-accepting peer state. Bounded noun decoding and suite-C framing now exist in
+The [signed-public profile](08-signed-public.md) now defines a fixed protected
+v2 context, including domain/name binding, and LSS verification for preconfigured
+peers. Bounded noun decoding and suite-C framing exist in
 separate crates. Suite-C name derivation, signing, and agreement now match
-executed Hoon fixtures. Domain authority, network handshakes, and LSS
-verification remain unimplemented; wire validation does not invoke crypto.
+executed Hoon fixtures. Domain authority and network handshakes remain
+unimplemented; wire validation itself does not invoke crypto. The
+[identity milestone](../doc/09-identity-milestone.md) remains a separate integration
+track after peer-engine progress.

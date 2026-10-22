@@ -110,7 +110,11 @@ The congestion and complete-path policy work remains part of the engine scope.
 
 Steps 1 and 2 now have a deterministic implementation and in-memory acceptance
 tests. See [the engine contract and test profile](12-peer-engine.md) for the
-implemented behavior, replay command, and remaining step-3 protection work.
+implemented behavior and replay command. Step 3 now has a
+[fixed signed-public v2 profile](../spec/08-signed-public.md), C-checked LSS,
+and bidirectional UDP tests between independent libmesa processes. Private-space
+encryption remains unimplemented. The RINA engine sequence remains the priority;
+the later comet-demo deadline is superseded.
 
 ## Deferred work
 
