@@ -12,16 +12,18 @@ default-flip lands) derives its symmetric key by **static X25519 ECDH between
 long-term messaging keys**. Compromise of either peer's `cry` secret decrypts
 **all recorded traffic** between that pair for the lifetime of that key.
 
-How long is that lifetime? The snob-doctrine work pins it down:
+The key-rotation stack separates permanent identity from live keys:
 
-- A suite-%c pass has two halves: `ugn` (signing key) — tweaked, hashed into
-  the `@p`, **immutable for the life of the name** — and `cry` (messaging
-  key), which rotates per snapshot/life. Only `sgn` is in the tweak; rotating
-  `cry` leaves the name unchanged.
-- But a rotation is a **custody-log snapshot**, and under the snob doctrine a
-  plain rekey *is a sat move* — an on-chain Bitcoin transaction. So today's
-  FS granularity is **per-life epochs whose length is set by how often the
-  owner pays sats**. Realistically: weeks-to-years, not messages-to-days.
+- Immutable public genesis `ugn` and `dat` determine the name. The per-life
+  `cry` both signs (`sgn == cry`) and derives channel keys; rotating it leaves
+  the name unchanged. The genesis secret is not needed after rotation.
+- The `%gw-btc` custody model records a new authorized life through a custody
+  snapshot and on-chain transaction. That cost belongs to the domain;
+  other domains need not price key rotation the same way. Within each life,
+  static agreement still exposes recorded traffic if its secret is compromised.
+
+The pinned construction and remaining signing-design questions are recorded in
+[the baseline](00-kernel-baseline.md) and [identity chapter](../spec/05-identity.md).
 
 For the threat model that motivates this project — device seizure, coerced
 disclosure, ChatControl-grade recording adversaries who tap first and
@@ -35,11 +37,11 @@ forward-secrecy story. That's the gap.
    pages must be byte-identical for fragment reassembly and caching. Any
    scheme where the encryption key evolves must evolve it in **crisp epochs**
    shared by both endpoints, or interest matching breaks mid-flight.
-2. **Soft state vs ratchet state.** Mesa deliberately has no handshake and
-   its per-peer state is timer-bounded (the delta-t story, `02-rina.md`
-   §4c). A Signal-style double ratchet is per-pair, *ordered*, loss-sensitive
-   mutable state — the classic desync failure mode is exactly what
-   handshake-free soft-state design exists to avoid.
+2. **Soft state vs ratchet state.** Mesa identity uses attestation exchange;
+   its current data plane adds no ephemeral session-key handshake. A double
+   ratchet introduces ordered, loss-sensitive per-pair state beyond the
+   transport timers and domain-authorized life keys. Recovery must account for
+   both identity updates and that additional state.
 3. **Relay caching.** The runtime caches pages keyed by name. Epoch-rotated
    encryption bounds cache validity to an epoch. Acceptable, but it must be
    said out loud: FS trades away long-lived cacheability of `%chum` traffic
@@ -66,7 +68,7 @@ listed for completeness.
 
 **FS2 — namespace-published signed prekeys (the leading candidate).** Each
 peer binds, in its own namespace, an **epoch prekey**: an X25519 public key
-signed by `ugn`, at a well-known path (e.g. `/publ/<life>/epok/<n>`), rotated
+signed by the domain-authorized current life key `cry`, at a well-known path (e.g. `/publ/<life>/epok/<n>`), rotated
 on a timer (hours/days), old secrets deleted after a grace window. The
 `%chum` key for epoch *n* becomes a KDF over the ECDH of both peers' epoch
 prekeys (with the static keys mixed in for mutual authentication —
@@ -74,11 +76,11 @@ Noise-KK / X3DH-flavored, exact construction TBD).
 
 Why it fits Mesa unusually well:
 
-- **No handshake.** Fetching a peer's current prekey is an ordinary `%peek`
-  — the same mechanics as fetching their attestation, and the snob
-  doctrine's solicitation machinery (`%poof`, re-attestation on tick
-  mismatch) is precisely the "my counterparty's key view is stale" recovery
-  channel this needs. Nothing new to invent for the failure path.
+- **Namespace discovery.** A peer can fetch a prekey using `%peek`, after
+  establishing the publisher's current domain-authorized signing key.
+  Withdrawal and proof solicitation supply an identity-recovery mechanism;
+  prekey expiry, loss recovery, and simultaneous updates still need a design.
+  The reviewed kernel does not adopt tick-triggered re-attestation.
 - **No per-pair mutable state** beyond a cached peer prekey with an epoch
   number — soft state with a timer bound, not a ratchet vector. Desync is
   self-healing: an undecryptable packet triggers a prekey re-peek, exactly
@@ -87,8 +89,11 @@ Why it fits Mesa unusually well:
   epoch boundaries are the crisp cutover points tension 1 demands. This
   also *solves* `04-crypto.md` gap 7 (permanent deterministic-seal
   fingerprints) as a side effect: the epoch prekey is the epoch salt.
-- **Per-epoch healing.** Fresh DH contributions each epoch give
-  post-compromise security at epoch granularity, not just forward secrecy.
+- **Recovery remains to be established.** Fresh DH contributions may restore
+  confidentiality after an attacker loses access to endpoint state. That
+  depends on the construction, authenticated prekey replacement, and which
+  secrets were compromised. A stolen signing key can authorize replacement
+  prekeys; epoch rotation alone does not establish post-compromise security.
 
 Costs: a well-known namespace convention + signed-prekey format in the spec;
 epoch-skew handling (accept epoch *n−1* during a grace window); the Arvo-side
@@ -112,17 +117,30 @@ exactly-once), not absorb it.
    to reserve, expensive to retrofit.
 3. **Drive it upstream** as the flagship of the "fix upstream over
    compromise" decision — FS2 needs the kernel to adopt the same prekey
-   convention or ships and libmesa peers can't talk under it. The fallback
-   negotiation ("peer has no epoch prekey bound → static ECDH") is
-   graceful-degradation by construction, since the prekey is just a binding
-   that may or may not exist.
+   convention or ships and libmesa peers can't talk under it. Missing prekeys
+   do not prove a peer lacks support: a relay can suppress discovery. Define
+   authenticated capabilities and explicit compatibility policy before
+   allowing a static-ECDH fallback. A peer previously known to support FS2
+   must not silently downgrade after a timeout or missing binding.
 4. FS3 explicitly out of transport scope; FS0 documented as the floor with
    its on-chain cost stated plainly.
+
+## Construction requirements
+
+Before implementation, specify both peers' epoch identifiers, signed-key
+bindings, expiry and rollback checks, transcript/KDF domain separation,
+replay handling, grace-window retention, deletion, and the compromise model.
+An epoch pair can be skewed; a single shared epoch number cannot be assumed.
+Signed prekey publication is asynchronous protocol exchange, not evidence
+that handshake security questions disappear. The current codec implements
+none of FS2. See the [X3DH key-compromise analysis](https://signal.org/docs/specifications/x3dh/#46-key-compromise)
+for the distinction between identity-key compromise and prekey compromise.
 
 ## References
 
 - `04-crypto.md` (gap list; Tier definitions; relay constraint).
-- `ops/doc/snob-doctrine.md` in the groundwire repo (two-key structure §1.1,
-  code evidence for the fixed signer; solicitation machinery §2.3).
+- The composed kernel contract and lifecycle pinned in `00-kernel-baseline.md`.
+- Historical `ops/doc/snob-doctrine.md` in the groundwire repo (domain policy,
+  historical solicitation/punishment proposal, not the current kernel contract).
 - Signal X3DH / Double Ratchet specs; Noise Protocol Framework (KK pattern)
   — candidate constructions for the FS2 KDF.

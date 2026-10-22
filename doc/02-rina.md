@@ -87,7 +87,7 @@ delta-t / RINA-shaped:
 | Acks as data, not control packets | Acks/nacks/naxplanations are namespace pages the sender peeks | The "oath" doctrine, verbatim |
 | Exactly-once via persistent endpoints | Urbit's founding claim: two uniformly persistent nodes maintain a permanent session | Stronger than delta-t's premise — both ends have event logs |
 | Application name vs node address vs PoA (Saltzer) | scry `path` = application name; `@p` = node address (location-independent!); `lane` (`%if`/`%is`) = point of attachment; sponsor chain = route hint | Urbit already late-binds `@p`→lane. This is RINA-correct in a way TCP/IP never was |
-| Enrollment as security boundary | Attestation + PKI-domain verdict (`%writ`/`%sybl`); `%snub` on `%fail` | "Can't enroll ⇒ can't talk" is exactly Jael's verdict gate |
+| Enrollment as security boundary | Attestation + domain verdict (`%writ`/`%sybl`); `%fail` rejects the candidate, `%snob` withdraws admission | "Can't enroll ⇒ can't talk" is exactly Jael's verdict gate |
 | SDU protection as per-layer policy | Spaces: `%publ` / `%chum` / `%shut` select signing/encryption regime per binding | Policy-selected protection, already |
 | RIB + uniform management protocol | **The scry namespace is a RIB.** `%peek` ≈ CDAP read; `%poke` ≈ CDAP write; flow state, peer state, and diagnostics are already served as scries (`/flow/...`, `/chums/...`) | Mesa's namespace unifies data and management planes more aggressively than CDAP does |
 | Receiver-driven flow control | Pull model: receiver peeks fragments at its own rate; "the receiver of the command performs congestion control" | Per-DIF congestion is also RINA's position |
@@ -122,13 +122,12 @@ reliability class**. Concretely:
 - Over **UDP** (unreliable datagram, ~1472 B max SDU): delimit at bloq 13
   (1024 B leaves), run retransmission control and congestion control in the
   mesa DIF (the cwnd/rtt machinery now in `mesa.c`), verify LSS per leaf.
-- Over **TCP/WSS** (reliable ordered stream): the N-1 DIF already provides
-  loss recovery and ordering. The mesa DIF should *disable its retransmission
-  and congestion policies* (double congestion control is actively harmful —
-  the classic TCP-over-TCP meltdown), keep sequencing/windowing (those are
-  flow semantics, not transport semantics), and may choose a much larger
-  delimiting bloq ("jumbo" leaves — the C driver already has the concept).
-  LSS stays: end-to-end integrity must not depend on the pipe.
+- Over **TCP/WSS directly between Mesa endpoints**, the stream provides
+  in-connection byte-loss recovery. Keep bounded request completion and
+  reconnect recovery. Jumbo fragments require peer and path support.
+  A WSS attachment to a relay does not make the remaining path reliable:
+  a downstream UDP leg still needs recovery, congestion control, and a
+  compatible packet-size bound. LSS remains end-to-end in either case.
 - Over **exotic N-1s** (Lightning onion messages, Nostr relays as a broadcast
   medium, Lick to a local process): each declares its properties (max SDU,
   reliable?, ordered?, duplex?, addressed how?) and the same engine
@@ -142,7 +141,8 @@ bloq 13 is mandatory-to-implement and is the default over datagram N-1s."
 
 This gives the transport-agnosticism story real teeth: a transport is not an
 "adapter" that emulates UDP, it's an N-1 DIF with declared properties, and
-policy selection is a total function of those properties.
+policy selection uses both attachment properties and the guarantees of the
+complete path. Unknown downstream properties retain the datagram policy.
 
 ## 4. What a RINA-shaped libmesa looks like
 
@@ -160,8 +160,8 @@ One engine, three task groups, policies at the joints:
 │    routing     = SponsorResolver (fief-based), lane cache   │
 │                                                             │
 │  Data transfer control (loss path)        [policy-gated]    │
-│    retransmission ctl  (off over reliable N-1)              │
-│    congestion ctl      (off over reliable N-1)              │
+│    retransmission ctl  (whole-path guarantees)             │
+│    congestion ctl      (accounts for downstream legs)      │
 │    PIT / interest state, timers (delta-t bounds)            │
 │                                                             │
 │  Data transfer (fast path)                                  │
@@ -199,8 +199,9 @@ any relay; the relay is a policy role, not a privileged name.
 currently a pile of independently chosen timers (PIT 20 s, retry ~2 min,
 dead-flow consolidation, recork, route liveness 30 s). Delta-t says: identify
 the three bounds (packet max-lifetime; ack-wait; retransmit-give-up) and
-derive everything else, and you get provable exactly-once delivery with
-bounded state. The spec should do this audit and *specify* the timer algebra
+derive the timer relationships, then prove the transfer properties under
+those assumptions. Application effects across crashes additionally require
+a durable delivery/acknowledgment contract (spec chapter 4). The spec should do this audit and *specify* the timer algebra
 rather than inherit the constants. Bonus: Urbit's persistent endpoints mean
 the delta-t preconditions hold more strongly than Watson assumed — and this
 frames a real design question: **are corks necessary, or is flow state
@@ -215,12 +216,11 @@ chapters; policies get a registry with mandatory-to-implement defaults.
 
 To keep this from becoming architecture astronautics, explicit non-goals:
 
-- **No wire-format redesign.** The pact format (header cookie, name/data
-  encodings, auth variants) is fixed by the existing kernel + runtime; libmesa
-  v1 is wire-compatible with ships on this branch. RINA is an *implementation
-  and specification* architecture here. Where the wire format resists policy
-  parametrization (2-bit rank field; fixed auth kinds; 3-bit hop count), we
-  document the tension and move on.
+- **Explicit wire revisions.** The experimental v2 profile fixes names at
+  128 bits, carries domain selectors, and length-prefixes signatures. Upstream
+  peers need an explicit protocol update to use it. The separate v1 codec
+  preserves the historical format for conformance. RINA supplies the engine's
+  module boundaries; each wire change needs its own protocol justification.
 - **No CDAP, no literal RIB objects, no IRATI compatibility.** The namespace
   already is our RIB and peek/poke already is our management protocol. We
   adopt RINA *vocabulary* in the spec where it clarifies (enrollment, N-1 DIF,
@@ -247,7 +247,7 @@ sequencing policy* applied to a bidirectional pair of namespace regions
 |---|---|---|---|
 | **A. Peek-only v1** | Namespace reads: publ/chum/shut pages, no pokes | A DIF with only unreliable-read flows; no state vector | Cheapest, but excludes messaging — the actual use case (Nostr DMs, LN coordination). Rejected as end state; acceptable as milestone 1 |
 | **B. Monolithic flow engine** | Port `++fo` wholesale: windows, acks, nacks, corks, naxplanations as one unit | Ignores the mechanism/policy split; hardcodes datagram assumptions into flow logic | Works but forfeits transport agnosticism — this is how we'd accidentally write a UDP-only library |
-| **C. State-vector engine + policy modules** | Sequencing/window mechanism once; retransmission & congestion as policies gated on N-1 class; poke support as the write-flow module on top of the read machinery | The EFCP decomposition | **Recommended.** Slightly more design work up front, and it's exactly the work the spec needs to do anyway |
+| **C. State-vector engine + policy modules** | Sequencing/window mechanism once; retransmission & congestion as policies gated on complete-path guarantees; poke support as the write-flow module on top of the read machinery | The EFCP decomposition | **Recommended.** Slightly more design work up front, and it's exactly the work the spec needs to do anyway |
 
 Concretely for the roadmap: milestone 1 is peek-only *because it's the
 mechanism substrate* (codec + LSS + namespace + enrollment), milestone 2 adds
@@ -259,13 +259,15 @@ rival.
 | Option | Over TCP/WSS | RINA reading | Verdict |
 |---|---|---|---|
 | **i. Pacts verbatim, tunneled** | Length-prefix each 1472-byte-class pact on the stream; keep all datagram policies running | Treats TCP as a fake UDP; double congestion control | Fine as a *bring-up* mode (it's what lets a libmesa peer talk through a dumb pipe to a UDP relay), wrong as the spec's answer |
-| **ii. Same pacts, per-N-1 policy** | Same pact format, length-prefixed; retransmit/cwnd policies **off**; delimiting bloq free to grow (jumbo leaves); LSS and SDU protection unchanged | Delimiting and transfer-control as policy over a declared N-1 | **Recommended.** Wire-derived, relay-bridgeable, no meltdown |
+| **ii. Same pacts, path-aware policy** | Same pact format; recovery and size selected from complete-path guarantees; LSS and SDU protection unchanged | Attachment properties inform policy but do not establish downstream guarantees | **Recommended.** Datagram policy retained across unproven relay paths |
 | **iii. Native stream mapping** | New framing: messages as frames, drop fragment/LSS layer on streams | A second wire format; relays can no longer bridge transports without reassembly; integrity now depends on the pipe | Rejected for v1. Revisit only with measurements showing (ii)'s overhead matters |
 
-The load-bearing property of (ii): **a relay can bridge N-1 DIFs
-statelessly** — accept pacts over WSS from a phone, emit the same pacts over
-UDP toward a ship — because the unit of relay is the pact everywhere. That's
-what makes "diverse non-Arvo peers" one network instead of several gateways.
+A relay can forward the same pact between attachments when it fits the
+next attachment's size bound. It retains PIT state. WSS-to-UDP forwarding
+also needs endpoint retries or an explicitly reliable relay service;
+jumbo forwarding needs refragmentation or a proven downstream size bound.
+The common format makes bridging possible, but does not supply those
+reliability or size guarantees (spec chapter 7).
 
 Interaction with E2E-by-default (see 04-crypto): forwarding needs *some*
 name-prefix visibility for PIT matching. The encryption design must partition
@@ -294,9 +296,9 @@ applied to the path. The confidentiality audit determines how far the current
 4. **Congestion policy at relays.** RINA puts congestion control inside each
    DIF, which for us means relays (interior IPCPs) may participate — e.g.
    backpressure signals — rather than being dumb pipes. Current mesa relays
-   are stateless-ish (PIT only). Do we want to leave room in the spec for
-   relay-assisted congestion, or freeze relays as stateless? (Stateless bias
-   suggested; note the door.)
+   retain PIT state. Specify the additional recovery and backpressure state
+   needed by any relay service that promises downstream reliability. The
+   initial bridge profile keeps endpoint recovery (spec chapter 7).
 5. **Multihoming.** A peer with UDP + WSS attachments simultaneously is
    natural in RINA (multiple PoAs under one node address) and half-supported
    by mesa (`next` lane lists, `%nail`). The spec should say what a
@@ -309,15 +311,16 @@ applied to the path. The confidentiality audit determines how far the current
 
 ## 8. Recommendation
 
-Adopt **"RINA-shaped, wire-compatible"**:
+Adopt **RINA-shaped modules with an explicit v2 wire profile**:
 
 - One engine with the three-task IPCP decomposition as module boundaries
   (this *is* the Arvo/Vere unification, done on purpose).
-- N-1 transports as declared-property DIFs; policy (delimiting, retransmit,
-  congestion) derived per N-1 class. Options C + ii above.
+- N-1 transports declare attachment properties; delimiting, recovery, and
+  congestion policies account for the complete path. Options C + ii above.
 - Delta-t timer algebra specified normatively; corks re-examined against it.
-- Pact wire format frozen; recursion latent in the engine but unexercised in
-  v1; no CDAP/RIB formalism beyond vocabulary.
+- Pact v2 specified independently of the legacy v1 reference; recursion latent
+  in the engine but unexercised in the initial release; no CDAP/RIB formalism
+  beyond vocabulary.
 - Relay = policy role available to any enrolled fief-holder, per the
   comet-attestation UIP.
 

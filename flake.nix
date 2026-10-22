@@ -23,7 +23,34 @@
           ];
         };
 
-        # A `packages.default` producing the C library (staticlib + header)
-        # lands with the mesa-ffi crate; integrators consume that output.
+        packages.default = pkgs.rustPlatform.buildRustPackage {
+          pname = "libmesa";
+          version = "0.0.1";
+          src = pkgs.lib.cleanSourceWith {
+            src = ./.;
+            filter = path: type:
+              pkgs.lib.cleanSourceFilter path type
+              && !(builtins.elem (baseNameOf path) [ "target" "__pycache__" ])
+              && !(pkgs.lib.hasSuffix ".pyc" path);
+          };
+          cargoLock.lockFile = ./Cargo.lock;
+          nativeCheckInputs = [ pkgs.python3 ];
+          postCheck = ''
+            python3 tools/v2-vectors.py --check
+            $CC -std=c11 -Wall -Wextra -Werror \
+              -I crates/mesa-ffi/include crates/mesa-ffi/tests/smoke.c \
+              target/${pkgs.stdenv.hostPlatform.rust.rustcTarget}/release/libmesa_ffi.a \
+              -lpthread -ldl -lm ${pkgs.lib.optionalString pkgs.stdenv.hostPlatform.isDarwin "-liconv -framework Security -framework CoreFoundation"} \
+              -o mesa-ffi-smoke
+            ./mesa-ffi-smoke
+          '';
+          installPhase = ''
+            runHook preInstall
+            mkdir -p $out/lib $out/include
+            cp target/${pkgs.stdenv.hostPlatform.rust.rustcTarget}/release/libmesa_ffi.a $out/lib/
+            cp crates/mesa-ffi/include/mesa.h $out/include/
+            runHook postInstall
+          '';
+        };
       });
 }

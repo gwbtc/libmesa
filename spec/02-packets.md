@@ -10,14 +10,20 @@
 
 ## 1. Roles per packet
 
-Every inbound packet is handled in exactly one of three roles, decided in
-this order:
+Validate the packet under §2 before selecting its role. Dispatch depends on
+packet type:
 
-1. **Forward** — the name's ship is not us: chapter 6 rules apply (relay
-   role only; a non-relay conforming peer MUST drop, not forward).
-2. **Serve / receive** — the name's ship is us: process per §4–§6.
-3. **Drop** — anything failing §2. Drops are silent on the wire (no error
-   packets exist in Mesa) and SHOULD be observable locally (counters/log).
+1. **Peek:** serve if the name's ship is us; otherwise forward under chapter
+   6 if we are a relay, or drop.
+2. **Poke:** receive if `ack.her` is us; otherwise forward under chapter 6
+   if we are a relay, or drop. The payload name identifies the publisher.
+3. **Page:** consume for a matching local interest, or forward through
+   matching PIT state when acting as a relay. These may both apply to an
+   aggregated interest. The name identifies the publisher, so a remote
+   publisher's name is expected. Apply the attestation exception in §7;
+   otherwise drop pages without an interest.
+
+Drops are silent on the wire and SHOULD be observable through local counters.
 
 ## 2. The validation pipeline (normative order)
 
@@ -26,19 +32,22 @@ the next stage runs. A conforming implementation MUST NOT reorder crypto
 before shape checks or allocation before bounds checks.
 
 1. **Length gate.** Datagram within N-1 max-SDU; ≥ 8 bytes.
-2. **Cookie + version.** `tok = 0x67e0.0200`, `ver = 1`, reserved bits zero.
+2. **Cookie + version.** `tok = 0x67e0.0200`, `ver = 2`, reserved bits zero.
    Else: not a mesa packet — drop (a dual-stack host MAY hand it to another
    protocol; libmesa itself never does).
-3. **Header mug.** 20-bit truncated murmur3 over the body; mismatch ⇒ drop
-   before any body parse.
+3. **Header mug.** Low 20 bits of Urbit mug over the exact transmitted body
+   bytes (ch. 1); mismatch ⇒ drop before any body
+   parse. V2 has no alternate checksum convention.
 4. **Bounded structural sift.** Decode per chapter 1 with every
    length/count field bounds-checked against the remaining buffer *before*
    allocation. Includes the `+mat` bounded-scan rule and jam-shape
-   validation before any cue (ch. 1 §7).
+   validation before any cue in later noun-processing layers.
 5. **Type dispatch.** `%peek` / `%page` / `%poke` per §4–§6; reserved type ⇒
    drop.
-6. **Admission.** Snub/snob filters (identity ch. 5 §3a: snob passes
-   attestation-shaped traffic only); rate limits (§8).
+6. **Admission.** Hard/soft peer policy for authenticated sender paths
+   (identity ch. 5 §6); preserve the attestation recovery path through soft
+   blocks. Anonymous peeks remain subject to namespace and resource policy.
+   Apply rate limits (§8).
 7. **Authentication/decryption** as required by the packet's role and space
    (§5) — always last, and only for packets that survived 1–6.
 
@@ -48,7 +57,10 @@ A `name` is simultaneously an address (`her`, `rif`), a data locator
 (`pat`), and a fragment coordinate (`boq`, `wan`). Semantics:
 
 - **Rift gate.** A packet naming a rift other than the current known rift of
-  `her` is dropped (stale epoch). Unknown ships: identity ch. 5 alien rules.
+  `her` is dropped for ordinary traffic (stale epoch). Recognized proofs must
+  reach the bounded identity-verification path (§7) to learn authorized changes;
+  an unverified rift in a packet never updates accepted peer state. Unknown
+  ships follow chapter 5 admission rules.
 - **Interest.** A `%peek` registers interest in a name; interest is
   soft-state with a bounded lifetime (the PIT bound, ch. 4 timer algebra).
   Matching of responses to interests is **byte-equality of the serialized
@@ -142,8 +154,9 @@ encoding; sealed elements are opaque). Normative table:
 Baseline: X25519 ECDH between the peers' `cry` keys at the lives named in
 the path prefix, expanded via blake3-KDF with the domain-separation labels
 of ch. 1. Reserved forward: the FS2 epoch-prekey schedule (mix epoch prekeys
-from `/epok` bindings into the KDF when both peers publish them; degrade to
-baseline otherwise) — labels and the `/epok` region are reserved by this
+from `/epok` bindings into the KDF when both peers publish them; permit
+baseline only under an explicit compatibility policy) — labels and the
+`/epok` region are reserved by this
 spec even before FS2 is normative (06-forward-secrecy.md).
 
 ### 5.3 Authorization to request
@@ -157,8 +170,12 @@ performed as-requester, not as-local.
 
 ## 6. Fragmentation and integrity (LSS)
 
-- A message of `tob` bytes at bloq `b` has `⌈tob / 2^b⌉` leaves. Single-leaf
-  messages carry their authenticator directly (auth kind sig/MAC per space).
+- A byte-aligned data fragment at bloq `b >= 3` holds `2^(b-3)` bytes.
+  A nonempty message needs `ceil(tob / 2^(b-3))` data fragments. Bloq 13
+  gives 1024 bytes. BLAKE3 base leaves remain 1024 bytes; jumbo fragments
+  group subtrees. Single-leaf messages carry their authenticator directly.
+  Reconstruct omitted terminal zeros to the logical fragment length before
+  hashing; proof bytes follow separate rules (ch. 1).
 - Multi-leaf messages are authenticated once at the **root** of a blake3
   lockstep-streaming Merkle tree over the leaves; fragment 0 (`%auth`)
   carries the proof spine; `%data` leaves carry pair hashes sufficient for
@@ -175,23 +192,31 @@ performed as-requester, not as-local.
 
 ## 7. Attestation fast-path
 
-The only traffic processed from peers with no established state (and the
-only traffic passing a snob):
+Attestation-shaped pages and pokes enter identity processing even when the
+sender is known or soft-blocked. Anonymous peeks remain namespace requests;
+they do not identify their requester and cannot confer peer admission.
 
-- Recognized **by shape** (an attestation-shaped `%poke`/`%page`/keys
-  request), never by peer status — so re-attestation works post-rekey and
-  while soft-blocked.
-- MUST be single-fragment from unverified peers (DoS bound); MUST be
-  processed statelessly up to the identity handoff (ch. 5 pipeline:
-  signature → name=hash-of-pass → suite dispatch → domain verdict /
-  key-currency); at most one verification in flight per ship.
-- Serves `/pawn/proof` under `%publ`; the planned confidentiality upgrade
-  (one-sided ECIES to the recipient's known pass — doc 04-crypto.md A.2)
-  slots here without changing the shape recognition.
-- Solicitation (`%poof`-class): a keys request MUST be answered at the
-  *requester's actual life* (identity ch. 5 §3a), and tick/decrypt
-  mismatches from known suite-%c peers SHOULD trigger rate-limited
-  solicitation rather than silent drops.
+- Recognize proof shape independently of peer status. A hard block still
+  applies; a soft block preserves self-attestations and proof requests.
+- Require a single-fragment proof in the initial compatibility profile. Bound
+  decoding before allocation, verify the presented live-key signature and
+  immutable `ugn/dat` name binding, then dispatch to the committed domain.
+  Bound pending work per peer and globally; a signature alone is not a verdict.
+- Serve the established proof path under fixed `%publ 1` publisher-discovery
+  coordinates. Use the sender's actual life/pass inside the signed proof and
+  require its exact recipient life. These fixed coordinates are not a general
+  exemption from namespace life checks.
+- Solicit fresh proof after a domain withdrawal (`%poof` semantics). The pinned
+  kernel retries every 30 seconds while soft-blocked. Tick/decrypt failures are
+  unauthenticated hints; automatic recovery based on them is not adopted.
+- libmesa stays Mesa-only. The kernel's proactive legacy open-packet
+  announcements require an upstream Mesa replacement and loss/concurrent-rekey
+  tests before full interoperability. No legacy recipient-life sentinel is
+  accepted by the Mesa proof path.
+
+The planned attestation-confidentiality upgrade remains a separate wire-visible
+proposal. It must preserve these identity checks; it is not implemented by the
+current codec.
 
 ## 8. Resource bounds (normative minimums)
 

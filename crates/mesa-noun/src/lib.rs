@@ -7,10 +7,8 @@
 //!   zero-run scan (kernel commit 382243cd7c) enforced unconditionally
 //! - atom views: `@p`/`@q`/`@uv` rendering
 //!
-//! Everything here is vector-driven: see `tests/vectors.rs`, which runs
-//! the golden fixtures in `../../vectors/noun/`. No vectors, no merge.
+//! Implemented: canonical atoms and byte mug. Wire fixtures exercise mug
+//! against Hoon/C checksums. Jam/cue, mat/rub, and rendering remain planned.
 
 pub mod atom;
-
-/// Placeholder so the workspace builds before milestone-1 code lands.
-pub const KELVIN: u32 = 9;
+pub mod mug;
