@@ -1,8 +1,9 @@
 # libmesa spec — 5: Identity
 
-**Status: domain-first design contract, 2026-10-21.** Rust implements bounded
-noun and suite-C framing parsers; identity authorization, cryptography, and
-lifecycle state are not implemented in Rust or the C ABI. This chapter replaces the earlier
+**Status: domain-first design contract, 2026-10-22.** Rust implements bounded
+noun/suite-C parsing and suite-C name derivation, signing, and agreement.
+Identity authorization and lifecycle remain unimplemented. The C ABI exposes
+wire validation only. This chapter replaces the earlier
 Azimuth convention and immutable-signer sketch. It follows the composed
 key-rotation and snob kernel stack pinned in
 [the baseline](../doc/00-kernel-baseline.md). The selected compatibility and bootstrap policies are explicit in §4;
@@ -46,9 +47,21 @@ specific to suite C, not a generic bypass for an unknown domain.
 
 `mesa_identity::suite_c` implements bounded public-pass and explicitly selected
 current-ring framing. It validates canonical atom bytes and the committed domain
-against an expected selector, then returns unverified claims. Curve checks,
-name derivation, evidence semantics, key activation, and authority are separate
-requirements. A parsed ring must never be treated as an authorized key.
+against an expected selector, then returns immutable unverified claims.
+`mesa_identity::suite_c::crypto::BoundPass` separately checks curve points,
+derives the name, and checks exact ring/pass correspondence including `xtr`.
+Evidence semantics, key activation, and authority remain separate requirements.
+A bound pass or matching ring must never be treated as an authorized key.
+
+The implemented Edwards profile accepts canonical, nonidentity prime-subgroup
+public keys and uses strict Ed25519 verification. It deliberately rejects weak
+or noncanonical inputs rather than mirroring a permissive historical verifier.
+The [executed Hoon vectors](../vectors/crypto/README.md) establish valid-input
+parity; they do not establish identical acceptance of all hostile inputs.
+Signing consumes exact bytes. Callers must construct the protected message;
+atom messages use their minimal byte representation, while octet messages
+retain their declared length. Agreement returns raw secret material, with no
+channel KDF or packet encryption. These primitives define no v2 handshake.
 
 The reviewed kernel encodes the following fields, in low-to-high atom order:
 

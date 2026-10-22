@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/mesa-noun", "crates/mesa-wire", "crates/mesa-ffi", "crates/mesa-identity"]
+members = ["crates/mesa-noun", "crates/mesa-wire", "crates/mesa-ffi", "crates/mesa-identity", "crates/mesa-crypto"]
 
 [workspace.package]
 version = "0.0.1"

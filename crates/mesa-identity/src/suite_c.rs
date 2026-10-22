@@ -7,6 +7,8 @@
 use mesa_noun::{bits::Bits, mat};
 use mesa_wire::DomainTag;
 
+pub mod crypto;
+
 #[derive(Clone, Copy, Debug)]
 pub struct Limits {
     pub max_blob_bytes: usize,
@@ -53,13 +55,22 @@ pub struct Claims<'a> {
     domain: [u8; 63],
     domain_len: usize,
     /// Complete immutable dat atom, including its mat(domain) prefix.
-    pub dat: Bits<'a>,
+    dat: Bits<'a>,
     /// Opaque remainder after mat(domain), with its exact bit length.
-    pub domain_tail: Bits<'a>,
+    domain_tail: Bits<'a>,
     /// Mutable xtr atom, beginning immediately after mat(dat), without padding.
-    pub evidence: Bits<'a>,
+    evidence: Bits<'a>,
 }
-impl Claims<'_> {
+impl<'a> Claims<'a> {
+    pub fn dat(&self) -> Bits<'a> {
+        self.dat
+    }
+    pub fn domain_tail(&self) -> Bits<'a> {
+        self.domain_tail
+    }
+    pub fn evidence(&self) -> Bits<'a> {
+        self.evidence
+    }
     pub fn domain(&self) -> DomainTag<'_> {
         // The parser alone constructs Claims and validates these immutable bytes.
         DomainTag::new(std::str::from_utf8(&self.domain[..self.domain_len]).unwrap()).unwrap()
@@ -67,19 +78,37 @@ impl Claims<'_> {
 }
 #[derive(Debug)]
 pub struct UnverifiedPass<'a> {
-    pub genesis_key: &'a [u8; 32],
-    pub live_key: &'a [u8; 32],
-    pub claims: Claims<'a>,
+    genesis_key: &'a [u8; 32],
+    live_key: &'a [u8; 32],
+    claims: Claims<'a>,
+}
+
+impl<'a> UnverifiedPass<'a> {
+    pub fn genesis_key(&self) -> &'a [u8; 32] {
+        self.genesis_key
+    }
+    pub fn live_key(&self) -> &'a [u8; 32] {
+        self.live_key
+    }
+    pub fn claims(&self) -> &Claims<'a> {
+        &self.claims
+    }
 }
 
 /// Borrowed secret material. Deliberately has no Debug/Clone implementation and
 /// never copies the seed. The caller owns and clears the original storage.
 pub struct UnverifiedRing<'a> {
     live_seed: &'a [u8; 32],
-    pub genesis_key: &'a [u8; 32],
-    pub claims: Claims<'a>,
+    genesis_key: &'a [u8; 32],
+    claims: Claims<'a>,
 }
 impl<'a> UnverifiedRing<'a> {
+    pub fn genesis_key(&self) -> &'a [u8; 32] {
+        self.genesis_key
+    }
+    pub fn claims(&self) -> &Claims<'a> {
+        &self.claims
+    }
     pub fn live_seed(&self) -> &'a [u8; 32] {
         self.live_seed
     }

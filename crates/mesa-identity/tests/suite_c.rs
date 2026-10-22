@@ -29,26 +29,34 @@ fn source_fixtures_keep_public_private_and_evidence_slots_distinct() {
         let expected = DomainTag::new(fixture["domain"].as_str().unwrap()).unwrap();
         let pass = suite_c::parse_pass(&bytes, expected, Limits::default()).unwrap();
         assert_eq!(
-            pass.genesis_key.as_slice(),
+            pass.genesis_key().as_slice(),
             hex(fixture["genesis"].as_str().unwrap())
         );
         assert_eq!(
-            pass.live_key.as_slice(),
+            pass.live_key().as_slice(),
             hex(fixture["live"].as_str().unwrap())
         );
-        assert_eq!(pass.genesis_key.as_ptr(), bytes[1..].as_ptr());
-        assert_eq!(pass.live_key.as_ptr(), bytes[33..].as_ptr());
-        assert_eq!(pass.claims.domain(), expected);
+        assert_eq!(pass.genesis_key().as_ptr(), bytes[1..].as_ptr());
+        assert_eq!(pass.live_key().as_ptr(), bytes[33..].as_ptr());
+        assert_eq!(pass.claims().domain(), expected);
         assert_eq!(
-            pass.claims.dat.to_atom(4096).unwrap().as_le_bytes(),
+            pass.claims().dat().to_atom(4096).unwrap().as_le_bytes(),
             hex(fixture["dat"].as_str().unwrap())
         );
         assert_eq!(
-            pass.claims.domain_tail.to_atom(4096).unwrap().as_le_bytes(),
+            pass.claims()
+                .domain_tail()
+                .to_atom(4096)
+                .unwrap()
+                .as_le_bytes(),
             hex(fixture["domain_tail"].as_str().unwrap())
         );
         assert_eq!(
-            pass.claims.evidence.to_atom(4096).unwrap().as_le_bytes(),
+            pass.claims()
+                .evidence()
+                .to_atom(4096)
+                .unwrap()
+                .as_le_bytes(),
             hex(fixture["xtr"].as_str().unwrap())
         );
         let ring_bytes = hex(fixture["ring_atom"].as_str().unwrap());
@@ -58,15 +66,15 @@ fn source_fixtures_keep_public_private_and_evidence_slots_distinct() {
             hex(fixture["live_seed"].as_str().unwrap())
         );
         assert_eq!(ring.live_seed().as_ptr(), ring_bytes[1..].as_ptr());
-        assert_eq!(ring.genesis_key, pass.genesis_key);
-        assert_eq!(ring.genesis_key.as_ptr(), ring_bytes[33..].as_ptr());
+        assert_eq!(ring.genesis_key(), pass.genesis_key());
+        assert_eq!(ring.genesis_key().as_ptr(), ring_bytes[33..].as_ptr());
         assert_eq!(
-            ring.claims.dat.to_atom(4096).unwrap(),
-            pass.claims.dat.to_atom(4096).unwrap()
+            ring.claims().dat().to_atom(4096).unwrap(),
+            pass.claims().dat().to_atom(4096).unwrap()
         );
         assert_eq!(
-            ring.claims.evidence.to_atom(4096).unwrap(),
-            pass.claims.evidence.to_atom(4096).unwrap()
+            ring.claims().evidence().to_atom(4096).unwrap(),
+            pass.claims().evidence().to_atom(4096).unwrap()
         );
     }
 }
@@ -88,7 +96,7 @@ fn formatting_public_claims_does_not_expose_ring_seed_storage() {
     let bytes = hex(fixture["ring_atom"].as_str().unwrap());
     let ring = suite_c::parse_current_ring(&bytes, domain(), Limits::default()).unwrap();
     let seed_debug = format!("{:?}", ring.live_seed());
-    let claims_debug = format!("{:?}", ring.claims);
+    let claims_debug = format!("{:?}", ring.claims());
     assert!(!claims_debug.contains(&seed_debug));
     assert!(!claims_debug.contains("bytes:"));
     let view = Bits::new(b"secret", 48).unwrap().slice(32, 8).unwrap();
@@ -127,9 +135,9 @@ fn domain_commitment_must_match_canonical_selector() {
         Limits::default(),
     )
     .unwrap();
-    assert_eq!(parsed.claims.domain().as_str(), "other-pki");
-    assert!(parsed.claims.domain_tail.is_empty());
-    assert!(parsed.claims.evidence.is_empty());
+    assert_eq!(parsed.claims().domain().as_str(), "other-pki");
+    assert!(parsed.claims().domain_tail().is_empty());
+    assert!(parsed.claims().evidence().is_empty());
 }
 
 #[test]
@@ -176,8 +184,8 @@ fn input_data_and_evidence_limits_are_independent() {
     let pass = suite_c::parse_pass(&bytes, domain(), Limits::default()).unwrap();
     let limits = Limits {
         max_blob_bytes: bytes.len(),
-        max_dat_bits: pass.claims.dat.len(),
-        max_evidence_bits: pass.claims.evidence.len(),
+        max_dat_bits: pass.claims().dat().len(),
+        max_evidence_bits: pass.claims().evidence().len(),
     };
     assert!(suite_c::parse_pass(&bytes, domain(), limits).is_ok());
     for limited in [
@@ -211,15 +219,15 @@ fn live_key_and_evidence_changes_do_not_rewrite_committed_data() {
     let evidence_start = fixture["xtr_offset"].as_u64().unwrap() as usize;
     changed[evidence_start / 8] ^= 1 << (evidence_start % 8);
     let new = suite_c::parse_pass(&changed, domain(), Limits::default()).unwrap();
-    assert_ne!(original.live_key, new.live_key);
-    assert_eq!(original.genesis_key, new.genesis_key);
+    assert_ne!(original.live_key(), new.live_key());
+    assert_eq!(original.genesis_key(), new.genesis_key());
     assert_eq!(
-        original.claims.dat.to_atom(4096).unwrap(),
-        new.claims.dat.to_atom(4096).unwrap()
+        original.claims().dat().to_atom(4096).unwrap(),
+        new.claims().dat().to_atom(4096).unwrap()
     );
     assert_ne!(
-        original.claims.evidence.to_atom(4096).unwrap(),
-        new.claims.evidence.to_atom(4096).unwrap()
+        original.claims().evidence().to_atom(4096).unwrap(),
+        new.claims().evidence().to_atom(4096).unwrap()
     );
     // This is a framing test, not a name-derivation or key-rotation proof.
 }
@@ -234,15 +242,18 @@ fn accepted_mutations_remain_bounded_unverified_claims() {
                 let mut bytes = original.clone();
                 bytes[index] ^= 1 << bit;
                 if let Ok(pass) = suite_c::parse_pass(&bytes, expected, Limits::default()) {
-                    assert_eq!(pass.claims.domain(), expected);
+                    assert_eq!(pass.claims().domain(), expected);
                     let all = Bits::from_atom_bytes(&bytes).unwrap();
                     let data =
                         mat::rub(all.slice(520, all.len() - 520).unwrap(), 32768 * 8).unwrap();
                     assert_eq!(
                         data.atom.to_atom(32768).unwrap(),
-                        pass.claims.dat.to_atom(32768).unwrap()
+                        pass.claims().dat().to_atom(32768).unwrap()
                     );
-                    assert_eq!(520 + data.consumed + pass.claims.evidence.len(), all.len());
+                    assert_eq!(
+                        520 + data.consumed + pass.claims().evidence().len(),
+                        all.len()
+                    );
                 }
             }
         }

@@ -40,11 +40,11 @@ Architecture*, 2008) makes a small number of sharp claims:
   by policy chosen per-DIF and per-flow. There is one data-transfer protocol
   (EFCP), not a zoo (TCP/UDP/RTP/QUIC/...).
 
-- **Reliable transport needs no handshake.** EFCP is built on Richard Watson's
-  **delta-t** result (1981): reliable, exactly-once transfer requires only that
-  three timers be bounded (max packet lifetime; max time before ack; max time
-  spent retransmitting). Connection state is *soft* — it exists while timers
-  run and evaporates afterward. No SYN, no FIN, no SYN-flood class of attack.
+- **Transport synchronization can use bounded timers.** EFCP draws on
+  Watson's delta-t model: bounded packet lifetime, acknowledgment delay, and
+  retransmission duration permit soft connection state. This does not remove
+  authenticated enrollment or flow allocation. Exactly-once application effects
+  across crashes additionally require durable delivery/acknowledgment state.
 
 - **Names, not addresses-and-ports.** Following Saltzer: *application names*
   are location-independent; *node addresses* are location-dependent but
@@ -83,10 +83,10 @@ delta-t / RINA-shaped:
 
 | RINA concept | Mesa today | Notes |
 |---|---|---|
-| No connection handshake; soft state | No SYN/FIN. First contact is an attestation *datum*, not a handshake. Runtime PIT entries expire (20 s); dead-flow and route-liveness timers everywhere | Mesa is closer to delta-t than TCP is |
+| Transport soft state | No TCP-style SYN/FIN; PIT and route state expire. Attestation still authenticates first contact | A delta-t correspondence requires an explicit timer audit |
 | Acks as data, not control packets | Acks/nacks/naxplanations are namespace pages the sender peeks | The "oath" doctrine, verbatim |
-| Exactly-once via persistent endpoints | Urbit's founding claim: two uniformly persistent nodes maintain a permanent session | Stronger than delta-t's premise — both ends have event logs |
-| Application name vs node address vs PoA (Saltzer) | scry `path` = application name; `@p` = node address (location-independent!); `lane` (`%if`/`%is`) = point of attachment; sponsor chain = route hint | Urbit already late-binds `@p`→lane. This is RINA-correct in a way TCP/IP never was |
+| Durable delivery state | Urbit persists endpoint state | libmesa needs an explicit host transaction and deduplication contract; timers alone do not supply it |
+| Naming and attachment separation | `PeerId` identifies a stable peer; paths identify its resources; lanes identify attachments; sponsor chains provide route hints | This is a libmesa mapping, not an implementation of RINA location-dependent node addresses |
 | Enrollment as security boundary | Attestation + domain verdict (`%writ`/`%sybl`); `%fail` rejects the candidate, `%snob` withdraws admission | "Can't enroll ⇒ can't talk" is exactly Jael's verdict gate |
 | SDU protection as per-layer policy | Spaces: `%publ` / `%chum` / `%shut` select signing/encryption regime per binding | Policy-selected protection, already |
 | RIB + uniform management protocol | **The scry namespace is a RIB.** `%peek` ≈ CDAP read; `%poke` ≈ CDAP write; flow state, peer state, and diagnostics are already served as scries (`/flow/...`, `/chums/...`) | Mesa's namespace unifies data and management planes more aggressively than CDAP does |
@@ -202,9 +202,8 @@ the three bounds (packet max-lifetime; ack-wait; retransmit-give-up) and
 derive the timer relationships, then prove the transfer properties under
 those assumptions. Application effects across crashes additionally require
 a durable delivery/acknowledgment contract (spec chapter 4). The spec should do this audit and *specify* the timer algebra
-rather than inherit the constants. Bonus: Urbit's persistent endpoints mean
-the delta-t preconditions hold more strongly than Watson assumed — and this
-frames a real design question: **are corks necessary, or is flow state
+rather than inherit the constants. Persistence does not establish packet-lifetime
+bounds. A separate design question remains: **are corks necessary, or is flow state
 reclaimable purely by timer** (delta-t-style) with corks as an optimization?
 
 **d) One spec, small.** Mechanism/policy separation is what keeps the spec
@@ -225,13 +224,11 @@ To keep this from becoming architecture astronautics, explicit non-goals:
   already is our RIB and peek/poke already is our management protocol. We
   adopt RINA *vocabulary* in the spec where it clarifies (enrollment, N-1 DIF,
   delimiting policy, SDU protection) and nothing else.
-- **No flow-allocation handshake — yet.** RINA's flow allocator negotiates
-  QoS/policy per flow. Mesa has no negotiation step, and adding one would
-  reintroduce the handshake delta-t deletes. Near-term: policy is *derived*
-  (from N-1 class + defaults) rather than negotiated. If per-flow negotiation
-  is ever needed (e.g. bloq upgrade), it can ride the namespace itself (peek
-  `/meta/...`) — negotiation-as-data, consistent with everything else. Open
-  question below.
+- **Flow allocation remains a separate design choice.** The initial Mesa
+  profile derives flow policy rather than negotiating it. An allocation or
+  authentication exchange would not contradict delta-t: it performs a different
+  job from transport synchronization. Any future negotiation needs its own
+  transcript, replay, and resource limits, even if carried as namespace data.
 
 ## 6. The flow-engine and transport options, revised
 
@@ -334,3 +331,9 @@ Adopt **RINA-shaped modules with an explicit v2 wire profile**:
 - [Urbit Networking: Ad Fontes — USTJ v01-i02](https://urbitsystems.tech/ustj/v01-i02/mss5-ad-fontes.html) (solid-state doctrine, oaths, seven-layer decomposition).
 - Van Jacobson et al., "Networking Named Content," 2009 (NDN/CCN).
 - This repo: `01-architecture.md` (engine/module decomposition), `04-crypto.md` (E2E-by-default), kernel sources `pkg/arvo/sys/vane/ames.hoon` and `pkg/vere/io/mesa/{mesa,pact}.c` on the gwbtc forks.
+
+The [implementation review](10-implementation-review.md) separates these design
+mappings from current code. For the three-task decomposition and separate
+enrollment/allocation/data-transfer phases, see Wang, Esposito, Matta, and Day,
+[RINA: An Architecture for Policy-Based Dynamic Service Management](https://csr.bu.edu/rina/papers/BUCS-TR-2013-014.pdf),
+§§2.2 and 5.1.

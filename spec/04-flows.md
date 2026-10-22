@@ -1,7 +1,7 @@
 # libmesa spec — 4: Flows and messages
 
 > **Skeleton.** The flow engine is sequencing/window mechanism + policy
-> modules (retransmission, congestion) gated on the N-1 class — option C in
+> modules (retransmission, congestion) selected from complete-path guarantees — option C in
 > `../doc/02-rina.md` §6.1.
 
 ## Outline

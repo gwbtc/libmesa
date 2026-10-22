@@ -7,15 +7,16 @@ split Arvo-vane + Vere-runtime implementation into one self-contained,
 transport-agnostic engine — usable by non-Arvo peers: Nostr clients, LND
 nodes, Shrubbery ships, and ChatControl-threatened phones.
 
-> **Status: wire-codec prototype.** Rust parses and encodes all three packet
+> **Status: wire and identity-primitives prototype.** Rust parses and encodes all three packet
 > bodies in experimental v2: fixed 128-bit names, explicit domain selectors,
 > exact-byte checksums, length-prefixed signatures, and none/IPv4 trailers.
 > Decoding is bounded and allocation-free. V1 remains an explicit compatibility
 > module. Noun primitives include canonical atoms, byte mug, bounded mat/rub,
 > and canonical jam/cue. Suite-C public-pass and current-ring parsing are
 > implemented alongside fragment reconstruction and C wire APIs. Identity
-> authorization, cryptography, LSS verification, networking, and flows remain
-> unimplemented. The design beyond these parsers is
+> authorization, LSS verification, networking, and flows remain unimplemented.
+> Suite-C name derivation, signing, and agreement match executed Hoon vectors.
+> The design beyond these primitives is
 > still a working-group draft.
 
 ## Build and check
@@ -146,8 +147,11 @@ context before network identity acceptance. See
 Noun decoding now preserves sharing in a bounded arena, checks expanded depth,
 and enforces canonical jam output. Suite-C parsers bind the committed domain
 to the expected selector and preserve exact data/evidence boundaries. These
-parsers return unverified claims. Curve checks, name derivation, cryptographic
-vectors, domain-specific evidence decoding, and authority remain to be implemented.
+parsers return unverified claims. Curve checks, name derivation, exact ring/pass correspondence, signing, and
+agreement now have [executed Hoon fixtures](vectors/crypto/README.md).
+Domain-specific evidence decoding, authority, and activation remain to be built.
+See [the implementation and RINA review](doc/10-implementation-review.md) for
+progress against the original plan and the next acceptance gates.
 
 ## Outside the current implementation
 

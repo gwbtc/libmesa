@@ -1,5 +1,6 @@
-//! Identity profile parsing. Parsed claims are not authorized peers.
+//! Identity profiles. Cryptographically bound claims are not authorized peers.
 //!
-//! Suite-C framing is implemented; curve validation, name derivation, signature
-//! verification, domain authority, key activation, and handshakes are not.
+//! Suite-C framing, curve validation, name derivation, and exact ring/pass
+//! correspondence are implemented. Byte-level signing and agreement live in
+//! mesa-crypto. Domain authority, activation, and handshakes are not implemented.
 pub mod suite_c;

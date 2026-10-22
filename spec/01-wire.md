@@ -169,5 +169,6 @@ and canonical mutation coverage. The separate Vere comparison remains v1-only.
 The next milestone is [authenticated identity](../doc/09-identity-milestone.md).
 It must define the protected v2 context, including domain/name binding, before
 accepting peer state. Bounded noun decoding and suite-C framing now exist in
-separate crates. Suite-C cryptography, domain authority, network handshakes,
-and LSS verification remain unimplemented.
+separate crates. Suite-C name derivation, signing, and agreement now match
+executed Hoon fixtures. Domain authority, network handshakes, and LSS
+verification remain unimplemented; wire validation does not invoke crypto.

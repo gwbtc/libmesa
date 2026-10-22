@@ -45,8 +45,8 @@ public key in those fixed slots. Test seeds are public deterministic bytes.
 Keys are deterministic byte sequences, not validated curve points. Domain
 tails and evidence are arbitrary test atoms, not valid Groundwire custody
 records. These fixtures establish no name derivation, signature validity,
-key agreement, or authorization. Executed kernel crypto vectors remain a
-separate milestone requirement.
+key agreement, or authorization. Separate [executed Hoon crypto fixtures](../crypto/README.md) now cover those
+primitives; neither fixture set establishes authority.
 
 The Rust parser deliberately rejects inputs that would rely on Hoon's implicit
 zero extension, and rejects nonminimal atom payloads. `rub` consumes one field;

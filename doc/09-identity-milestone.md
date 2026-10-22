@@ -37,17 +37,25 @@ two-secret-seed ring from its unchanged `'C'` tag; the caller must establish
 current-layout provenance. All results remain unverified claims, with no peer
 registry or key-activation effects.
 
-The next increment must add domain-specific evidence schemas, curve validation,
-name derivation, and actual cryptographic tests. The generic suite-C parser
-deliberately leaves `domain_tail` and `evidence` opaque. Decode failure must
-not poison a claimed name when peer state is introduced.
+**Third increment implemented:** `mesa-crypto` supplies canonical prime-subgroup
+public-key checks, strict Ed25519 verification, signing, Edwards scalar addition,
+and Edwards-to-Montgomery agreement. `suite_c::crypto::BoundPass` derives the
+permanent name and checks exact current-ring/pass correspondence, including
+mutable evidence. Parsed fields expose read-only accessors. Neither type admits
+peers or activates keys.
 
-Add kernel-derived vectors for suite-C public passes, private rings, permanent
-name derivation, live signing, and agreement. Verify that changing the live seed
-changes both live keys without changing `ugn/dat` or the name. Old signatures
-must fail under the newly accepted key, and new signatures under the old key.
-Keep the current suite's Edwards construction in its profile; the generic
-identity interface does not require every authority to use it.
+Five [executed Hoon cases](../vectors/crypto/README.md) reproduce exported
+passes/rings, public keys, permanent names, atom/octet signatures, and agreement
+in both directions. Rotation changes live signing and agreement while retaining
+the name; cross-life signatures fail. These are primitive/profile tests, not
+Jael activation, authority, or network tests. LSS, KDFs, seal/open, and domain
+schemas remain outstanding. The suite-C Edwards construction stays in its
+profile; other authorities need not use it.
+
+The next increment implements the authority and activation state machine below
+with deterministic test authorities. Domain-specific evidence decoding remains
+adapter work; decode failure must not poison a claimed name. Freeze the protected
+v2 context before connecting that state machine to untrusted network messages.
 
 ## 2. Protected v2 context
 

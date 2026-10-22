@@ -62,31 +62,34 @@ deliberate unification of the Arvo/Vere division of labor):
 - *Routing:* `SponsorResolver` (fief-based; ranks are a legacy detail, not a
   routing input), lane cache, relay/forwarding role.
 
-**Data transfer control (loss path — policy-gated per N-1 transport)**
+**Data transfer control (loss path — policy selected from complete-path guarantees)**
 - Retransmission control, congestion gauge (port of the C driver's
   cwnd/rtt machinery), PIT/interest state, the delta-t timer set.
 
 **Data transfer (fast path)**
-- Pact codec (bit-exact with `pact.c`/`lull.hoon`'s `plot`), delimiting
-  policy (bloq per N-1 class), LSS blake3 Merkle build/verify, SDU
+- Experimental v2 pact codec; explicit v1 reference for historical
+  `pact.c`/`lull.hoon` conformance. Delimiting policy follows path bounds;
+  LSS blake3 Merkle build/verify and SDU
   protection (spaces; E2E-by-default per `04-crypto.md`).
 
 ## 4. Module sketch
 
-Language-neutral decomposition (names are illustrative; in Rust these are
-crates, in C libraries/translation units — see `07-language.md`):
+Target decomposition, not a list of completed modules. The current implementation
+contains noun, wire, crypto, identity primitives, and wire-only FFI. See
+[the implementation review](10-implementation-review.md) for the dependency
+boundary to fix before adding the authority engine.
 
 | Module | Contents | Depends on |
 |---|---|---|
 | `mesa-noun` | jam/cue, mug (murmur3), `+mat`/`+rub` (with the bounded-scan hardening from kernel commit `382243cd7c`), `@p`/`@q`/`@uv` rendering | — |
 | `mesa-crypto` | Kernel-compatible Edwards signing/name tweaks, Montgomery agreement, blake3 (KDF / MAC / LSS), XChaCha8, constant-time compares | — |
 | `mesa-wire` | pact codec: header/name/data/auth etch+sift; golden-vector driven | noun |
-| `mesa-ident` | Suite-C pass/ring codec, bounded domain-tag parsing, point and trust-status models, attestation/rotation state machine, domain interface, mnemonyms | noun, crypto |
+| `mesa-identity` | Suite-C pass/ring codec, bounded domain-tag parsing, point and trust-status models, attestation/rotation state machine, domain interface, mnemonyms | noun, crypto; currently wire for shared name types |
 | `mesa-core` | namespace, flow engine (state vector + policy modules), peer/enrollment state machine, `Transport` (N-1 DIF) + `SponsorResolver` + storage traits, forwarding/relay role | all above |
 | `mesa-udp` / `mesa-tcp` / `mesa-ws` | N-1 adapters; UDP gets STUN + hole-punch + forwarding parity with `mesa.c` | core |
-| `mesa-dom-gwbtc` | Groundwire `dat/xtr` codec, canonicality, Bitcoin/secp256k1 custody verification, chain-currency policy over a light-client backend | ident |
-| Future domain adapters | Additional authorities, including a possible Azimuth adapter; no mandatory resolver or gateway | ident |
-| `mesa-ffi` | C ABI over core + ident | all |
+| `mesa-dom-gwbtc` | Groundwire `dat/xtr` codec, canonicality, Bitcoin/secp256k1 custody verification, chain-currency policy over a light-client backend | identity |
+| Future domain adapters | Additional authorities, including a possible Azimuth adapter; no mandatory resolver or gateway | identity |
+| `mesa-ffi` | C ABI over core + identity | all |
 
 **Integrator requirements** (relayed from a prospective embedder,
 2026-10-13): *C bindings, nix flake, reasonably simple API.* All three are

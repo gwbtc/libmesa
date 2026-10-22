@@ -1,7 +1,8 @@
 # libmesa spec — 0: Scope and conventions
 
 > **Scope outline.** Chapter 1 describes the implemented wire profile;
-> chapter 5 defines the unimplemented identity contract. Other chapters remain
+> chapter 5 defines the identity contract, with parsing and crypto primitives
+> implemented but authority and lifecycle pending. Other chapters remain
 > milestone drafts. Design rationale lives in `../doc/`.
 
 ## Outline
