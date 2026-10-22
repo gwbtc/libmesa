@@ -130,10 +130,7 @@ impl Verifier {
         if proof.len() != proof_hashes(total)? * 32 {
             return Err(Error::Proof);
         }
-        let hashes: Vec<Hash> = proof
-            .chunks_exact(32)
-            .map(|s| s.try_into().unwrap())
-            .collect();
+        let (hashes, _) = proof.as_chunks::<32>();
         let mut frontier = vec![Expected {
             start: 0,
             end: 1,
@@ -152,7 +149,7 @@ impl Verifier {
             leaves,
             next: 0,
             frontier,
-            root: root(&hashes),
+            root: root(hashes),
         })
     }
     pub fn root(&self) -> Hash {
