@@ -7,24 +7,41 @@ split Arvo-vane + Vere-runtime implementation into one self-contained,
 transport-agnostic engine — usable by non-Arvo peers: Nostr clients, LND
 nodes, Shrubbery ships, and ChatControl-threatened phones.
 
-> **Status: wire-codec prototype.** Rust parses and encodes all three packet
+> **Status: deterministic peer-engine prototype with fixture protection.**
+> `mesa-core` provides bounded named reads between preconfigured peers through
+> explicit events and actions. The in-memory harness tests fragmentation, loss,
+> duplication, reordering, malformed traffic, timeouts, and cancellation.
+> Rust parses and encodes all three packet
 > bodies in experimental v2: fixed 128-bit names, explicit domain selectors,
 > exact-byte checksums, length-prefixed signatures, and none/IPv4 trailers.
 > Decoding is bounded and allocation-free. V1 remains an explicit compatibility
-> module. Canonical atoms, byte mug, fragment reconstruction, and C APIs for
-> both profiles are implemented. Identity, cryptography, LSS verification,
-> networking, and flows remain unimplemented. The design beyond the codec is
+> module. Noun primitives include canonical atoms, byte mug, bounded mat/rub,
+> and canonical jam/cue. Suite-C public-pass and current-ring parsing are
+> implemented alongside fragment reconstruction and C wire APIs. Domain
+> authority verification, LSS verification, packet protection, network transport
+> adapters, and message flows remain unimplemented. The core's explicit service
+> and binding-access checks operate on trusted host configuration.
+> Suite-C name derivation, signing, and agreement match executed Hoon vectors.
+> The design beyond these primitives is
 > still a working-group draft.
 
 ## Build and check
 
 ```sh
 cargo test --workspace
+cargo run -p mesa-core --example two-peer
 cargo clippy --workspace --all-targets -- -D warnings
 cargo fmt --all -- --check
 bash tools/test-ffi.sh
 python3 tools/conformance-v2.py
+python3 tools/conformance-noun.py
 ```
+
+The `two-peer` example binds and reads 38 exact bytes over an in-memory v2
+peek/page link. Its one-shot protection verdicts live in test support; they
+exercise engine behavior without implementing cryptography. See the
+[engine contract and test profile](doc/12-peer-engine.md) for limits, timers,
+peer updates, and the multi-fragment fault tests.
 
 The C header is `crates/mesa-ffi/include/mesa.h`; `cargo build -p mesa-ffi`
 produces `target/debug/libmesa_ffi.a`. The ABI validates and roundtrips
@@ -134,11 +151,28 @@ announcement/recovery change is required for full identity interoperability.
 
 ## Next implementation milestone
 
-Build authenticated identity: bounded suite-C parsing and real cryptographic
-vectors, asynchronous domain verification/resolution, accepted-point lifecycle,
-explicit trust modes, and exact public/private activation. Define v2's protected
-context before network identity acceptance. See
-[the identity milestone](doc/09-identity-milestone.md).
+The first two peer-engine steps now have an in-memory implementation:
+preconfigured peers, bounded namespace reads, fragmentation, and timers.
+The immediate target is a pinned Groundwire suite-C comet exchange by
+October 23, using preconfigured keys, an explicit Mesa v1 compatibility adapter,
+real signature/LSS verification, and loopback UDP. See the
+[comet interoperability work order](doc/13-comet-interop.md). V2 remains the
+default; its protected context remains separate work. Message flows follow
+authenticated named reads.
+Generalized identity and the Groundwire verifier remain separate integration
+work. See the
+[peer-engine milestone and fresh-task handoff](doc/11-peer-engine-handoff.md).
+The [identity milestone](doc/09-identity-milestone.md) retains the eventual
+admission and activation requirements.
+
+Noun decoding now preserves sharing in a bounded arena, checks expanded depth,
+and enforces canonical jam output. Suite-C parsers bind the committed domain
+to the expected selector and preserve exact data/evidence boundaries. These
+parsers return unverified claims. Curve checks, name derivation, exact ring/pass correspondence, signing, and
+agreement now have [executed Hoon fixtures](vectors/crypto/README.md).
+Domain-specific evidence decoding, authority, and activation remain to be built.
+See [the implementation and RINA review](doc/10-implementation-review.md) for
+progress against the original plan and the next acceptance gates.
 
 ## Outside the current implementation
 

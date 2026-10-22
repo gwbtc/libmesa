@@ -1,0 +1,13 @@
+[package]
+name = "mesa-core"
+description = "Deterministic Mesa named reads with preconfigured peers"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+mesa-wire = { path = "../mesa-wire" }
+
+[lints]
+workspace = true

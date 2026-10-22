@@ -1,23 +1,67 @@
-# Next milestone: authenticated identity
+# Deferred integration track: authenticated identity
+
+**Scheduling update, 2026-10-22:** the
+[peer-engine milestone](11-peer-engine-handoff.md) takes priority. Preconfigured
+peers and test-only protection outcomes allow engine work without this track.
+The requirements below apply when implementing domain-authenticated enrollment
+and activation; they are not prerequisites for the deterministic core harness.
 
 **Starting point:** experimental v2 encodes globally unique `PeerId` values,
 explicit `DomainTag` selectors, and length-delimited signatures. It validates
-structure and checksums only. The next milestone must establish authority and
-key possession before any claimed identity becomes an accepted peer.
+structure and checksums only. Domain-authenticated enrollment must establish authority and
+key possession before treating a received identity claim as an accepted peer.
 
 ## 1. Bounded parsing and cryptographic primitives
 
-Implement the noun primitives needed by the current suite-C profile, including
-bounded `mat` parsing and safe jam/cue handling. Pin complete input consumption,
-canonical forms, byte/bit order, depth, and backreference/resource bounds with
-positive and hostile fixtures. Decode failure must not poison a claimed name.
+**First increment implemented:** `mesa_noun::bits::Bits` exposes bounded borrowed
+bit spans; `mesa_noun::mat` encodes canonical atoms and decodes length-prefixed
+fields without allocation. `rub` reports consumed bits for nested fields;
+`decode` requires complete consumption of the supplied bit span. Both bound
+the prefix scan and declared payload, reject truncated/nonminimal encodings,
+and preserve the exact start of the next field. Byte padding belongs to the
+enclosing format and must be excluded explicitly.
 
-Add kernel-derived vectors for suite-C public passes, private rings, permanent
-name derivation, live signing, and agreement. Verify that changing the live seed
-changes both live keys without changing `ugn/dat` or the name. Old signatures
-must fail under the newly accepted key, and new signatures under the old key.
-Keep the current suite's Edwards construction in its profile; the generic
-identity interface does not require every authority to use it.
+The tests include all 65,536 two-byte atoms, bit truncations, unaligned fields,
+hostile prefixes, and source-derived suite-C layout fixtures. The fixtures use
+synthetic keys and opaque evidence: they validate layout, not cryptography or
+domain authority. See [fixture provenance](../vectors/noun/README.md).
+
+**Second increment implemented:** `mesa_noun::serial` decodes canonical jam into
+an immutable arena of borrowed atoms and shared cells. It bounds input/output,
+literal nodes, atom sizes, backreferences, and expanded depth. Parsing, encoding,
+and destruction use no recursion. A bottom-up equality table lets re-encoding
+enforce Hoon's canonical reference choices without expanding shared subtrees.
+Historical live-Hoon fixtures and a freshly compiled Vere serializer provide
+independent checks. Consumers must retain sharing and bound their own traversal.
+
+`mesa_identity::suite_c` parses public passes and explicitly selected current
+rings, checks the committed domain against the expected selector, and exposes
+the exact domain-data and evidence spans. Private seeds remain borrowed,
+bit-span Debug output hides its backing buffer, and the ring type has no Debug
+implementation. The parser cannot identify an old
+two-secret-seed ring from its unchanged `'C'` tag; the caller must establish
+current-layout provenance. All results remain unverified claims, with no peer
+registry or key-activation effects.
+
+**Third increment implemented:** `mesa-crypto` supplies canonical prime-subgroup
+public-key checks, strict Ed25519 verification, signing, Edwards scalar addition,
+and Edwards-to-Montgomery agreement. `suite_c::crypto::BoundPass` derives the
+permanent name and checks exact current-ring/pass correspondence, including
+mutable evidence. Parsed fields expose read-only accessors. Neither type admits
+peers or activates keys.
+
+Five [executed Hoon cases](../vectors/crypto/README.md) reproduce exported
+passes/rings, public keys, permanent names, atom/octet signatures, and agreement
+in both directions. Rotation changes live signing and agreement while retaining
+the name; cross-life signatures fail. These are primitive/profile tests, not
+Jael activation, authority, or network tests. LSS, KDFs, seal/open, and domain
+schemas remain outstanding. The suite-C Edwards construction stays in its
+profile; other authorities need not use it.
+
+The next increment implements the authority and activation state machine below
+with deterministic test authorities. Domain-specific evidence decoding remains
+adapter work; decode failure must not poison a claimed name. Freeze the protected
+v2 context before connecting that state machine to untrusted network messages.
 
 ## 2. Protected v2 context
 

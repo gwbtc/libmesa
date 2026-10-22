@@ -37,6 +37,7 @@
           nativeCheckInputs = [ pkgs.python3 ];
           postCheck = ''
             python3 tools/v2-vectors.py --check
+            python3 tools/noun-vectors.py --check
             $CC -std=c11 -Wall -Wextra -Werror \
               -I crates/mesa-ffi/include crates/mesa-ffi/tests/smoke.c \
               target/${pkgs.stdenv.hostPlatform.rust.rustcTarget}/release/libmesa_ffi.a \

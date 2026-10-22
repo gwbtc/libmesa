@@ -62,31 +62,35 @@ deliberate unification of the Arvo/Vere division of labor):
 - *Routing:* `SponsorResolver` (fief-based; ranks are a legacy detail, not a
   routing input), lane cache, relay/forwarding role.
 
-**Data transfer control (loss path — policy-gated per N-1 transport)**
+**Data transfer control (loss path — policy selected from complete-path guarantees)**
 - Retransmission control, congestion gauge (port of the C driver's
   cwnd/rtt machinery), PIT/interest state, the delta-t timer set.
 
 **Data transfer (fast path)**
-- Pact codec (bit-exact with `pact.c`/`lull.hoon`'s `plot`), delimiting
-  policy (bloq per N-1 class), LSS blake3 Merkle build/verify, SDU
+- Experimental v2 pact codec; explicit v1 reference for historical
+  `pact.c`/`lull.hoon` conformance. Delimiting policy follows path bounds;
+  LSS blake3 Merkle build/verify and SDU
   protection (spaces; E2E-by-default per `04-crypto.md`).
 
 ## 4. Module sketch
 
-Language-neutral decomposition (names are illustrative; in Rust these are
-crates, in C libraries/translation units — see `07-language.md`):
+Target decomposition, not a list of completed modules. The current implementation
+contains noun, wire, crypto, identity primitives, and wire-only FFI. See
+[the implementation review](10-implementation-review.md) for the dependency
+boundaries. The [peer-engine handoff](11-peer-engine-handoff.md) now sets the
+implementation order; authority integration is deferred.
 
 | Module | Contents | Depends on |
 |---|---|---|
 | `mesa-noun` | jam/cue, mug (murmur3), `+mat`/`+rub` (with the bounded-scan hardening from kernel commit `382243cd7c`), `@p`/`@q`/`@uv` rendering | — |
 | `mesa-crypto` | Kernel-compatible Edwards signing/name tweaks, Montgomery agreement, blake3 (KDF / MAC / LSS), XChaCha8, constant-time compares | — |
 | `mesa-wire` | pact codec: header/name/data/auth etch+sift; golden-vector driven | noun |
-| `mesa-ident` | Suite-C pass/ring codec, bounded domain-tag parsing, point and trust-status models, attestation/rotation state machine, domain interface, mnemonyms | noun, crypto |
+| `mesa-identity` | Suite-C pass/ring codec, bounded domain-tag parsing, point and trust-status models, attestation/rotation state machine, domain interface, mnemonyms | noun, crypto; currently wire for shared name types |
 | `mesa-core` | namespace, flow engine (state vector + policy modules), peer/enrollment state machine, `Transport` (N-1 DIF) + `SponsorResolver` + storage traits, forwarding/relay role | all above |
 | `mesa-udp` / `mesa-tcp` / `mesa-ws` | N-1 adapters; UDP gets STUN + hole-punch + forwarding parity with `mesa.c` | core |
-| `mesa-dom-gwbtc` | Groundwire `dat/xtr` codec, canonicality, Bitcoin/secp256k1 custody verification, chain-currency policy over a light-client backend | ident |
-| Future domain adapters | Additional authorities, including a possible Azimuth adapter; no mandatory resolver or gateway | ident |
-| `mesa-ffi` | C ABI over core + ident | all |
+| `mesa-dom-gwbtc` | Groundwire `dat/xtr` codec, canonicality, Bitcoin/secp256k1 custody verification, chain-currency policy over a light-client backend | identity |
+| Future domain adapters | Additional authorities, including a possible Azimuth adapter; no mandatory resolver or gateway | identity |
+| `mesa-ffi` | C ABI over core + identity | all |
 
 **Integrator requirements** (relayed from a prospective embedder,
 2026-10-13): *C bindings, nix flake, reasonably simple API.* All three are
@@ -163,14 +167,19 @@ the C runtime driver, libmesa — four if the dual-implementation path of
 
 ## 7. Roadmap
 
+The milestone numbers identify workstreams, not a strict dependency order.
+Current priority is the [peer engine with preconfigured peers](11-peer-engine-handoff.md):
+namespace/interest machinery and flows can progress before generalized identity.
+Jael and userspace verifier responsibilities stay behind host-supplied services.
+
 | Milestone | Deliverable | Gate |
 |---|---|---|
 | 0 | Spec skeleton + this doc set + WG review | today |
 | 1a | Bounded wire codec, atom/mug, reconstruction, minimal C ABI | Full packet vectors, adversarial corpus, compiled C smoke test |
 | 1b | Remaining noun primitives, crypto, LSS verification | Authenticated fragment and seal/open vectors |
 | 2 | Domain-first identity: pass/ring, attestations, point transitions, trust modes, host verifier interface | Kernel-derived positive/negative vectors and real activation-path tests |
-| 3 | core: namespace + enrollment + peek/page over UDP | loopback peek interop vs fakeship |
-| 4 | Flow engine and upstream Mesa identity announcements | Loopback poke/ack, loss and simultaneous-rekey recovery without legacy control packets |
+| 3 | core: namespace + peek/page with preconfigured peers; enrollment integrated later | Deterministic lossy harness, then protected libmesa UDP reads; upstream interop separately |
+| 4 | Flow engine: sequencing, acknowledgment, recovery, backpressure and policy | Loss/reordering and durable delivery tests; upstream announcements and simultaneous-rekey interop follow identity integration |
 | 5 | TCP/WSS N-1s + relay role | phone-class client through a relay |
 | 6 | Groundwire adapter: bounded evidence and authority-backed verification | Verdict/currency parity and multilateral rotation tests; Azimuth deferred |
 | 7 | Extend the C ABI to core/identity + first embedding (Nostr client) | demo |
