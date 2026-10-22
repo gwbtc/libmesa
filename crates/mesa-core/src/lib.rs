@@ -1,11 +1,15 @@
 //! Synchronous, bounded named reads. The host supplies time, routes, and trusted
-//! peer views. No sockets, runtime, authority discovery, LSS, or flow protocol.
+//! peer views. No sockets, runtime, authority discovery, or flow protocol.
 //!
-//! `Engine` requires a host protection adapter; this crate provides no accepting
-//! implementation. The example/tests use a controlled, test-only adapter.
-//! Passing those tests proves state-machine behavior, not packet authentication.
+//! `protection::SignedPublic` implements the fixed v2 Ed25519/LSS public profile.
+//! The original example/tests retain a controlled, test-only adapter. The UDP
+//! host lives in mesa-udp and accepts only the real signed-public implementation.
 
 use std::collections::BTreeMap;
+
+mod protected_read;
+pub mod protection;
+const AUTH_INDEX: u64 = u64::MAX;
 
 use mesa_wire::{
     decode, encode, reconstruct_data_fragment, Auth, Body, Data, Fragment, Limits, Name, Packet,
@@ -18,7 +22,7 @@ pub type ReadId = u64;
 /// Opaque host handles. An attachment is a route, never sender evidence.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Attachment(pub u64);
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct KeyHandle(pub u64);
 
 /// An explicit host assertion, with no domain-verification or fallback claim.
@@ -56,17 +60,40 @@ impl PreconfiguredPeer {
     }
 }
 
-/// Host trust boundary, called only after bounded structural decoding and peer
-/// gating, and before any page is stored or any namespace data is served.
+/// Host-selected protection boundary. SignedPublic authenticates the root and
+/// context; the engine verifies every data leaf against that root. Public peeks
+/// authenticate no requester and may serve only explicit public bindings.
 ///
-/// `peer` is a claim from the transport event, NOT an authenticated sender. The
-/// adapter must check the exact packet against the supplied current peer/local
-/// keys and context. It must never infer success from the route, publisher name,
-/// checksum, or a packet-controlled flag. There is deliberately no default.
-///
-/// This milestone emits unprotected v2 packets. A real sending protection
-/// profile and LSS verifier are required before attaching a network transport.
+/// The original `verify` hook remains for controlled fixture tests, not UDP.
+/// A route, claimed peer, publisher field, or checksum never proves identity.
 pub trait Protection {
+    /// Explicit host-selected profile; never inferred from received bytes.
+    const SIGNED_PUBLIC: bool = false;
+    fn local_key_available(&self, _local: &PreconfiguredPeer) -> bool {
+        true
+    }
+    fn peer_key_available(&self, _peer: &PreconfiguredPeer) -> bool {
+        true
+    }
+    fn sign_root(
+        &self,
+        _local: &PreconfiguredPeer,
+        _name: Name<'_>,
+        _total: u64,
+        _root: &[u8; 32],
+    ) -> Option<[u8; 64]> {
+        None
+    }
+    fn verify_root(
+        &self,
+        _peer: &PreconfiguredPeer,
+        _name: Name<'_>,
+        _total: u64,
+        _root: &[u8; 32],
+        _signature: &[u8; 64],
+    ) -> bool {
+        false
+    }
     fn verify(
         &mut self,
         local: &PreconfiguredPeer,
@@ -85,6 +112,7 @@ pub struct Config {
     pub max_binding_bytes: usize,
     pub max_read_bytes: usize,
     pub max_reassembly_bytes: usize,
+    pub max_unverified_bytes: usize,
     pub max_reads: usize,
     pub max_fragments: usize,
     pub window: usize,
@@ -107,6 +135,7 @@ impl Default for Config {
             max_binding_bytes: 8 * 1024 * 1024,
             max_read_bytes: 1024 * 1024,
             max_reassembly_bytes: 8 * 1024 * 1024,
+            max_unverified_bytes: 128 * 1024,
             max_reads: 32,
             max_fragments: 1024,
             window: 4,
@@ -225,6 +254,7 @@ pub enum ReadFailure {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum DropReason {
+    ResourceLimit,
     UnknownPeer,
     Blocked,
     Attachment,
@@ -239,6 +269,8 @@ pub enum DropReason {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Error {
+    MissingKey,
+    UnsupportedAccess,
     InvalidConfig,
     InvalidDomain,
     UnknownPeer,
@@ -276,10 +308,13 @@ pub struct Usage {
     pub namespace_slots: usize,
     pub bindings: usize,
     pub binding_bytes: usize,
+    pub binding_proof_bytes: usize,
     pub reads: usize,
     pub reassembly_bytes: usize,
     pub pending_interests: usize,
     pub received_fragments: usize,
+    pub unverified_bytes: usize,
+    pub unverified_fragments: usize,
 }
 
 struct PeerState {
@@ -289,6 +324,8 @@ struct PeerState {
 struct Binding {
     bytes: Vec<u8>,
     access: Access,
+    tree: Option<mesa_lss::Tree>,
+    signature: Option<[u8; 64]>,
 }
 struct Attempt {
     count: u32,
@@ -305,6 +342,8 @@ struct Read {
     received: usize,
     next_index: u64,
     interests: BTreeMap<u64, Attempt>,
+    verifier: Option<mesa_lss::Verifier>,
+    unverified: BTreeMap<u64, (Vec<u8>, Option<mesa_lss::Pair>)>,
 }
 
 pub struct Engine<P> {
@@ -322,6 +361,17 @@ pub struct Engine<P> {
 impl<P: Protection> Engine<P> {
     pub fn new(config: Config, local: PreconfiguredPeer, protection: P) -> Result<Self, Error> {
         let capacity = config.capacity()?;
+        if P::SIGNED_PUBLIC
+            && (config.bloq != 13
+                || config.max_fragments > mesa_lss::MAX_LEAVES
+                || config.max_read_bytes > mesa_lss::MAX_LEAVES * mesa_lss::LEAF_BYTES
+                || 118 + config.wire.max_path + capacity + 66 > config.wire.max_packet)
+        {
+            return Err(Error::InvalidConfig);
+        }
+        if !protection.local_key_available(&local) {
+            return Err(Error::MissingKey);
+        }
         Ok(Self {
             config,
             capacity,
@@ -346,10 +396,27 @@ impl<P: Protection> Engine<P> {
                 .map(|b| b.bytes.len())
                 .sum(),
             reads: self.reads.len(),
+            binding_proof_bytes: self
+                .bindings
+                .values()
+                .flatten()
+                .map(|b| b.tree.as_ref().map_or(0, |t| t.storage_bytes() + 64))
+                .sum(),
             reassembly_bytes: self.reads.values().map(|r| r.bytes.len()).sum(),
             pending_interests: self.reads.values().map(|r| r.interests.len()).sum(),
             received_fragments: self.reads.values().map(|r| r.received).sum(),
+            unverified_bytes: self
+                .reads
+                .values()
+                .flat_map(|r| r.unverified.values())
+                .map(|(b, _)| b.len())
+                .sum(),
+            unverified_fragments: self.reads.values().map(|r| r.unverified.len()).sum(),
         }
+    }
+
+    pub fn max_packet_bytes(&self) -> usize {
+        self.config.wire.max_packet
     }
 
     pub fn step(&mut self, event: Event<'_>) -> Result<Vec<Action>, Error> {
@@ -379,6 +446,9 @@ impl<P: Protection> Engine<P> {
                 access,
             } => {
                 self.check_path(&path)?;
+                if P::SIGNED_PUBLIC && access != Access::Public {
+                    return Err(Error::UnsupportedAccess);
+                }
                 if let Some(old) = self.bindings.get(&path) {
                     return Err(if old.is_some() {
                         Error::NameInUse
@@ -397,7 +467,37 @@ impl<P: Protection> Engine<P> {
                 {
                     return Err(Error::ResourceLimit);
                 }
-                self.bindings.insert(path, Some(Binding { bytes, access }));
+                let tree = if P::SIGNED_PUBLIC {
+                    Some(mesa_lss::Tree::build(&bytes).map_err(|_| Error::ResourceLimit)?)
+                } else {
+                    None
+                };
+                let signature = if let Some(tree) = &tree {
+                    let name = Name {
+                        publisher: self.local.id,
+                        domain: self.local.domain(),
+                        rift: self.local.rift,
+                        bloq: self.config.bloq,
+                        fragment: Fragment::Auth(0),
+                        path: &path,
+                    };
+                    Some(
+                        self.protection
+                            .sign_root(&self.local, name, bytes.len() as u64, &tree.root())
+                            .ok_or(Error::MissingKey)?,
+                    )
+                } else {
+                    None
+                };
+                self.bindings.insert(
+                    path,
+                    Some(Binding {
+                        bytes,
+                        access,
+                        tree,
+                        signature,
+                    }),
+                );
             }
             Event::Unbind { path } => {
                 self.bindings
@@ -449,6 +549,9 @@ impl<P: Protection> Engine<P> {
     ) -> Result<(), Error> {
         if view.id == self.local.id {
             return Err(Error::LocalPeer);
+        }
+        if !self.protection.peer_key_available(&view) {
+            return Err(Error::MissingKey);
         }
         if let Some(old) = self.peers.get(&view.id) {
             if view.domain != old.view.domain {
@@ -530,9 +633,11 @@ impl<P: Protection> Engine<P> {
                 bytes: Vec::new(),
                 remaining: 0,
                 received: 0,
-                next_index: 1,
+                next_index: if P::SIGNED_PUBLIC { 0 } else { 1 },
+                verifier: None,
+                unverified: BTreeMap::new(),
                 interests: BTreeMap::from([(
-                    0,
+                    if P::SIGNED_PUBLIC { AUTH_INDEX } else { 0 },
                     Attempt {
                         count: 1,
                         retry_at: self.now.saturating_add(self.config.retry_after),
@@ -540,7 +645,7 @@ impl<P: Protection> Engine<P> {
                 )]),
             },
         );
-        self.send_interest(id, 0, actions);
+        self.send_interest(id, if P::SIGNED_PUBLIC { AUTH_INDEX } else { 0 }, actions);
         Ok(())
     }
 
@@ -553,7 +658,11 @@ impl<P: Protection> Engine<P> {
                 domain: remote.view.domain(),
                 rift: read.rift,
                 bloq: self.config.bloq,
-                fragment: Fragment::Data(index),
+                fragment: if index == AUTH_INDEX {
+                    Fragment::Auth(0)
+                } else {
+                    Fragment::Data(index)
+                },
                 path: &read.path,
             };
             let bytes = encode(
@@ -590,7 +699,7 @@ impl<P: Protection> Engine<P> {
             return Err(DropReason::Attachment);
         }
         let packet = decode(bytes, self.config.wire).map_err(|_| DropReason::Malformed)?;
-        if !self.protection.verify(&self.local, &peer.view, bytes) {
+        if !P::SIGNED_PUBLIC && !self.protection.verify(&self.local, &peer.view, bytes) {
             return Err(DropReason::Protection);
         }
         match packet.body {
@@ -625,6 +734,9 @@ impl<P: Protection> Engine<P> {
             .ok_or(DropReason::Unavailable)?;
         if binding.access != Access::Public && binding.access != Access::Peer(peer) {
             return Err(DropReason::Unavailable);
+        }
+        if P::SIGNED_PUBLIC {
+            return self.serve_protected(peer, attachment, name, binding, actions);
         }
         let index = match name.fragment {
             Fragment::Init if binding.bytes.len() <= self.capacity => 0,
@@ -681,6 +793,9 @@ impl<P: Protection> Engine<P> {
             || name.bloq != self.config.bloq
         {
             return Err(DropReason::Name);
+        }
+        if P::SIGNED_PUBLIC {
+            return self.protected_page(peer, name, data, actions);
         }
         let Fragment::Data(index) = name.fragment else {
             return Err(DropReason::NoInterest);

@@ -1,5 +1,12 @@
 # Comet interoperability target: 2026-10-23
 
+**Superseded priority, 2026-10-22.** The user withdrew the demo deadline and
+restored the RINA-libmesa implementation sequence. This document retains the
+compatibility analysis as a deferred integration option. Do not implement the
+v1 adapter as a prerequisite for further core work. Continue from the
+[peer-engine handoff](11-peer-engine-handoff.md) and
+[implemented v2 protection profile](../spec/08-signed-public.md).
+
 The next acceptance gate is an exact, authenticated named-read exchange between
 a libmesa process and a running Groundwire suite-C comet over loopback UDP.
 Use explicitly preconfigured current keys and routes on both sides. The target

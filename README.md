@@ -7,9 +7,11 @@ split Arvo-vane + Vere-runtime implementation into one self-contained,
 transport-agnostic engine — usable by non-Arvo peers: Nostr clients, LND
 nodes, Shrubbery ships, and ChatControl-threatened phones.
 
-> **Status: deterministic peer-engine prototype with fixture protection.**
+> **Status: deterministic peer engine with signed public reads and UDP.**
 > `mesa-core` provides bounded named reads between preconfigured peers through
-> explicit events and actions. The in-memory harness tests fragmentation, loss,
+> explicit events and actions. A fixed v2 profile authenticates public objects
+> with Ed25519 and bounded BLAKE3 LSS; two independent processes read in both
+> directions over loopback UDP. The in-memory harness tests fragmentation, loss,
 > duplication, reordering, malformed traffic, timeouts, and cancellation.
 > Rust parses and encodes all three packet
 > bodies in experimental v2: fixed 128-bit names, explicit domain selectors,
@@ -18,9 +20,9 @@ nodes, Shrubbery ships, and ChatControl-threatened phones.
 > module. Noun primitives include canonical atoms, byte mug, bounded mat/rub,
 > and canonical jam/cue. Suite-C public-pass and current-ring parsing are
 > implemented alongside fragment reconstruction and C wire APIs. Domain
-> authority verification, LSS verification, packet protection, network transport
-> adapters, and message flows remain unimplemented. The core's explicit service
-> and binding-access checks operate on trusted host configuration.
+> authority verification, private-space encryption, message flows, and relay
+> transport remain unimplemented. The core's service and binding-access checks
+> operate on trusted host configuration. Public reads do not authenticate requesters.
 > Suite-C name derivation, signing, and agreement match executed Hoon vectors.
 > The design beyond these primitives is
 > still a working-group draft.
@@ -30,6 +32,7 @@ nodes, Shrubbery ships, and ChatControl-threatened phones.
 ```sh
 cargo test --workspace
 cargo run -p mesa-core --example two-peer
+python3 tools/test-protected-udp.py
 cargo clippy --workspace --all-targets -- -D warnings
 cargo fmt --all -- --check
 bash tools/test-ffi.sh
@@ -42,6 +45,12 @@ peek/page link. Its one-shot protection verdicts live in test support; they
 exercise engine behavior without implementing cryptography. See the
 [engine contract and test profile](doc/12-peer-engine.md) for limits, timers,
 peer updates, and the multi-fragment fault tests.
+
+The separate UDP runner uses real signatures and LSS with public test seeds.
+It checks exact data in both directions from empty values through 1 MiB.
+See the [signed-public profile](spec/08-signed-public.md) for its exact transcript,
+resource bounds, and verification evidence. Selecting this profile requires
+explicit public binds; private binds are rejected.
 
 The C header is `crates/mesa-ffi/include/mesa.h`; `cargo build -p mesa-ffi`
 produces `target/debug/libmesa_ffi.a`. The ABI validates and roundtrips
@@ -153,12 +162,12 @@ announcement/recovery change is required for full identity interoperability.
 
 The first two peer-engine steps now have an in-memory implementation:
 preconfigured peers, bounded namespace reads, fragmentation, and timers.
-The immediate target is a pinned Groundwire suite-C comet exchange by
-October 23, using preconfigured keys, an explicit Mesa v1 compatibility adapter,
-real signature/LSS verification, and loopback UDP. See the
-[comet interoperability work order](doc/13-comet-interop.md). V2 remains the
-default; its protected context remains separate work. Message flows follow
-authenticated named reads.
+Step 3 now adds a fixed signed-public v2 context, real LSS verification, and
+libmesa-to-libmesa UDP reads. Continue the RINA-shaped engine with explicit
+recovery/congestion/timer policies, the durable host contract for message flows,
+and then a second attachment model and relay path. Private-space confidentiality
+remains a protection workstream. The earlier comet deadline and proposed v1
+adapter are off the critical path; the default remains v2.
 Generalized identity and the Groundwire verifier remain separate integration
 work. See the
 [peer-engine milestone and fresh-task handoff](doc/11-peer-engine-handoff.md).
