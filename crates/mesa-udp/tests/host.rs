@@ -67,3 +67,53 @@ fn uninstalled_route_rejected() {
     )
     .is_err());
 }
+
+#[test]
+fn construction_dispatches_interests_released_by_restored_route() {
+    let mut engine = engine();
+    engine
+        .step(Event::SetAttachment {
+            peer: PeerId(2),
+            attachment: Some(Attachment(7)),
+        })
+        .unwrap();
+    engine
+        .step(Event::Read {
+            id: 1,
+            peer: PeerId(2),
+            path: b"value".into(),
+        })
+        .unwrap();
+    engine
+        .step(Event::SetAttachment {
+            peer: PeerId(2),
+            attachment: None,
+        })
+        .unwrap();
+    engine.step(Event::AdvanceTo(100)).unwrap();
+    assert_eq!(engine.transfer_state(PeerId(2)).unwrap().queued, 1);
+    let local = UdpSocket::bind("127.0.0.1:0").unwrap();
+    let peer = UdpSocket::bind("127.0.0.1:0").unwrap();
+    peer.set_read_timeout(Some(Duration::from_secs(1))).unwrap();
+    let host = UdpHost::new(
+        engine,
+        local,
+        BTreeMap::from([(PeerId(2), (Attachment(8), peer.local_addr().unwrap()))]),
+    )
+    .unwrap();
+    let mut bytes = [0; 1472];
+    let (size, source) = peer.recv_from(&mut bytes).unwrap();
+    assert_eq!(source, host.local_addr().unwrap());
+    let mesa_wire::Body::Peek(name) =
+        mesa_wire::decode(&bytes[..size], mesa_wire::Limits::DATAGRAM)
+            .unwrap()
+            .body
+    else {
+        panic!()
+    };
+    assert_eq!(name.path, b"value");
+    assert_eq!(
+        host.engine().transfer_state(PeerId(2)).unwrap().in_flight,
+        1
+    );
+}

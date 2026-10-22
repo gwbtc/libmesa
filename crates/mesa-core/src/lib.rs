@@ -7,8 +7,10 @@
 
 use std::collections::BTreeMap;
 
+pub mod policy;
 mod protected_read;
 pub mod protection;
+use policy::{Controller, TransferPolicy, TransferState};
 const AUTH_INDEX: u64 = u64::MAX;
 
 use mesa_wire::{
@@ -115,7 +117,10 @@ pub struct Config {
     pub max_unverified_bytes: usize,
     pub max_reads: usize,
     pub max_fragments: usize,
+    /// Hard per-read interest cap, independent of the aggregate peer policy.
     pub window: usize,
+    /// Fixed-policy constructor defaults; with_policy supplies its own timers
+    /// and attempt budget. These fields must still be nonzero.
     pub retry_after: Tick,
     pub read_timeout: Tick,
     /// Includes the initial transmission, per fragment.
@@ -320,6 +325,7 @@ pub struct Usage {
 struct PeerState {
     view: PreconfiguredPeer,
     attachment: Option<Attachment>,
+    controller: Controller,
 }
 struct Binding {
     bytes: Vec<u8>,
@@ -330,6 +336,16 @@ struct Binding {
 struct Attempt {
     count: u32,
     retry_at: Tick,
+    active: bool,
+}
+impl Attempt {
+    fn queued() -> Self {
+        Self {
+            count: 0,
+            retry_at: 0,
+            active: false,
+        }
+    }
 }
 struct Read {
     peer: PeerId,
@@ -348,6 +364,7 @@ struct Read {
 
 pub struct Engine<P> {
     config: Config,
+    policy: TransferPolicy,
     capacity: usize,
     local: PreconfiguredPeer,
     protection: P,
@@ -360,7 +377,19 @@ pub struct Engine<P> {
 
 impl<P: Protection> Engine<P> {
     pub fn new(config: Config, local: PreconfiguredPeer, protection: P) -> Result<Self, Error> {
+        let policy = TransferPolicy::fixed(&config);
+        Self::with_policy(config, local, protection, policy)
+    }
+
+    /// Inject validated transfer policy while keeping resource caps in Config.
+    pub fn with_policy(
+        config: Config,
+        local: PreconfiguredPeer,
+        protection: P,
+        policy: TransferPolicy,
+    ) -> Result<Self, Error> {
         let capacity = config.capacity()?;
+        policy.validate(&config)?;
         if P::SIGNED_PUBLIC
             && (config.bloq != 13
                 || config.max_fragments > mesa_lss::MAX_LEAVES
@@ -374,6 +403,7 @@ impl<P: Protection> Engine<P> {
         }
         Ok(Self {
             config,
+            policy,
             capacity,
             local,
             protection,
@@ -413,6 +443,28 @@ impl<P: Protection> Engine<P> {
                 .sum(),
             unverified_fragments: self.reads.values().map(|r| r.unverified.len()).sum(),
         }
+    }
+
+    pub fn transfer_state(&self, peer: PeerId) -> Option<TransferState> {
+        let remote = self.peers.get(&peer)?;
+        let mut state = TransferState {
+            window: remote.controller.window,
+            in_flight: 0,
+            queued: 0,
+        };
+        for attempt in self
+            .reads
+            .values()
+            .filter(|r| r.peer == peer)
+            .flat_map(|r| r.interests.values())
+        {
+            if attempt.active {
+                state.in_flight += 1;
+            } else {
+                state.queued += 1;
+            }
+        }
+        Some(state)
     }
 
     pub fn max_packet_bytes(&self) -> usize {
@@ -505,7 +557,7 @@ impl<P: Protection> Engine<P> {
                     .and_then(Option::take)
                     .ok_or(Error::Unbound)?;
             }
-            Event::Read { id, peer, path } => self.start_read(id, peer, path, &mut actions)?,
+            Event::Read { id, peer, path } => self.start_read(id, peer, path)?,
             Event::Cancel { id } => {
                 if !self.reads.contains_key(&id) {
                     return Err(Error::UnknownRead);
@@ -529,6 +581,7 @@ impl<P: Protection> Engine<P> {
                 }
             }
         }
+        self.schedule(&mut actions);
         actions.push(Action::SetTimer(self.next_timer()));
         Ok(actions)
     }
@@ -581,7 +634,18 @@ impl<P: Protection> Engine<P> {
         let id = view.id;
         let allowed = view.service_allowed;
         let attachment = self.peers.get(&id).and_then(|p| p.attachment);
-        self.peers.insert(id, PeerState { view, attachment });
+        let controller = match self.peers.remove(&id) {
+            Some(old) if !breach => old.controller,
+            _ => Controller::new(self.policy.congestion),
+        };
+        self.peers.insert(
+            id,
+            PeerState {
+                view,
+                attachment,
+                controller,
+            },
+        );
         if breach {
             self.fail_peer(id, ReadFailure::PeerReset, actions);
         } else if !allowed {
@@ -590,13 +654,7 @@ impl<P: Protection> Engine<P> {
         Ok(())
     }
 
-    fn start_read(
-        &mut self,
-        id: ReadId,
-        peer: PeerId,
-        path: Vec<u8>,
-        actions: &mut Vec<Action>,
-    ) -> Result<(), Error> {
+    fn start_read(&mut self, id: ReadId, peer: PeerId, path: Vec<u8>) -> Result<(), Error> {
         self.check_path(&path)?;
         if self.reads.contains_key(&id) {
             return Err(Error::ReadIdInUse);
@@ -620,7 +678,7 @@ impl<P: Protection> Engine<P> {
         }
         let deadline = self
             .now
-            .checked_add(self.config.read_timeout)
+            .checked_add(self.policy.timers.read_timeout)
             .ok_or(Error::ClockOverflow)?;
         self.reads.insert(
             id,
@@ -638,14 +696,10 @@ impl<P: Protection> Engine<P> {
                 unverified: BTreeMap::new(),
                 interests: BTreeMap::from([(
                     if P::SIGNED_PUBLIC { AUTH_INDEX } else { 0 },
-                    Attempt {
-                        count: 1,
-                        retry_at: self.now.saturating_add(self.config.retry_after),
-                    },
+                    Attempt::queued(),
                 )]),
             },
         );
-        self.send_interest(id, if P::SIGNED_PUBLIC { AUTH_INDEX } else { 0 }, actions);
         Ok(())
     }
 
@@ -807,7 +861,7 @@ impl<P: Protection> Engine<P> {
                 r.peer == peer
                     && r.rift == name.rift
                     && r.path == name.path
-                    && r.interests.contains_key(&index)
+                    && r.interests.get(&index).is_some_and(|a| a.count > 0)
             })
             .map(|(&id, _)| id)
             .ok_or(DropReason::NoInterest)?;
@@ -867,34 +921,78 @@ impl<P: Protection> Engine<P> {
         let offset = index as usize * self.capacity;
         read.bytes[offset..offset + fragment.len()].copy_from_slice(&fragment);
         read.interests.remove(&index);
+        self.peers
+            .get_mut(&peer)
+            .unwrap()
+            .controller
+            .verified(self.policy.congestion);
         read.remaining -= 1;
         read.received += 1;
         if read.remaining == 0 {
             let bytes = std::mem::take(&mut read.bytes);
             self.finish(id, Ok(bytes), actions);
         } else {
-            self.fill_window(id, actions);
+            self.fill_window(id);
         }
         Ok(())
     }
 
-    fn fill_window(&mut self, id: ReadId, actions: &mut Vec<Action>) {
-        loop {
-            let read = self.reads.get_mut(&id).unwrap();
-            let count = read.total.unwrap().div_ceil(self.capacity).max(1) as u64;
-            if read.interests.len() >= self.config.window || read.next_index >= count {
-                break;
-            }
+    fn fill_window(&mut self, id: ReadId) {
+        let read = self.reads.get_mut(&id).unwrap();
+        let count = read.total.unwrap().div_ceil(self.capacity).max(1) as u64;
+        while read.interests.len() < self.config.window && read.next_index < count {
             let index = read.next_index;
             read.next_index += 1;
-            read.interests.insert(
-                index,
-                Attempt {
-                    count: 1,
-                    retry_at: self.now.saturating_add(self.config.retry_after),
-                },
-            );
-            self.send_interest(id, index, actions);
+            read.interests.insert(index, Attempt::queued());
+        }
+    }
+
+    /// Fair admission across reads to each peer. Expired interests retain their
+    /// attempt count, but release a flight slot before competing for retransmit.
+    fn schedule(&mut self, actions: &mut Vec<Action>) {
+        let peers: Vec<_> = self.peers.keys().copied().collect();
+        for peer in peers {
+            if self.peers[&peer].attachment.is_none() || !self.peers[&peer].view.service_allowed {
+                continue;
+            }
+            let state = self.transfer_state(peer).unwrap();
+            let slots = state.window.saturating_sub(state.in_flight);
+            for _ in 0..slots {
+                let cursor = self.peers[&peer].controller.cursor;
+                let candidates: Vec<_> = self
+                    .reads
+                    .iter()
+                    .filter(|(_, r)| r.peer == peer)
+                    .filter_map(|(&id, r)| {
+                        r.interests
+                            .iter()
+                            .find(|(_, a)| !a.active)
+                            .map(|(&i, _)| (id, i))
+                    })
+                    .collect();
+                let chosen = candidates
+                    .iter()
+                    .find(|(id, _)| cursor.is_none_or(|c| *id > c))
+                    .or_else(|| candidates.first())
+                    .copied();
+                let Some((id, index)) = chosen else {
+                    break;
+                };
+                let attempt = self
+                    .reads
+                    .get_mut(&id)
+                    .unwrap()
+                    .interests
+                    .get_mut(&index)
+                    .unwrap();
+                attempt.count += 1;
+                attempt.active = true;
+                attempt.retry_at = self
+                    .now
+                    .saturating_add(self.policy.timers.retry.delay(attempt.count));
+                self.peers.get_mut(&peer).unwrap().controller.cursor = Some(id);
+                self.send_interest(id, index, actions);
+            }
         }
     }
 
@@ -922,41 +1020,32 @@ impl<P: Protection> Engine<P> {
 
     fn tick(&mut self, actions: &mut Vec<Action>) {
         let ids: Vec<_> = self.reads.keys().copied().collect();
+        let mut losses = std::collections::BTreeSet::new();
         for id in ids {
-            let read = &self.reads[&id];
+            let read = self.reads.get_mut(&id).unwrap();
             if read.deadline <= self.now {
                 self.finish(id, Err(ReadFailure::Timeout), actions);
                 continue;
             }
-            if read
-                .interests
-                .values()
-                .any(|a| a.retry_at <= self.now && a.count >= self.config.max_attempts)
-            {
-                self.finish(id, Err(ReadFailure::RetriesExhausted), actions);
-                continue;
-            }
-            let due: Vec<_> = read
-                .interests
-                .iter()
-                .filter(|(_, a)| a.retry_at <= self.now)
-                .map(|(&i, _)| i)
-                .collect();
-            for index in due {
-                let has_route = self.peers[&self.reads[&id].peer].attachment.is_some();
-                let attempt = self
-                    .reads
-                    .get_mut(&id)
-                    .unwrap()
-                    .interests
-                    .get_mut(&index)
-                    .unwrap();
-                if has_route {
-                    attempt.count += 1;
+            let mut exhausted = false;
+            for attempt in read.interests.values_mut() {
+                if attempt.active && attempt.retry_at <= self.now {
+                    attempt.active = false;
+                    losses.insert(read.peer);
+                    exhausted |= attempt.count >= self.policy.recovery.max_attempts;
                 }
-                attempt.retry_at = self.now.saturating_add(self.config.retry_after);
-                self.send_interest(id, index, actions);
             }
+            if exhausted {
+                self.finish(id, Err(ReadFailure::RetriesExhausted), actions);
+            }
+        }
+        // One decrease per peer per observed expiry batch, not per fragment.
+        for peer in losses {
+            self.peers
+                .get_mut(&peer)
+                .unwrap()
+                .controller
+                .expired(self.policy.congestion);
         }
     }
 
@@ -964,7 +1053,12 @@ impl<P: Protection> Engine<P> {
         self.reads
             .values()
             .flat_map(|r| {
-                std::iter::once(r.deadline).chain(r.interests.values().map(|a| a.retry_at))
+                std::iter::once(r.deadline).chain(
+                    r.interests
+                        .values()
+                        .filter(|a| a.active)
+                        .map(|a| a.retry_at),
+                )
             })
             .min()
     }

@@ -1,8 +1,9 @@
 //! Loopback test executable with PUBLIC, deterministic test seeds. Never use
 //! these identities/keys for real data. Separate processes share no verifier state.
 use mesa_core::{
-    protection::SignedPublic, Access, Action, Attachment, Config, Engine, Event, KeyHandle, PeerId,
-    PreconfiguredPeer,
+    policy::{CongestionPolicy, RecoveryPolicy, RetryTimer, TimerPolicy, TransferPolicy},
+    protection::SignedPublic,
+    Access, Action, Attachment, Config, Engine, Event, KeyHandle, PeerId, PreconfiguredPeer,
 };
 use mesa_crypto::KeyPair;
 use mesa_udp::UdpHost;
@@ -25,8 +26,11 @@ fn payload(peer: u8, length: usize) -> Vec<u8> {
 }
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<_> = std::env::args().collect();
-    if args.len() != 5 {
-        return Err("usage: protected-peer <1|2> <loopback-bind> <loopback-peer> <bytes>".into());
+    if !(5..=6).contains(&args.len()) {
+        return Err(
+            "usage: protected-peer <1|2> <loopback-bind> <loopback-peer> <bytes> [fixed|adaptive]"
+                .into(),
+        );
     }
     let id: u8 = args[1].parse()?;
     if id != 1 && id != 2 {
@@ -55,15 +59,30 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         KeyPair::from_seed(&[id; 32]),
         BTreeMap::from([(peer.key, KeyPair::from_seed(&[remote; 32]).public_key())]),
     );
-    let mut engine = Engine::new(
-        Config {
-            read_timeout: 5000,
-            max_attempts: 20,
-            ..Config::default()
+    let config = Config {
+        read_timeout: 5000,
+        max_attempts: 20,
+        ..Config::default()
+    };
+    let policy = match args.get(5).map(String::as_str).unwrap_or("fixed") {
+        "fixed" => TransferPolicy::fixed(&config),
+        "adaptive" => TransferPolicy {
+            recovery: RecoveryPolicy { max_attempts: 20 },
+            timers: TimerPolicy {
+                read_timeout: 5000,
+                retry: RetryTimer::Exponential {
+                    initial: 100,
+                    maximum: 800,
+                },
+            },
+            congestion: CongestionPolicy::Aimd {
+                initial: 2,
+                maximum: 4,
+            },
         },
-        local,
-        protection,
-    )?;
+        _ => return Err("policy must be fixed or adaptive".into()),
+    };
+    let mut engine = Engine::with_policy(config, local, protection, policy)?;
     engine.step(Event::InstallPeer(peer.clone()))?;
     engine.step(Event::Bind {
         path: b"example/value".into(),

@@ -1,4 +1,7 @@
 use mesa_core::{protection::SignedPublic, *};
+
+#[path = "support/policies.rs"]
+mod policies;
 use mesa_crypto::KeyPair;
 use mesa_wire::{decode, encode, Auth, Body, Data, Fragment, Name, Packet};
 use std::collections::{BTreeMap, VecDeque};
@@ -41,17 +44,23 @@ struct Harness {
     queue: VecDeque<Frame>,
     results: Vec<(usize, ReadId, Result<Vec<u8>, ReadFailure>)>,
     drops: Vec<DropReason>,
+    trace: Vec<(usize, Vec<Action>)>,
 }
 impl Harness {
     fn new(config: Config) -> Self {
+        let policy = policy::TransferPolicy::fixed(&config);
+        Self::with_policy(config, policy)
+    }
+    fn with_policy(config: Config, policy: policy::TransferPolicy) -> Self {
         let mut h = Self {
             engines: [
-                Engine::new(config.clone(), view(0), profile(0)).unwrap(),
-                Engine::new(config, view(1), profile(1)).unwrap(),
+                Engine::with_policy(config.clone(), view(0), profile(0), policy).unwrap(),
+                Engine::with_policy(config, view(1), profile(1), policy).unwrap(),
             ],
             queue: VecDeque::new(),
             results: vec![],
             drops: vec![],
+            trace: vec![],
         };
         for i in 0..2 {
             h.step(i, Event::InstallPeer(view(1 - i)));
@@ -66,7 +75,9 @@ impl Harness {
         h
     }
     fn step(&mut self, i: usize, event: Event<'_>) {
-        for action in self.engines[i].step(event).unwrap() {
+        let actions = self.engines[i].step(event).unwrap();
+        self.trace.push((i, actions.clone()));
+        for action in actions {
             match action {
                 Action::Send { bytes, .. } => self.queue.push_back(Frame { from: i, bytes }),
                 Action::ReadFinished { id, result } => self.results.push((i, id, result)),

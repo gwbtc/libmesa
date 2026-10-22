@@ -238,6 +238,7 @@ version = "0.0.1"
 dependencies = [
  "mesa-core",
  "mesa-crypto",
+ "mesa-wire",
 ]
 
 [[package]]

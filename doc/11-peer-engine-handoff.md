@@ -103,10 +103,13 @@ generalized enrollment handshakes do not.
    leg. Add TCP/WSS, multihoming and relay policies incrementally. Literal
    recursive DIF allocation can wait until one engine instance works.
 
-The initial loss tests may use fixed, documented retry budgets and window
-policies. They establish bounded behavior under the tested schedules, not a
-completed delta-t proof. Record timer assumptions as they become executable.
-The congestion and complete-path policy work remains part of the engine scope.
+The initial loss tests use fixed, documented retry budgets and window
+policies. The engine also supports [injected transfer policies](../spec/09-transfer-policies.md):
+capped exponential retries, aggregate peer windows, bounded AIMD feedback,
+and fair scheduling across reads. This implements the policy prerequisite for
+step 4; durable message flows remain the next acceptance gate. The tests establish
+bounded behavior under their schedules. A delta-t proof, production congestion
+control, and complete-path policy selection remain engine work.
 
 Steps 1 and 2 now have a deterministic implementation and in-memory acceptance
 tests. See [the engine contract and test profile](12-peer-engine.md) for the
@@ -131,15 +134,16 @@ while the authority provider is a fixture.
 
 ## Fresh-task prompt
 
-> Implement the first two steps of doc/11-peer-engine-handoff.md: a deterministic
-> mesa-core engine and two-peer named-read harness with explicit preconfigured
-> peers. Begin with a small runnable vertical slice, then add bounded multi-fragment
-> reads, loss, duplication, reordering, timeouts and cancellation. Preserve the
-> identity and wire choices in the handoff. Stub authority and protection only
-> through the described test boundaries. Do not implement generalized PKI, Jael,
-> userspace verifiers or enrollment. Report engine behavior demonstrated by tests
-> separately from packet cryptography and network interoperability.
+> Implement step 4 of doc/11-peer-engine-handoff.md: durable message flows over
+> the existing deterministic signed-read engine and transfer policies. First
+> specify the host commit boundary, delivery IDs, persistent outbox, deduplication
+> state, and restart behavior. Build a runnable two-peer slice with a fake durable
+> host, then test ordering, duplicate suppression, loss recovery, backpressure,
+> and crashes before and after each delivery/commit/ack boundary. Retain explicit
+> preconfigured peers and the current v2 identity/protection choices. Do not
+> implement generalized PKI, Jael, userspace verifiers, enrollment, or a comet
+> compatibility adapter. Distinguish committed delivery from ordinary callbacks.
 
-Read this file, current crate APIs, and spec chapters 1, 3, 4 and 7. Consult
+Read this file, current crate APIs, and spec chapters 3, 4, 8 and 9. Consult
 Ames/Mesa and Vere source only for the mechanism being implemented. The prior
 identity discussion and all planning documents are not required opening context.
