@@ -522,7 +522,9 @@ fn private_bindings_and_missing_keys_fail_closed() {
 fn independent_python_context_and_openssl_signature_match() {
     fn unhex(s: &str) -> Vec<u8> {
         s.as_bytes()
-            .chunks_exact(2)
+            .as_chunks::<2>()
+            .0
+            .iter()
             .map(|c| u8::from_str_radix(std::str::from_utf8(c).unwrap(), 16).unwrap())
             .collect()
     }
