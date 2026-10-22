@@ -4,7 +4,17 @@
 > plane: every mesa peer serves `/ax/~self//1/...`; acks, attestations, and
 > flow state are bindings like any other.
 
-## Outline
+## Implemented fixture profile
+
+`mesa-core` now implements bounded immutable binds, unbind, and receiver-driven
+named reads between explicitly preconfigured peers. It applies explicit binding
+access and service gates, schedules a bounded fragment window, and releases read
+state on completion or terminal failure. Its deterministic harness supplies
+controlled protection outcomes; LSS and encrypted namespace spaces remain
+unimplemented. See the [engine contract](../doc/12-peer-engine.md) for the exact
+test profile, timer assumptions, resource accounting, and retired-name policy.
+
+## Protocol outline
 
 1. **Binding model.** path → immutable authenticated page; referential
    transparency; growth (`%pine`-class latest-value queries) deferred to a

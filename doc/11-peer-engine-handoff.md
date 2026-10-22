@@ -108,6 +108,10 @@ policies. They establish bounded behavior under the tested schedules, not a
 completed delta-t proof. Record timer assumptions as they become executable.
 The congestion and complete-path policy work remains part of the engine scope.
 
+Steps 1 and 2 now have a deterministic implementation and in-memory acceptance
+tests. See [the engine contract and test profile](12-peer-engine.md) for the
+implemented behavior, replay command, and remaining step-3 protection work.
+
 ## Deferred work
 
 Freeze the existing identity primitives and conformance tests. Defer the general
