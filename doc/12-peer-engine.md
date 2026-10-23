@@ -176,8 +176,9 @@ Queued entries count toward the same per-read interest and metadata bounds.
 
 Real LSS, signed-public context binding, and UDP now have an implementation and
 tests in the separate profile. Private-space encryption, upstream interoperability,
-relay/PIT forwarding, production congestion control, and message flows remain
-unimplemented. A bounded fixed/AIMD policy prototype is available.
+relay/PIT forwarding and production congestion control remain unimplemented.
+A separate [bounded durable flow profile](../spec/10-durable-flows.md) now uses
+this engine with explicit host transactions and a fake atomic store. A bounded fixed/AIMD policy prototype is available.
 Flow state and durable acknowledgments require the contract in
 [spec chapter 4](../spec/04-flows.md). Generalized PKI, Jael, userspace verifiers,
 and enrollment remain outside this milestone.

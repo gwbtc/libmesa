@@ -1,11 +1,13 @@
 # libmesa spec — 4: Flows and messages
 
-> **Skeleton.** The flow engine is sequencing/window mechanism + policy
+> **Design outline.** The flow engine is sequencing/window mechanism + policy
 > modules (retransmission, congestion) selected from complete-path guarantees — option C in
 > `../doc/02-rina.md` §6.1.
 
 The named-read engine now implements the [transfer-policy prerequisite](09-transfer-policies.md).
-Flow sequencing and the durable host contract below remain unimplemented.
+The [bounded durable profile](10-durable-flows.md) now implements ordered
+sequencing, ACK/NACK receipts, host commits, and crash/restart tests with
+preconfigured flows. The broader upstream-compatible outline remains future work.
 
 ## Outline
 
@@ -42,5 +44,6 @@ A crash after an early ack can lose the message.
 Define recovery of pending deliveries, durable sequence state, outbox state,
 and stale epochs before implementing the flow API. Test crashes before and
 after each commit/ack boundary. Timer algebra addresses packet lifetime and
-state reclamation; it does not replace host transactions. These guarantees
-are requirements for later work, not properties of the current wire codec.
+state reclamation; it does not replace host transactions. The bounded profile exercises these requirements with a fake atomic host.
+A production transaction backend and a continuous-log reclamation protocol
+remain unimplemented.
