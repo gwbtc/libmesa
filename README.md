@@ -15,6 +15,9 @@ nodes, Shrubbery ships, and ChatControl-threatened phones.
 > bounded exponential retries and a shared per-peer fixed or AIMD window.
 > The in-memory harness tests fragmentation, loss,
 > duplication, reordering, malformed traffic, timeouts, and cancellation.
+> `mesa-flow` adds a bounded durable flow profile with explicit host commits,
+> ordered delivery, signed ACK/NACK receipts, and crash/restart tests against
+> a fake atomic store. Its messages are public plaintext.
 > Rust parses and encodes all three packet
 > bodies in experimental v2: fixed 128-bit names, explicit domain selectors,
 > exact-byte checksums, length-prefixed signatures, and none/IPv4 trailers.
@@ -22,8 +25,8 @@ nodes, Shrubbery ships, and ChatControl-threatened phones.
 > module. Noun primitives include canonical atoms, byte mug, bounded mat/rub,
 > and canonical jam/cue. Suite-C public-pass and current-ring parsing are
 > implemented alongside fragment reconstruction and C wire APIs. Domain
-> authority verification, private-space encryption, message flows, and relay
-> transport remain unimplemented. The core's service and binding-access checks
+> authority verification, private-space encryption, production flow storage,
+> and relay transport remain unimplemented. The core's service and binding-access checks
 > operate on trusted host configuration. Public reads do not authenticate requesters.
 > Suite-C name derivation, signing, and agreement match executed Hoon vectors.
 > The design beyond these primitives is
@@ -34,6 +37,7 @@ nodes, Shrubbery ships, and ChatControl-threatened phones.
 ```sh
 cargo test --workspace
 cargo run -p mesa-core --example two-peer
+cargo run -p mesa-flow --example two-peer-flows
 python3 tools/test-protected-udp.py
 cargo clippy --workspace --all-targets -- -D warnings
 cargo fmt --all -- --check
@@ -55,6 +59,11 @@ for scheduling, feedback, and timer bounds.
 See the [signed-public profile](spec/08-signed-public.md) for its exact transcript,
 resource bounds, and verification evidence. Selecting this profile requires
 explicit public binds; private binds are rejected.
+
+The flow example adds explicit enqueue, delivery, and settlement commits over
+the signed-read engine. It restarts both fake stores and peers and checks that
+application effects occur once. See the [durable flow profile](spec/10-durable-flows.md)
+for the host transaction contract, finite sequence cap, and acceptance tests.
 
 The C header is `crates/mesa-ffi/include/mesa.h`; `cargo build -p mesa-ffi`
 produces `target/debug/libmesa_ffi.a`. The ABI validates and roundtrips
@@ -129,7 +138,7 @@ revisions, implemented identity mechanics, companion status, and release gates.
 **Spec (`spec/`) — the skeleton that implementations conform to:**
 `00-scope` · `01-wire` · `02-packets` · `03-namespace` · `04-flows` ·
 `05-identity` · `06-routing` · `07-transports` · `08-signed-public` ·
-`09-transfer-policies`. The wire chapter specifies
+`09-transfer-policies` · `10-durable-flows`. The wire chapter specifies
 the implemented codec profile. Chapter 5 defines the domain-first identity
 contract, including opt-in life-1 fallback and explicit provisional bootstrap;
 it is not yet implemented. Other chapters contain proposals and outlines.
@@ -170,9 +179,11 @@ preconfigured peers, bounded namespace reads, fragmentation, and timers.
 Step 3 now adds a fixed signed-public v2 context, real LSS verification, and
 libmesa-to-libmesa UDP reads. The engine now separates recovery, congestion,
 and timer policies with bounded peer scheduling and deterministic tests.
-Next define and implement the durable host contract for message flows,
-then exercise a second attachment model and relay path. Private-space confidentiality
-remains a protection workstream. The earlier comet deadline and proposed v1
+The bounded durable flow profile now implements enqueue, delivery, and settlement
+transactions with a fake atomic host. Next connect it to host I/O and exercise
+a second attachment model and relay path. Production storage, receipt compaction,
+and continuous operation beyond the finite sequence cap remain separate gates.
+Private-space confidentiality remains a protection workstream. The earlier comet deadline and proposed v1
 adapter are off the critical path; the default remains v2.
 Generalized identity and the Groundwire verifier remain separate integration
 work. See the

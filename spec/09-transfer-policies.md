@@ -3,9 +3,9 @@
 `mesa-core` separates interest scheduling from host-selected recovery, timer,
 and congestion policies. `Engine::with_policy` validates one `TransferPolicy`
 at construction. Peers receive independent congestion state under that policy.
-The implementation supports fixed windows and a bounded AIMD prototype; it
-does not yet implement message flows, durable acknowledgments, RTT estimation,
-pacing, or complete-path policy selection.
+The implementation supports fixed windows and a bounded AIMD prototype. The
+policy layer does not implement flow persistence, RTT estimation, pacing, or
+complete-path policy selection.
 
 ## Configuration
 
@@ -136,11 +136,11 @@ under both policies, at 0, 1, 1024, 1025, 17425, and 1048576 bytes. The executab
 accepts an optional final `fixed` or `adaptive` argument. Socket tests cover
 dispatch of retries released when the host restores a route at construction.
 
-## Next gate: durable message flows
+## Durable flow integration
 
-Reuse these policy boundaries for sequencing, acknowledgments, and backpressure.
-First specify the durable delivery ID, outbox, deduplication record, and host
-commit completion event. Then test a fake durable host across crashes before
-and after each delivery/commit/ack boundary. Only committed delivery state may
-authorize an acknowledgment that lets the sender discard its message. The
-requirements remain in [the flow chapter](04-flows.md).
+The [bounded durable flow profile](10-durable-flows.md) now reuses these
+policies for message and receipt reads. It supplies a separate transaction
+boundary for enqueue, delivery, and settlement, tested with a fake atomic host.
+Its availability hints have their own bounded retry counters; they do not
+consume the core congestion window. Production hint pacing and complete-path
+policy selection remain future work.

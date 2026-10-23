@@ -207,6 +207,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "mesa-flow"
+version = "0.0.1"
+dependencies = [
+ "mesa-core",
+ "mesa-crypto",
+ "mesa-wire",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "mesa-identity"
 version = "0.0.1"
 dependencies = [

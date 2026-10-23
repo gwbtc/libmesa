@@ -156,5 +156,6 @@ with public deterministic test seeds. It checks exact bytes and SHA-256 receipts
 in both directions for lengths 0, 1, 1024, 1025, 17425, and 1048576. These are
 libmesa-to-libmesa tests. The separate virtual-link tests inject loss, duplication,
 delay, reordering, corrupt signatures/spines/pairs/data, context changes, and
-resource pressure. Network confidentiality, message flows, relay behavior, and
-Urbit interoperability remain unimplemented.
+resource pressure. Network confidentiality, relay behavior, and Urbit interoperability remain
+unimplemented. The separate [durable flow profile](10-durable-flows.md) now uses
+these reads for message and receipt objects with explicit host transactions.
