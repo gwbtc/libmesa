@@ -7,7 +7,7 @@ split Arvo-vane + Vere-runtime implementation into one self-contained,
 transport-agnostic engine — usable by non-Arvo peers: Nostr clients, LND
 nodes, Shrubbery ships, and ChatControl-threatened phones.
 
-> **Status: deterministic peer engine with signed public reads and UDP.**
+> **Status: signed public reads, durable flow state machines, and bounded transports.**
 > `mesa-core` provides bounded named reads between preconfigured peers through
 > explicit events and actions. A fixed v2 profile authenticates public objects
 > with Ed25519 and bounded BLAKE3 LSS; two independent processes read in both
@@ -17,7 +17,9 @@ nodes, Shrubbery ships, and ChatControl-threatened phones.
 > duplication, reordering, malformed traffic, timeouts, and cancellation.
 > `mesa-flow` adds a bounded durable flow profile with explicit host commits,
 > ordered delivery, signed ACK/NACK receipts, and crash/restart tests against
-> a fake atomic store. Its messages are public plaintext.
+> a fake atomic store. Its messages are public plaintext. `mesa-transport` runs
+> those flows over UDP and framed TCP and exercises a bounded two-leg relay
+> with endpoint recovery across a lossy downstream leg.
 > Rust parses and encodes all three packet
 > bodies in experimental v2: fixed 128-bit names, explicit domain selectors,
 > exact-byte checksums, length-prefixed signatures, and none/IPv4 trailers.
@@ -26,8 +28,8 @@ nodes, Shrubbery ships, and ChatControl-threatened phones.
 > and canonical jam/cue. Suite-C public-pass and current-ring parsing are
 > implemented alongside fragment reconstruction and C wire APIs. Domain
 > authority verification, private-space encryption, production flow storage,
-> and relay transport remain unimplemented. The core's service and binding-access checks
-> operate on trusted host configuration. Public reads do not authenticate requesters.
+> and continuous flow-log reclamation remain unimplemented. The core's service
+> and binding-access checks operate on trusted host configuration. Public reads do not authenticate requesters.
 > Suite-C name derivation, signing, and agreement match executed Hoon vectors.
 > The design beyond these primitives is
 > still a working-group draft.
@@ -38,6 +40,7 @@ nodes, Shrubbery ships, and ChatControl-threatened phones.
 cargo test --workspace
 cargo run -p mesa-core --example two-peer
 cargo run -p mesa-flow --example two-peer-flows
+cargo run -p mesa-transport --example flow-loopback
 python3 tools/test-protected-udp.py
 cargo clippy --workspace --all-targets -- -D warnings
 cargo fmt --all -- --check
@@ -64,6 +67,13 @@ The flow example adds explicit enqueue, delivery, and settlement commits over
 the signed-read engine. It restarts both fake stores and peers and checks that
 application effects occur once. See the [durable flow profile](spec/10-durable-flows.md)
 for the host transaction contract, finite sequence cap, and acceptance tests.
+
+The transport example exchanges four messages in each direction over real
+loopback UDP and TCP sockets within one process. The relay harness adds
+fragmented stream I/O, downstream loss, duplication, reordering, corruption,
+disconnects, and a receiver crash after storage succeeds. See the
+[flow transport contract](spec/11-flow-transports.md) for framing, queue/PIT
+bounds, recovery, and the remaining persistent-host work.
 
 The C header is `crates/mesa-ffi/include/mesa.h`; `cargo build -p mesa-ffi`
 produces `target/debug/libmesa_ffi.a`. The ABI validates and roundtrips

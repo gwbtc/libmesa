@@ -244,6 +244,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "mesa-transport"
+version = "0.0.1"
+dependencies = [
+ "mesa-core",
+ "mesa-crypto",
+ "mesa-flow",
+ "mesa-wire",
+ "serde_json",
+]
+
+[[package]]
 name = "mesa-udp"
 version = "0.0.1"
 dependencies = [
