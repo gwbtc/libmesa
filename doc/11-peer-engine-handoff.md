@@ -118,10 +118,15 @@ implemented behavior and replay command. Step 3 now has a
 [fixed signed-public v2 profile](../spec/08-signed-public.md), C-checked LSS,
 and bidirectional UDP tests between independent libmesa processes. Step 4 now
 adds preconfigured finite flows, signed ACK/NACK receipts, explicit commit
-completion, and deterministic crash/fault tests. Production storage, continuous
-log reclamation, and flow I/O integration remain unimplemented. Private-space
-encryption remains unimplemented. The RINA engine sequence remains the priority;
-the later comet-demo deadline is superseded.
+completion, and deterministic crash/fault tests.
+
+Step 5 connects the durable node to UDP and framed TCP host I/O and
+exercises a bounded two-leg relay. The deterministic stream-to-lossy-datagram
+harness preserves endpoint retries through disconnect and receiver restart.
+See [the transport contract](../spec/11-flow-transports.md). Production storage,
+continuous log reclamation, multihoming, and general relay service remain
+unimplemented. Private-space encryption remains unimplemented. The RINA engine
+sequence remains the priority; the later comet-demo deadline is superseded.
 
 ## Deferred work
 
@@ -138,16 +143,16 @@ while the authority provider is a fixture.
 
 ## Fresh-task prompt
 
-> Continue step 5 of doc/11-peer-engine-handoff.md. Connect the bounded durable
-> flow node to host I/O, then exercise a second attachment model and a relay
-> path in the deterministic harness. Preserve endpoint retries across an
-> unproven downstream leg, bounded scheduling, and the explicit durable host
-> commit boundary. Use the existing fake atomic host to test flow delivery
-> through loss, disconnects, and restart. Keep preconfigured peers, fixed v2,
-> and the signed-public profile. Do not add generalized PKI, Jael, userspace
-> verifiers, enrollment, or a comet compatibility adapter. Document the finite
-> flow log and separate production-storage and reclamation requirements.
+> Implement a reference persistent host for the durable flow node. Store the
+> checkpoint, application disposition, revision guard, and writer fence in one
+> transaction. Exercise subprocess crashes before storage commit, after commit,
+> and before the engine completion callback over the existing UDP/TCP hosts.
+> Restore the authoritative checkpoint and verify retained outboxes, ordered
+> delivery, and single application effects. Preserve the finite flow-log cap;
+> design safe receipt/retired-name reclamation as a separate protocol change.
+> Keep preconfigured peers and the fixed signed-public v2 profile. Do not add
+> generalized PKI, Jael, userspace verifiers, enrollment, or comet compatibility.
 
-Read this file, current crate APIs, and spec chapters 7, 8, 9 and 10. Consult
+Read this file, current crate APIs, and spec chapters 7 through 11. Consult
 Ames/Mesa and Vere source only for the mechanism being implemented. The prior
 identity discussion and all planning documents are not required opening context.

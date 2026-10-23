@@ -406,6 +406,10 @@ impl Node {
             awaiting_decision: self.delivery.is_some(),
         }
     }
+    /// Maximum pact size, independent of the local attachment framing.
+    pub fn max_packet_bytes(&self) -> usize {
+        self.core.max_packet_bytes()
+    }
     pub fn checkpoint(&self) -> &Checkpoint {
         &self.checkpoint
     }

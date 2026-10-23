@@ -234,6 +234,8 @@ plus a crash before the application decision. Eight seeded fault schedules mix
 loss, duplication, reordering, corruption, and restart, then require identical
 action traces on replay and one committed effect per delivery ID.
 
-The existing UDP tests still validate named reads. This flow milestone validates
-the deterministic flow/host contract; a UDP flow host, production transactions,
-continuous-log reclamation, and relay/second-attachment tests remain later work.
+The separate [flow transport profile](11-flow-transports.md) connects this node
+to UDP and framed TCP. It tests endpoint recovery through a bounded two-leg
+relay, downstream loss, disconnects, and a receiver restart after commit.
+Production storage transactions and continuous-log reclamation remain later
+work.
