@@ -19,7 +19,9 @@ nodes, Shrubbery ships, and ChatControl-threatened phones.
 > ordered delivery, signed ACK/NACK receipts, and crash/restart tests against
 > a fake atomic store. Its messages are public plaintext. `mesa-transport` runs
 > those flows over UDP and framed TCP and exercises a bounded two-leg relay
-> with endpoint recovery across a lossy downstream leg.
+> with endpoint recovery across a lossy downstream leg. `mesa-store` adds a
+> transactional SQLite inbox, checkpoint recovery, writer fencing, and process
+> crash tests over UDP and TCP.
 > Rust parses and encodes all three packet
 > bodies in experimental v2: fixed 128-bit names, explicit domain selectors,
 > exact-byte checksums, length-prefixed signatures, and none/IPv4 trailers.
@@ -27,9 +29,10 @@ nodes, Shrubbery ships, and ChatControl-threatened phones.
 > module. Noun primitives include canonical atoms, byte mug, bounded mat/rub,
 > and canonical jam/cue. Suite-C public-pass and current-ring parsing are
 > implemented alongside fragment reconstruction and C wire APIs. Domain
-> authority verification, private-space encryption, production flow storage,
-> and continuous flow-log reclamation remain unimplemented. The core's service
-> and binding-access checks operate on trusted host configuration. Public reads do not authenticate requesters.
+> authority verification, private-space encryption, and continuous flow-log
+> reclamation remain unimplemented. Persistent storage currently supports the
+> reference inbox application. The core's service and binding-access checks
+> operate on trusted host configuration. Public reads do not authenticate requesters.
 > Suite-C name derivation, signing, and agreement match executed Hoon vectors.
 > The design beyond these primitives is
 > still a working-group draft.
@@ -73,7 +76,14 @@ loopback UDP and TCP sockets within one process. The relay harness adds
 fragmented stream I/O, downstream loss, duplication, reordering, corruption,
 disconnects, and a receiver crash after storage succeeds. See the
 [flow transport contract](spec/11-flow-transports.md) for framing, queue/PIT
-bounds, recovery, and the remaining persistent-host work.
+bounds and recovery.
+
+The [persistent host](spec/12-persistent-host.md) commits checkpoints and inbox
+records atomically with SQLite. Its subprocess tests kill peers at 24 transaction
+boundaries over UDP and TCP, restart from the same stores, and verify exact
+ordered delivery and settlement. Run `cargo test -p mesa-store` for the matrix.
+These are process-crash tests; they do not establish power-loss durability on
+arbitrary storage.
 
 The C header is `crates/mesa-ffi/include/mesa.h`; `cargo build -p mesa-ffi`
 produces `target/debug/libmesa_ffi.a`. The ABI validates and roundtrips

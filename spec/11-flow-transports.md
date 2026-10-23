@@ -30,8 +30,9 @@ The host never acknowledges storage. The application must apply the transaction
 contract in [chapter 10](10-durable-flows.md): store each proposed checkpoint and
 application disposition atomically under its revision and writer fence, then
 submit `Committed(token)` after durable success. `Deliver` remains a proposal.
-The test/example store models atomic replacement in memory; it provides no disk
-or power-loss durability.
+The tests in this crate use an atomic in-memory model. A separate
+[persistent host](12-persistent-host.md) now supplies a transactional SQLite
+inbox and subprocess crash tests over these adapters.
 
 Construction and `reconnect` return actions because restoring a route can emit
 outbox announcements and pending interests immediately. `disconnect` removes
@@ -162,12 +163,11 @@ queue pressure, and preservation of commit requests across socket failure.
 
 ## Next work
 
-Implement a reference persistent host for the existing transaction boundary.
-Persist checkpoint, accepted application records or rejection records, revision,
-and writer fencing atomically; recover from subprocess crashes before commit,
-after commit, and before the engine callback. Reuse both transport paths and
-verify retained outboxes and single application effects from the authoritative
-store. Keep fixture peers and the existing public protection profile.
+The [reference persistent host](12-persistent-host.md) now implements the
+transaction boundary with SQLite, writer fencing, and subprocess crash tests.
+It stores accepted inbox effects and rejection records atomically with the
+checkpoint. Arbitrary application transactions and storage operations remain
+host integration work.
 
 The finite sequence log remains deliberate: receipts, settlements, and retired
 names accumulate up to the configured epoch cap. Continuous operation needs a

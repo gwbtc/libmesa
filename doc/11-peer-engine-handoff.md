@@ -123,8 +123,11 @@ completion, and deterministic crash/fault tests.
 Step 5 connects the durable node to UDP and framed TCP host I/O and
 exercises a bounded two-leg relay. The deterministic stream-to-lossy-datagram
 harness preserves endpoint retries through disconnect and receiver restart.
-See [the transport contract](../spec/11-flow-transports.md). Production storage,
-continuous log reclamation, multihoming, and general relay service remain
+See [the transport contract](../spec/11-flow-transports.md). A
+[reference persistent host](../spec/12-persistent-host.md) now stores the inbox
+and checkpoint atomically in SQLite, fences old writers, and passes subprocess
+crash tests across both transports. Continuous log reclamation, arbitrary
+application transactions, multihoming, and general relay service remain
 unimplemented. Private-space encryption remains unimplemented. The RINA engine
 sequence remains the priority; the later comet-demo deadline is superseded.
 
@@ -143,16 +146,17 @@ while the authority provider is a fixture.
 
 ## Fresh-task prompt
 
-> Implement a reference persistent host for the durable flow node. Store the
-> checkpoint, application disposition, revision guard, and writer fence in one
-> transaction. Exercise subprocess crashes before storage commit, after commit,
-> and before the engine completion callback over the existing UDP/TCP hosts.
-> Restore the authoritative checkpoint and verify retained outboxes, ordered
-> delivery, and single application effects. Preserve the finite flow-log cap;
-> design safe receipt/retired-name reclamation as a separate protocol change.
-> Keep preconfigured peers and the fixed signed-public v2 profile. Do not add
-> generalized PKI, Jael, userspace verifiers, enrollment, or comet compatibility.
+> Continue with safe continuous flow-log reclamation. Specify the authenticated
+> and durably committed evidence that permits each endpoint to retire history.
+> Keep message names monotonic and duplicate rejection valid across restart.
+> Implement bounded protocol state and test delayed/replayed packets, lost
+> acknowledgments, reconnects, and crashes around every watermark transition.
+> Separate protocol-history reclamation from application inbox retention; do
+> not delete application records without an explicit host retention decision.
+> Reuse the persistent host and UDP/TCP paths. Keep preconfigured peers and the
+> fixed signed-public v2 profile. Do not add generalized PKI, Jael, userspace
+> verifiers, enrollment, or comet compatibility.
 
-Read this file, current crate APIs, and spec chapters 7 through 11. Consult
+Read this file, current crate APIs, and spec chapters 7 through 12. Consult
 Ames/Mesa and Vere source only for the mechanism being implemented. The prior
 identity discussion and all planning documents are not required opening context.

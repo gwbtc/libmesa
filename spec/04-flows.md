@@ -44,6 +44,8 @@ A crash after an early ack can lose the message.
 Define recovery of pending deliveries, durable sequence state, outbox state,
 and stale epochs before implementing the flow API. Test crashes before and
 after each commit/ack boundary. Timer algebra addresses packet lifetime and
-state reclamation; it does not replace host transactions. The bounded profile exercises these requirements with a fake atomic host.
-A production transaction backend and a continuous-log reclamation protocol
-remain unimplemented.
+state reclamation; it does not replace host transactions. The bounded profile
+exercises these requirements with a fake atomic host. The separate
+[persistent host](12-persistent-host.md) adds a transactional SQLite inbox,
+writer fencing, and subprocess crash tests. Arbitrary application transactions
+and continuous-log reclamation remain separate work.
