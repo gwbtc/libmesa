@@ -30,7 +30,7 @@ fn enqueue(store: &Store, bytes: Vec<u8>) -> CommitRequest {
 fn deliver(store: &Store, bytes: Vec<u8>, outcome: Outcome) -> CommitRequest {
     let mut checkpoint = store.checkpoint().unwrap();
     let base_revision = checkpoint.revision;
-    let sequence = checkpoint.flows[0].received.len() as u64;
+    let sequence = checkpoint.flows[0].next_receive();
     let id = MessageId {
         sender: 2,
         sender_rift: 0,
@@ -332,4 +332,174 @@ fn persistent_generation_exhaustion_refuses_reuse() {
         Store::inspect(&path, Limits::default()).unwrap().checkpoint,
         initial(0)
     );
+}
+
+fn settle(store: &Store) -> CommitRequest {
+    let mut checkpoint = store.checkpoint().unwrap();
+    let base_revision = checkpoint.revision;
+    let flow = &mut checkpoint.flows[0];
+    let sequence = *flow.outbox.keys().next().unwrap();
+    flow.outbox.remove(&sequence);
+    let outcome = Outcome::Rejected(17);
+    flow.settled.insert(sequence, outcome);
+    checkpoint.revision += 1;
+    CommitRequest {
+        token: CommitToken {
+            incarnation: store.incarnation(),
+            revision: checkpoint.revision,
+        },
+        base_revision,
+        checkpoint,
+        change: Change::Settle {
+            id: MessageId {
+                sender: 1,
+                sender_rift: 0,
+                receiver: 2,
+                receiver_rift: 0,
+                flow: 7,
+                sequence,
+            },
+            outcome,
+        },
+    }
+}
+fn retire(store: &Store, incoming: bool) -> CommitRequest {
+    let mut checkpoint = store.checkpoint().unwrap();
+    let base_revision = checkpoint.revision;
+    let batch = checkpoint.batch_size;
+    let flow = &mut checkpoint.flows[0];
+    let sequence = if incoming {
+        flow.receive_floor += batch;
+        flow.received.clear();
+        flow.receive_floor
+    } else {
+        flow.send_floor += batch;
+        flow.settled.clear();
+        flow.send_floor
+    };
+    let id = MessageId {
+        sender: if incoming { 2 } else { 1 },
+        sender_rift: 0,
+        receiver: if incoming { 1 } else { 2 },
+        receiver_rift: 0,
+        flow: 7,
+        sequence,
+    };
+    checkpoint.revision += 1;
+    CommitRequest {
+        token: CommitToken {
+            incarnation: store.incarnation(),
+            revision: checkpoint.revision,
+        },
+        base_revision,
+        checkpoint,
+        change: if incoming {
+            Change::RetireReceived { id }
+        } else {
+            Change::RetireSent { id }
+        },
+    }
+}
+
+#[test]
+fn reclamation_preserves_application_records_and_quota_across_restart() {
+    let tmp = Temp::new();
+    let path = tmp.0.join("state.sqlite");
+    let mut cp = initial(0);
+    cp.batch_size = 2;
+    let limits = Limits {
+        delivery_records: 2,
+        ..Limits::default()
+    };
+    let mut store = Store::create(&path, &cp, limits).unwrap();
+    for incoming in [false, true] {
+        // A fabricated advance cannot skip the unsettled/undelivered batch.
+        assert!(store.commit(&retire(&store, incoming)).is_err());
+    }
+    for _ in 0..2 {
+        store.commit(&enqueue(&store, vec![1])).unwrap();
+        store.commit(&settle(&store)).unwrap();
+        store
+            .commit(&deliver(&store, vec![7], Outcome::Accepted))
+            .unwrap();
+    }
+    let full = Store::inspect(&path, limits).unwrap();
+    for incoming in [false, true] {
+        let r = retire(&store, incoming);
+        drop(store.prepare(&r).unwrap());
+        assert_eq!(store.checkpoint().unwrap().revision, r.base_revision);
+        store.commit(&r).unwrap();
+        assert!(store.commit(&r).is_err(), "retirement is monotonic");
+    }
+    let retired = Store::inspect(&path, limits).unwrap();
+    assert_eq!(retired.deliveries, full.deliveries);
+    assert_eq!(retired.settlements, full.settlements);
+    assert!(retired.checkpoint.flows[0].received.is_empty());
+    assert!(retired.checkpoint.flows[0].settled.is_empty());
+    let mut wrong_batch = cp.clone();
+    wrong_batch.batch_size = 4;
+    assert!(matches!(
+        Store::open(&path, &wrong_batch, limits),
+        Err(Error::Scope)
+    ));
+    // Quotas are application retention limits, independent of protocol floors.
+    store.commit(&enqueue(&store, vec![2])).unwrap();
+    assert!(matches!(store.commit(&settle(&store)), Err(Error::Limit)));
+    assert!(matches!(
+        store.commit(&deliver(&store, vec![3], Outcome::Accepted)),
+        Err(Error::Limit)
+    ));
+    let expected = Store::inspect(&path, limits).unwrap();
+    let reopened = Store::open(&path, &cp, limits).unwrap();
+    assert_eq!(reopened.checkpoint().unwrap(), expected.checkpoint);
+    let sql = rusqlite::Connection::open(&path).unwrap();
+    sql.execute(
+        "DELETE FROM settlements WHERE revision=(SELECT min(revision) FROM settlements)",
+        [],
+    )
+    .unwrap();
+    assert!(
+        Store::open(&path, &cp, limits).is_err(),
+        "missing retired outcome history fails closed"
+    );
+}
+
+#[test]
+fn failed_settlement_transaction_never_leaks_an_application_outcome() {
+    let tmp = Temp::new();
+    let path = tmp.0.join("state.sqlite");
+    let mut store = Store::create(&path, &initial(0), Limits::default()).unwrap();
+    store.commit(&enqueue(&store, vec![1])).unwrap();
+    let before = Store::inspect(&path, Limits::default()).unwrap();
+    let r = settle(&store);
+    let sql = rusqlite::Connection::open(&path).unwrap();
+    sql.execute_batch("CREATE TRIGGER fail_checkpoint BEFORE UPDATE OF checkpoint ON state BEGIN SELECT RAISE(ABORT,'injected checkpoint failure'); END;").unwrap();
+    assert!(store.commit(&r).is_err());
+    assert_eq!(Store::inspect(&path, Limits::default()).unwrap(), before);
+    sql.execute_batch("DROP TRIGGER fail_checkpoint;").unwrap();
+    store.commit(&r).unwrap();
+    assert_eq!(
+        Store::inspect(&path, Limits::default())
+            .unwrap()
+            .settlements
+            .len(),
+        1
+    );
+}
+
+#[test]
+fn legacy_profile_and_format_fail_closed_without_claiming_writer() {
+    let tmp = Temp::new();
+    let path = tmp.0.join("state.sqlite");
+    let mut old = initial(0);
+    old.version = 1;
+    assert!(Store::create(&path, &old, Limits::default()).is_err());
+    assert!(!path.exists());
+    let mut store = Store::create(&path, &initial(0), Limits::default()).unwrap();
+    let sql = rusqlite::Connection::open(&path).unwrap();
+    sql.execute_batch("PRAGMA ignore_check_constraints=ON; UPDATE state SET format=1;")
+        .unwrap();
+    assert!(Store::open(&path, &initial(0), Limits::default()).is_err());
+    sql.execute("UPDATE state SET format=2", []).unwrap();
+    store.commit(&enqueue(&store, vec![])).unwrap();
 }

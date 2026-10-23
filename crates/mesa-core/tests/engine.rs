@@ -1242,3 +1242,91 @@ fn missing_route_waits_until_absolute_deadline_without_spending_unsent_attempts(
     h.pump();
     success(&h, 1, b"route");
 }
+
+#[test]
+fn namespace_fences_reclaim_live_objects_and_tombstones_without_rebinding() {
+    let mut c = config();
+    c.max_bindings = 3;
+    let mut h = Harness::new(c);
+    bind(&mut h, b"log/00", b"first");
+    bind(&mut h, b"log/01", b"second");
+    bind(&mut h, b"other", b"untouched");
+    h.step(B, Event::Unbind { path: b"log/00" }).unwrap();
+    h.step(
+        B,
+        Event::RetireBefore {
+            prefix: b"log/".to_vec(),
+            suffix: b"02".to_vec(),
+        },
+    )
+    .unwrap();
+    assert_eq!(h.b.usage().namespace_slots, 2);
+    assert_eq!(h.b.usage().bindings, 1);
+    assert_eq!(h.b.usage().binding_bytes, 9);
+    for path in [b"log/00", b"log/01"] {
+        assert_eq!(
+            h.step(
+                B,
+                Event::Bind {
+                    path: path.to_vec(),
+                    bytes: vec![],
+                    access: Access::Public
+                }
+            ),
+            Err(Error::RetiredName)
+        );
+    }
+    bind(&mut h, b"log/02", b"next");
+    assert_eq!(
+        h.step(
+            B,
+            Event::RetireBefore {
+                prefix: b"log/".to_vec(),
+                suffix: b"01".to_vec()
+            }
+        ),
+        Err(Error::RetiredName)
+    );
+    assert_eq!(
+        h.step(
+            B,
+            Event::RetireBefore {
+                prefix: b"new/".to_vec(),
+                suffix: b"01".to_vec()
+            }
+        ),
+        Err(Error::ResourceLimit)
+    );
+    assert_eq!(h.b.usage().namespace_slots, 3);
+    h.step(
+        B,
+        Event::RetireBefore {
+            prefix: b"log/".to_vec(),
+            suffix: b"03".to_vec(),
+        },
+    )
+    .unwrap();
+    assert_eq!(h.b.usage().namespace_slots, 2);
+    // A restored fence rejects even names never bound in this process.
+    let mut restored = Harness::new(config());
+    restored
+        .step(
+            B,
+            Event::RetireBefore {
+                prefix: b"log/".to_vec(),
+                suffix: b"03".to_vec(),
+            },
+        )
+        .unwrap();
+    assert_eq!(
+        restored.step(
+            B,
+            Event::Bind {
+                path: b"log/02".to_vec(),
+                bytes: vec![],
+                access: Access::Public
+            }
+        ),
+        Err(Error::RetiredName)
+    );
+}

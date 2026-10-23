@@ -674,29 +674,30 @@ fn hints_are_bounded_untrusted_input_and_inbound_payload_cap_is_enforced() {
 }
 
 #[test]
-fn finite_epoch_log_rejects_sequence_reuse_and_exhaustion_after_restart() {
+fn reclaimed_batches_keep_sequences_monotonic_after_restart() {
     let mut c = config();
     c.max_messages = 2;
     c.window = 2;
     let mut h = Harness::new(c);
-    for sequence in 0..2 {
-        h.send(0, sequence, vec![sequence as u8]);
+    for batch in 0..5 {
+        for sequence in batch * 2..batch * 2 + 2 {
+            h.send(0, sequence, vec![sequence as u8]);
+        }
+        h.run(100);
+        assert_eq!(
+            h.nodes[0].checkpoint().flow(7).unwrap().send_floor,
+            batch * 2 + 2
+        );
+        assert_eq!(
+            h.nodes[1].checkpoint().flow(7).unwrap().receive_floor,
+            batch * 2 + 2
+        );
+        assert_eq!(h.nodes[0].usage().retained_receipts, 0);
+        assert_eq!(h.nodes[1].usage().retained_receipts, 0);
+        h.restart(0);
+        h.restart(1);
+        h.run(50);
     }
-    h.run(100);
-    h.settled(0, 2);
-    h.restart(0);
-    h.restart(1);
-    h.run(50);
-    assert_eq!(
-        h.nodes[0]
-            .step(Event::Enqueue {
-                flow: 7,
-                sequence: 2,
-                bytes: vec![]
-            })
-            .unwrap_err(),
-        Error::Limit
-    );
     assert_eq!(
         h.nodes[0]
             .step(Event::Enqueue {
@@ -707,9 +708,9 @@ fn finite_epoch_log_rejects_sequence_reuse_and_exhaustion_after_restart() {
             .unwrap_err(),
         Error::Sequence
     );
-    assert_eq!(h.stores[1].effects.len(), 2);
-    assert_eq!(h.nodes[1].core_usage().namespace_slots, 2);
-    assert_eq!(h.nodes[0].core_usage().namespace_slots, 0);
+    assert_eq!(h.stores[1].effects.len(), 10);
+    assert_eq!(h.nodes[1].core_usage().namespace_slots, 3);
+    assert_eq!(h.nodes[0].core_usage().namespace_slots, 2);
 }
 
 #[test]
@@ -803,4 +804,59 @@ fn same_epoch_signing_key_update_preserves_pending_flow_identity() {
     assert_eq!(h.stores[1].effects.len(), 1);
     let id = &h.stores[1].order[0];
     assert_eq!((id.sender_rift, id.receiver_rift, id.sequence), (0, 0, 0));
+}
+
+#[test]
+fn signed_invalid_watermark_body_cannot_retire_receipts() {
+    for bytes in [
+        vec![],
+        b"libmesa/flow-retirement/1\0".to_vec(),
+        b"libmesa/flow-retirement/2\0extra".to_vec(),
+    ] {
+        let mut c = config();
+        c.max_messages = 2;
+        c.window = 2;
+        let mut h = Harness::new(c);
+        for seq in 0..2 {
+            h.send(0, seq, payload(1025));
+        }
+        let mut release = None;
+        for _ in 0..1000 {
+            let Some(frame) = h.queue.pop_front() else {
+                break;
+            };
+            if let mesa_wire::Body::Poke { payload, .. } =
+                mesa_wire::decode(&frame.bytes, config().core.wire)
+                    .unwrap()
+                    .body
+            {
+                if payload.path.windows(9).any(|p| p == b"/release/") {
+                    release = Some(frame);
+                    break;
+                }
+            }
+            h.deliver(frame);
+        }
+        let release = release.unwrap();
+        let path = match mesa_wire::decode(&release.bytes, config().core.wire)
+            .unwrap()
+            .body
+        {
+            mesa_wire::Body::Poke { payload, .. } => payload.path.to_vec(),
+            _ => unreachable!(),
+        };
+        h.queue.clear();
+        h.deliver(release);
+        let mut server = oracle(0, path, bytes);
+        pump_oracle(&mut h, 0, &mut server);
+        assert_eq!(h.nodes[1].checkpoint().flow(7).unwrap().receive_floor, 0);
+        assert_eq!(h.nodes[1].checkpoint().flow(7).unwrap().received.len(), 2);
+        assert!(h.trace.iter().flat_map(|(_, a)| a).any(|a| matches!(
+            a,
+            Action::Stalled {
+                failure: Failure::InvalidWatermark,
+                ..
+            }
+        )));
+    }
 }

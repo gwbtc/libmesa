@@ -128,7 +128,15 @@ pub struct Harness {
 }
 impl Harness {
     pub fn new(c: Config) -> Self {
-        let stores = [Store::new(0), Store::new(1)];
+        let mut stores = [Store::new(0), Store::new(1)];
+        for (i, store) in stores.iter_mut().enumerate() {
+            store.disk = serde_json::to_vec(&Checkpoint::empty_with_batch(
+                &view(i),
+                &flows(i),
+                c.max_messages,
+            ))
+            .unwrap();
+        }
         let nodes = std::array::from_fn(|i| {
             Node::new(
                 c.clone(),

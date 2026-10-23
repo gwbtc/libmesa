@@ -1,7 +1,8 @@
 //! Bounded durable message flows over the signed-public named-read engine.
 //! The host commits checkpoints and application effects; this crate owns no I/O.
-//! See spec/10-durable-flows.md for the transaction and restart contract.
+//! See spec/13-continuous-flows.md for the transaction and restart contract.
 mod hints;
+mod retirement;
 mod state;
 use mesa_core::{
     policy::TransferPolicy, protection::SignedPublic, Access, Action as CoreAction, Attachment,
@@ -21,7 +22,7 @@ pub struct Config {
     pub core: mesa_core::Config,
     pub transfer: TransferPolicy,
     pub max_flows: usize,
-    /// Finite sequence space for this epoch. Receipts and retired names persist.
+    /// Retained messages per reclamation batch; must match checkpoint.batch_size.
     pub max_messages: u64,
     /// Per-flow outstanding outbox entries and receive prefetch slots.
     pub window: usize,
@@ -119,6 +120,7 @@ pub enum Failure {
     Read(ReadFailure),
     Start(mesa_core::Error),
     InvalidReceipt,
+    InvalidWatermark,
     MessageTooLarge,
 }
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -155,6 +157,7 @@ pub enum Action {
     Dropped(mesa_core::DropReason),
     AnnouncementStalled {
         id: MessageId,
+        kind: ReadKind,
     },
     EpochInvalidated {
         peer: PeerId,
@@ -197,7 +200,8 @@ pub struct Node {
     jobs: BTreeMap<u64, Work>,
     stalled: BTreeSet<Work>,
     advertised: BTreeSet<Work>,
-    hints: BTreeMap<(FlowId, Sequence), hints::Attempt>,
+    hints: BTreeMap<Work, hints::Attempt>,
+    controls: BTreeSet<Work>,
     now: Tick,
     next_read: u64,
     timer: Option<Tick>,
@@ -229,6 +233,7 @@ impl Node {
             stalled: BTreeSet::new(),
             advertised: BTreeSet::new(),
             hints: BTreeMap::new(),
+            controls: BTreeSet::new(),
             now: 0,
             next_read: 0,
             timer: None,
@@ -246,6 +251,14 @@ impl Node {
                 attachment,
             })?;
         }
+        for flow in node.checkpoint.flows.clone() {
+            if flow.send_floor > 0 {
+                node.retire_names(flow.flow, false, &mut vec![])?;
+            }
+            if flow.receive_floor > 0 {
+                node.retire_names(flow.flow, true, &mut vec![])?;
+            }
+        }
         // Restore only committed objects. Receipts survive the loss of all
         // soft read state and can repair a sender's lost acknowledgment.
         let mut bindings = vec![];
@@ -261,7 +274,7 @@ impl Node {
             for (seq, receipt) in flow.received.iter().enumerate() {
                 bindings.push((
                     node.checkpoint
-                        .message_id(flow.flow, seq as u64, true)
+                        .message_id(flow.flow, flow.receive_floor + seq as u64, true)
                         .path(ReadKind::Receipt),
                     receipt.encode(),
                 ));
@@ -274,6 +287,19 @@ impl Node {
                 access: Access::Public,
             })?;
         }
+        for flow in node.checkpoint.flows.clone() {
+            if flow.batch_settled(node.config.max_messages) {
+                node.bind_control(flow.flow, flow.next_send, ReadKind::Release, &mut vec![])?;
+            }
+            if flow.receive_floor > 0 {
+                node.bind_control(
+                    flow.flow,
+                    flow.receive_floor,
+                    ReadKind::Released,
+                    &mut vec![],
+                )?;
+            }
+        }
         Ok(node)
     }
 
@@ -284,8 +310,7 @@ impl Node {
         s: &Checkpoint,
         boot: u128,
     ) -> Result<(), Error> {
-        // Fixed finite maxima keep checkpoint metadata bounded even if a host
-        // accidentally requests an unbounded epoch log.
+        // Batch bounds limit retained history independently of sequence numbers.
         if boot == 0
             || c.max_flows == 0
             || c.max_flows > 16
@@ -298,7 +323,7 @@ impl Node {
             || c.max_message_bytes == 0
             || c.max_message_bytes > c.core.max_read_bytes
             || c.core.max_read_bytes < state::RECEIPT_BYTES
-            || c.core.wire.max_path < 132
+            || c.core.wire.max_path < 133
         {
             return Err(Error::InvalidConfig);
         }
@@ -306,12 +331,14 @@ impl Node {
         let reads = flows.len() * c.window * 2;
         let binding_bytes = c
             .max_outbox_bytes
-            .checked_add(objects * state::RECEIPT_BYTES)
+            .checked_add(
+                objects * state::RECEIPT_BYTES + flows.len() * 2 * retirement::MARKER.len(),
+            )
             .ok_or(Error::InvalidConfig)?;
         let reassembly = reads
             .checked_mul(c.core.max_read_bytes)
             .ok_or(Error::InvalidConfig)?;
-        if c.core.max_bindings < objects * 2
+        if c.core.max_bindings < objects * 2 + flows.len() * 6
             || c.core.max_reads < reads
             || c.core.max_binding_bytes < binding_bytes
             || c.core.max_reassembly_bytes < reassembly
@@ -329,14 +356,17 @@ impl Node {
                 }
             }
         }
-        if s.version != 1 || s.revision == u64::MAX || s.flows.len() != flows.len() {
+        if s.version != 2
+            || s.batch_size != c.max_messages
+            || s.revision == u64::MAX
+            || s.flows.len() != flows.len()
+        {
             return Err(Error::InvalidCheckpoint);
         }
         if s.local != Endpoint::from(local) {
             return Err(Error::EpochMismatch);
         }
         let mut total = 0usize;
-        let mut revision = 0u64;
         for (stored, configured) in s.flows.iter().zip(flows) {
             if stored.flow != configured.id {
                 return Err(Error::InvalidCheckpoint);
@@ -344,15 +374,9 @@ impl Node {
             if stored.remote != Endpoint::from(&configured.peer) {
                 return Err(Error::EpochMismatch);
             }
-            if stored.next_send > c.max_messages
-                || stored.received.len() as u64 > c.max_messages
-                || stored.outbox.len() > c.window
-                || stored.outbox.len() + stored.settled.len() != stored.next_send as usize
-            {
+            if !stored.valid(c.max_messages) || stored.outbox.len() > c.window {
                 return Err(Error::InvalidCheckpoint);
             }
-            revision +=
-                stored.next_send + stored.received.len() as u64 + stored.settled.len() as u64;
             for (&seq, bytes) in &stored.outbox {
                 if seq >= stored.next_send
                     || stored.settled.contains_key(&seq)
@@ -368,7 +392,7 @@ impl Node {
                 return Err(Error::InvalidCheckpoint);
             }
         }
-        if total > c.max_outbox_bytes || s.revision != revision {
+        if total > c.max_outbox_bytes || Some(s.revision) != s.expected_revision() {
             return Err(Error::InvalidCheckpoint);
         }
         Ok(())
@@ -438,9 +462,7 @@ impl Node {
                 if sequence != state.next_send {
                     return Err(Error::Sequence);
                 }
-                if sequence >= self.config.max_messages
-                    || bytes.len() > self.config.max_message_bytes
-                {
+                if sequence == u64::MAX || bytes.len() > self.config.max_message_bytes {
                     return Err(Error::Limit);
                 }
                 let total: usize = self
@@ -450,7 +472,8 @@ impl Node {
                     .flat_map(|f| f.outbox.values())
                     .map(Vec::len)
                     .sum();
-                if state.outbox.len() >= self.config.window
+                if sequence - state.send_floor >= self.config.max_messages
+                    || state.outbox.len() >= self.config.window
                     || bytes.len() > self.config.max_outbox_bytes.saturating_sub(total)
                 {
                     return Err(Error::Backpressure);
@@ -509,7 +532,7 @@ impl Node {
                     return Err(Error::UnknownFlow);
                 }
                 self.stalled.retain(|w| w.flow != flow);
-                self.hints.retain(|(f, _), _| *f != flow);
+                self.hints.retain(|w, _| w.flow != flow);
             }
             Event::SetAttachment { peer, attachment } => {
                 self.core_step(CoreEvent::SetAttachment { peer, attachment }, &mut out)?;
@@ -577,7 +600,7 @@ impl Node {
         self.stalled
             .retain(|w| self.checkpoint.peer(w.flow) != peer);
         self.hints
-            .retain(|(flow, _), _| self.checkpoint.peer(*flow) != peer);
+            .retain(|w, _| self.checkpoint.peer(w.flow) != peer);
     }
     fn propose(
         &mut self,
@@ -612,6 +635,9 @@ impl Node {
         let request = self.pending.take().unwrap();
         self.checkpoint = request.checkpoint;
         let result = match request.change {
+            Change::RetireReceived { id } | Change::RetireSent { id } => {
+                self.commit_retirement(id, out)
+            }
             Change::Enqueue { id } => {
                 let bytes = self.checkpoint.flow(id.flow).unwrap().outbox[&id.sequence].clone();
                 self.core_step(
@@ -625,8 +651,8 @@ impl Node {
                 .map(|()| out.push(Action::Enqueued { id }))
             }
             Change::Deliver { id, outcome, .. } => {
-                let receipt =
-                    &self.checkpoint.flow(id.flow).unwrap().received[id.sequence as usize];
+                let receipt = &self.checkpoint.flow(id.flow).unwrap().received
+                    [(id.sequence - self.checkpoint.flow(id.flow).unwrap().receive_floor) as usize];
                 let bytes = receipt.encode();
                 self.messages.remove(&(id.flow, id.sequence));
                 self.advertised.remove(&Work {
@@ -655,14 +681,25 @@ impl Node {
                     sequence: id.sequence,
                     kind: ReadKind::Receipt,
                 });
-                self.hints.remove(&(id.flow, id.sequence));
+                self.hints.remove(&Work {
+                    flow: id.flow,
+                    sequence: id.sequence,
+                    kind: ReadKind::Message,
+                });
                 self.core_step(
                     CoreEvent::Unbind {
                         path: &id.path(ReadKind::Message),
                     },
                     out,
                 )
-                .map(|()| out.push(Action::Settled { id, outcome }))
+                .and_then(|()| {
+                    let state = self.checkpoint.flow(id.flow).unwrap();
+                    if state.batch_settled(self.config.max_messages) {
+                        self.bind_control(id.flow, state.next_send, ReadKind::Release, out)?;
+                    }
+                    out.push(Action::Settled { id, outcome });
+                    Ok(())
+                })
             }
         };
         if result.is_err() {
@@ -696,6 +733,13 @@ impl Node {
                                     self.messages.insert((work.flow, work.sequence), bytes);
                                 }
                             }
+                            ReadKind::Release | ReadKind::Released => {
+                                if bytes == retirement::MARKER {
+                                    self.controls.insert(work);
+                                } else {
+                                    self.stall(work, Failure::InvalidWatermark, out);
+                                }
+                            }
                             ReadKind::Receipt => {
                                 let expected = mesa_crypto::sha256(
                                     &self.checkpoint.flow(work.flow).unwrap().outbox
@@ -727,7 +771,24 @@ impl Node {
     }
     fn drive(&mut self, out: &mut Vec<Action>) -> Result<(), Error> {
         if self.pending.is_none() && self.delivery.is_none() {
-            if let Some((&(flow, sequence), &outcome)) = self.receipts.iter().next() {
+            if let Some(work) = self.controls.iter().next().copied() {
+                let incoming = work.kind == ReadKind::Release;
+                let id = self
+                    .checkpoint
+                    .message_id(work.flow, work.sequence, incoming);
+                let mut next = self.checkpoint.clone();
+                let state = next.flow_mut(work.flow);
+                let change = if incoming {
+                    state.receive_floor = work.sequence;
+                    state.received.clear();
+                    Change::RetireReceived { id }
+                } else {
+                    state.send_floor = work.sequence;
+                    state.settled.clear();
+                    Change::RetireSent { id }
+                };
+                self.propose(next, change, out)?;
+            } else if let Some((&(flow, sequence), &outcome)) = self.receipts.iter().next() {
                 let id = self.checkpoint.message_id(flow, sequence, false);
                 let mut next = self.checkpoint.clone();
                 let state = next.flow_mut(flow);
@@ -739,7 +800,7 @@ impl Node {
                     if !flow.peer.service_allowed {
                         continue;
                     }
-                    let sequence = self.checkpoint.flow(flow.id).unwrap().received.len() as u64;
+                    let sequence = self.checkpoint.flow(flow.id).unwrap().next_receive();
                     if let Some(bytes) = self.messages.get(&(flow.id, sequence)) {
                         let id = self.checkpoint.message_id(flow.id, sequence, true);
                         self.delivery = Some(id.clone());
@@ -758,8 +819,25 @@ impl Node {
                 continue;
             }
             let state = self.checkpoint.flow(flow.id).unwrap();
-            let start = state.received.len() as u64;
-            for sequence in start..(start + self.config.window as u64).min(self.config.max_messages)
+            let start = state.next_receive();
+            if state.received.len() as u64 == self.config.max_messages {
+                wanted.push(Work {
+                    flow: flow.id,
+                    sequence: start,
+                    kind: ReadKind::Release,
+                });
+            }
+            if state.batch_settled(self.config.max_messages) {
+                wanted.push(Work {
+                    flow: flow.id,
+                    sequence: state.next_send,
+                    kind: ReadKind::Released,
+                });
+            }
+            for sequence in start
+                ..start
+                    .saturating_add(self.config.window as u64)
+                    .min(state.receive_floor.saturating_add(self.config.max_messages))
             {
                 if !self.messages.contains_key(&(flow.id, sequence)) {
                     wanted.push(Work {
@@ -780,7 +858,8 @@ impl Node {
             }
         }
         for work in wanted {
-            if !self.advertised.contains(&work)
+            if self.controls.contains(&work)
+                || !self.advertised.contains(&work)
                 || self.stalled.contains(&work)
                 || self.jobs.values().any(|w| *w == work)
             {
@@ -791,7 +870,7 @@ impl Node {
             let message = self.checkpoint.message_id(
                 work.flow,
                 work.sequence,
-                work.kind == ReadKind::Message,
+                matches!(work.kind, ReadKind::Message | ReadKind::Release),
             );
             self.jobs.insert(id, work);
             if let Err(error) = self.core_step(

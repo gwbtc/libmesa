@@ -1,4 +1,4 @@
-use crate::{Delivery, Error, Limits};
+use crate::{Delivery, Error, Limits, Settlement};
 use mesa_flow::{Change, Checkpoint, CommitRequest, MessageId, Receipt};
 
 pub(super) fn initial(s: &Checkpoint) -> Result<(), Error> {
@@ -10,6 +10,7 @@ pub(super) fn initial(s: &Checkpoint) -> Result<(), Error> {
 }
 pub(super) fn scope(a: &Checkpoint, b: &Checkpoint) -> Result<(), Error> {
     if a.version != b.version
+        || a.batch_size != b.batch_size
         || a.local != b.local
         || a.flows.len() != b.flows.len()
         || a.flows
@@ -22,22 +23,20 @@ pub(super) fn scope(a: &Checkpoint, b: &Checkpoint) -> Result<(), Error> {
     Ok(())
 }
 pub(super) fn state(s: &Checkpoint, limits: Limits) -> Result<(), Error> {
-    if s.version != 1 || s.flows.is_empty() || s.flows.len() > 16 {
+    if s.version != 2
+        || s.flows.is_empty()
+        || s.flows.len() > 16
+        || Some(s.revision) != s.expected_revision()
+    {
         return Err(Error::InvalidState);
     }
-    let mut revision = 0u64;
     for (i, f) in s.flows.iter().enumerate() {
         if i > 0 && s.flows[i - 1].flow >= f.flow
             || f.remote.name == s.local.name
-            || f.next_send > 1024
-            || f.received.len() > 1024
-            || f.outbox.len() + f.settled.len() != f.next_send as usize
-            || f.outbox.iter().any(|(seq, bytes)| {
-                *seq >= f.next_send
-                    || f.settled.contains_key(seq)
-                    || bytes.len() > limits.message_bytes
-            })
-            || f.settled.keys().any(|seq| *seq >= f.next_send)
+            || !f.valid(s.batch_size)
+            || f.outbox
+                .values()
+                .any(|bytes| bytes.len() > limits.message_bytes)
         {
             return Err(Error::InvalidState);
         }
@@ -54,10 +53,6 @@ pub(super) fn state(s: &Checkpoint, limits: Limits) -> Result<(), Error> {
                 return Err(Error::InvalidState);
             }
         }
-        revision += f.next_send + f.received.len() as u64 + f.settled.len() as u64;
-    }
-    if revision != s.revision {
-        return Err(Error::InvalidState);
     }
     Ok(())
 }
@@ -84,8 +79,10 @@ pub(super) fn transition(old: &Checkpoint, r: &CommitRequest, limits: Limits) ->
         return Err(Error::Revision);
     }
     let (id, incoming) = match &r.change {
-        Change::Enqueue { id } | Change::Settle { id, .. } => (id, false),
-        Change::Deliver { id, .. } => (id, true),
+        Change::Enqueue { id } | Change::Settle { id, .. } | Change::RetireSent { id } => {
+            (id, false)
+        }
+        Change::Deliver { id, .. } | Change::RetireReceived { id } => (id, true),
     };
     if !matches_id(old, id, incoming) {
         return Err(Error::Transition);
@@ -98,8 +95,22 @@ pub(super) fn transition(old: &Checkpoint, r: &CommitRequest, limits: Limits) ->
         .find(|f| f.flow == id.flow)
         .ok_or(Error::Transition)?;
     match &r.change {
+        Change::RetireReceived { id } => {
+            if flow.received.len() as u64 != old.batch_size || id.sequence != flow.next_receive() {
+                return Err(Error::Transition);
+            }
+            flow.receive_floor = id.sequence;
+            flow.received.clear();
+        }
+        Change::RetireSent { id } => {
+            if !flow.batch_settled(old.batch_size) || id.sequence != flow.next_send {
+                return Err(Error::Transition);
+            }
+            flow.send_floor = id.sequence;
+            flow.settled.clear();
+        }
         Change::Enqueue { id } => {
-            if id.sequence != flow.next_send {
+            if id.sequence != flow.next_send || id.sequence == u64::MAX {
                 return Err(Error::Transition);
             }
             let bytes = r
@@ -114,7 +125,7 @@ pub(super) fn transition(old: &Checkpoint, r: &CommitRequest, limits: Limits) ->
             flow.next_send += 1;
         }
         Change::Deliver { id, bytes, outcome } => {
-            if id.sequence != flow.received.len() as u64 || bytes.len() > limits.message_bytes {
+            if id.sequence != flow.next_receive() || bytes.len() > limits.message_bytes {
                 return Err(Error::Transition);
             }
             flow.received.push(Receipt {
@@ -144,20 +155,47 @@ pub(super) fn inbox(s: &Checkpoint, deliveries: &[Delivery]) -> Result<(), Error
         if *seq != d.id.sequence {
             return Err(Error::InvalidState);
         }
-        let receipt = s
-            .flow(d.id.flow)
-            .and_then(|f| f.received.get(*seq as usize))
-            .ok_or(Error::InvalidState)?;
-        if receipt.digest != mesa_crypto::sha256(&d.bytes) || receipt.outcome != d.outcome {
-            return Err(Error::InvalidState);
+        let flow = s.flow(d.id.flow).ok_or(Error::InvalidState)?;
+        if *seq >= flow.receive_floor {
+            let receipt = flow
+                .received
+                .get((*seq - flow.receive_floor) as usize)
+                .ok_or(Error::InvalidState)?;
+            if receipt.digest != mesa_crypto::sha256(&d.bytes) || receipt.outcome != d.outcome {
+                return Err(Error::InvalidState);
+            }
         }
         *seq += 1;
     }
     if s.flows
         .iter()
-        .any(|f| seen.get(&f.flow).copied().unwrap_or(0) != f.received.len() as u64)
+        .any(|f| seen.get(&f.flow).copied().unwrap_or(0) != f.next_receive())
     {
         return Err(Error::InvalidState);
+    }
+    Ok(())
+}
+
+pub(super) fn settlements(s: &Checkpoint, records: &[Settlement]) -> Result<(), Error> {
+    let mut seen = std::collections::BTreeMap::<u64, std::collections::BTreeSet<u64>>::new();
+    for r in records {
+        if r.revision == 0 || r.revision > s.revision || !matches_id(s, &r.id, false) {
+            return Err(Error::InvalidState);
+        }
+        let f = s.flow(r.id.flow).ok_or(Error::InvalidState)?;
+        if r.id.sequence >= f.next_send
+            || f.outbox.contains_key(&r.id.sequence)
+            || r.id.sequence >= f.send_floor && f.settled.get(&r.id.sequence) != Some(&r.outcome)
+            || !seen.entry(r.id.flow).or_default().insert(r.id.sequence)
+        {
+            return Err(Error::InvalidState);
+        }
+    }
+    for f in &s.flows {
+        if seen.get(&f.flow).map_or(0, |v| v.len() as u64) != f.send_floor + f.settled.len() as u64
+        {
+            return Err(Error::InvalidState);
+        }
     }
     Ok(())
 }

@@ -1,4 +1,9 @@
-# Implemented durable flow profile 1
+# Durable flow foundations: profile 1
+
+Profile 1 is superseded by [continuous profile 2](13-continuous-flows.md). This
+chapter records the original transaction contract and finite-history design.
+Profile 2 preserves the commit boundary and replaces the namespace version,
+checkpoint layout, and finite epoch cap. Current code rejects profile-1 state.
 
 `mesa-flow` provides ordered message delivery over the signed-public read
 engine, with host-owned durable state. A sender publishes a message only after
