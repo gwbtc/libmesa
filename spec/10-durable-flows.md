@@ -237,5 +237,6 @@ action traces on replay and one committed effect per delivery ID.
 The separate [flow transport profile](11-flow-transports.md) connects this node
 to UDP and framed TCP. It tests endpoint recovery through a bounded two-leg
 relay, downstream loss, disconnects, and a receiver restart after commit.
-Production storage transactions and continuous-log reclamation remain later
-work.
+The [persistent host](12-persistent-host.md) implements a transactional SQLite
+inbox with writer fencing and subprocess crash tests. Arbitrary application
+transactions and continuous-log reclamation remain later work.
