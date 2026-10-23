@@ -4,7 +4,10 @@ Transport policy must describe the path between the Mesa endpoints. A
 reliable local attachment does not establish a reliable path through relays.
 `mesa-udp` now supplies a bounded nonblocking host for the
 [signed-public profile](08-signed-public.md), tested between independent loopback
-processes. Stream adapters and relays remain unimplemented.
+processes under fixed and adaptive [transfer policies](09-transfer-policies.md).
+Policies are explicitly selected by the host; attachment capabilities and
+automatic complete-path policy selection remain unimplemented, along with
+stream adapters and relays.
 
 ## Common contract
 

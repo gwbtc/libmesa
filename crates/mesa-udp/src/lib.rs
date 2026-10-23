@@ -29,6 +29,7 @@ impl UdpHost {
             ));
         }
         let mut addresses = std::collections::BTreeSet::new();
+        let mut initial_actions = Vec::new();
         for (peer, (attachment, address)) in &routes {
             if !addresses.insert(*address) {
                 return Err(io::Error::new(
@@ -36,12 +37,13 @@ impl UdpHost {
                     "ambiguous source address",
                 ));
             }
-            engine
+            let actions = engine
                 .step(Event::SetAttachment {
                     peer: *peer,
                     attachment: Some(*attachment),
                 })
                 .map_err(io::Error::other)?;
+            initial_actions.extend(actions);
         }
         socket.set_nonblocking(true)?;
         // One extra byte distinguishes an oversized/truncated datagram from a
@@ -50,13 +52,17 @@ impl UdpHost {
             .max_packet_bytes()
             .checked_add(1)
             .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "packet limit overflow"))?;
-        Ok(Self {
+        let mut host = Self {
             engine,
             socket,
             routes,
             receive: vec![0; size],
             discarded_datagrams: 0,
-        })
+        };
+        // Installing a route can release queued interests. SetAttachment emits
+        // only Send/SetTimer; polling supplies the timer driver for this host.
+        host.dispatch(initial_actions)?;
+        Ok(host)
     }
     pub fn engine(&self) -> &Engine<SignedPublic> {
         &self.engine

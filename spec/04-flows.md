@@ -4,6 +4,9 @@
 > modules (retransmission, congestion) selected from complete-path guarantees — option C in
 > `../doc/02-rina.md` §6.1.
 
+The named-read engine now implements the [transfer-policy prerequisite](09-transfer-policies.md).
+Flow sequencing and the durable host contract below remain unimplemented.
+
 ## Outline
 
 1. **Message layer.** `%plea`/`%boon` over flows; `$spar`; payload encoding

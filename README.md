@@ -11,7 +11,9 @@ nodes, Shrubbery ships, and ChatControl-threatened phones.
 > `mesa-core` provides bounded named reads between preconfigured peers through
 > explicit events and actions. A fixed v2 profile authenticates public objects
 > with Ed25519 and bounded BLAKE3 LSS; two independent processes read in both
-> directions over loopback UDP. The in-memory harness tests fragmentation, loss,
+> directions over loopback UDP. Host-selected transfer policies provide fixed or
+> bounded exponential retries and a shared per-peer fixed or AIMD window.
+> The in-memory harness tests fragmentation, loss,
 > duplication, reordering, malformed traffic, timeouts, and cancellation.
 > Rust parses and encodes all three packet
 > bodies in experimental v2: fixed 128-bit names, explicit domain selectors,
@@ -47,7 +49,9 @@ exercise engine behavior without implementing cryptography. See the
 peer updates, and the multi-fragment fault tests.
 
 The separate UDP runner uses real signatures and LSS with public test seeds.
-It checks exact data in both directions from empty values through 1 MiB.
+It checks exact data in both directions from empty values through 1 MiB under
+both fixed and adaptive transfer policies. See the [policy contract](spec/09-transfer-policies.md)
+for scheduling, feedback, and timer bounds.
 See the [signed-public profile](spec/08-signed-public.md) for its exact transcript,
 resource bounds, and verification evidence. Selecting this profile requires
 explicit public binds; private binds are rejected.
@@ -124,7 +128,8 @@ revisions, implemented identity mechanics, companion status, and release gates.
 
 **Spec (`spec/`) — the skeleton that implementations conform to:**
 `00-scope` · `01-wire` · `02-packets` · `03-namespace` · `04-flows` ·
-`05-identity` · `06-routing` · `07-transports`. The wire chapter specifies
+`05-identity` · `06-routing` · `07-transports` · `08-signed-public` ·
+`09-transfer-policies`. The wire chapter specifies
 the implemented codec profile. Chapter 5 defines the domain-first identity
 contract, including opt-in life-1 fallback and explicit provisional bootstrap;
 it is not yet implemented. Other chapters contain proposals and outlines.
@@ -163,9 +168,10 @@ announcement/recovery change is required for full identity interoperability.
 The first two peer-engine steps now have an in-memory implementation:
 preconfigured peers, bounded namespace reads, fragmentation, and timers.
 Step 3 now adds a fixed signed-public v2 context, real LSS verification, and
-libmesa-to-libmesa UDP reads. Continue the RINA-shaped engine with explicit
-recovery/congestion/timer policies, the durable host contract for message flows,
-and then a second attachment model and relay path. Private-space confidentiality
+libmesa-to-libmesa UDP reads. The engine now separates recovery, congestion,
+and timer policies with bounded peer scheduling and deterministic tests.
+Next define and implement the durable host contract for message flows,
+then exercise a second attachment model and relay path. Private-space confidentiality
 remains a protection workstream. The earlier comet deadline and proposed v1
 adapter are off the critical path; the default remains v2.
 Generalized identity and the Groundwire verifier remain separate integration

@@ -132,6 +132,10 @@ domain verification, autonomous rotation recovery, or enrollment.
 
 ## Resource and timer policy
 
+The [transfer-policy contract](../spec/09-transfer-policies.md) now separates
+policy from scheduling. The defaults below describe `Engine::new`;
+`Engine::with_policy` can inject shared peer windows and adaptive behavior.
+
 The default engine uses these fixed bounds. Hosts can supply smaller profiles;
 configuration validation ensures admitted path and fragment sizes fit the wire
 packet limit, including worst-case integer and domain framing.
@@ -164,14 +168,16 @@ peer/path, unknown or blocked peers, missing routes, and exhausted read slots.
 received-fragment counts. Path and metadata storage are bounded by those counts
 and configured path lengths. It does not report allocator overhead, protection
 adapter storage, host-owned inputs, returned buffers, or the host's output queue.
-An ordinary packet can emit at most one page or refill one read window. A timer
-event can emit at most `max_reads * window` packets.
+A successful step can release queued work across reads. Scheduling emits at
+most `max_reads * window` interests; an incoming peek can also emit one page.
+Queued entries count toward the same per-read interest and metadata bounds.
 
 ## Remaining work
 
 Real LSS, signed-public context binding, and UDP now have an implementation and
 tests in the separate profile. Private-space encryption, upstream interoperability,
-relay/PIT forwarding, congestion control, and message flows remain unimplemented.
+relay/PIT forwarding, production congestion control, and message flows remain
+unimplemented. A bounded fixed/AIMD policy prototype is available.
 Flow state and durable acknowledgments require the contract in
 [spec chapter 4](../spec/04-flows.md). Generalized PKI, Jael, userspace verifiers,
 and enrollment remain outside this milestone.

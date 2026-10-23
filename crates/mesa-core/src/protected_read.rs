@@ -83,7 +83,7 @@ impl<P: Protection> Engine<P> {
                 r.peer == peer
                     && r.rift == name.rift
                     && r.path == name.path
-                    && r.interests.contains_key(&index)
+                    && r.interests.get(&index).is_some_and(|a| a.count > 0)
             })
             .map(|(&id, _)| id)
             .ok_or(DropReason::NoInterest)?;
@@ -123,7 +123,12 @@ impl<P: Protection> Engine<P> {
             read.remaining = total.div_ceil(self.capacity).max(1);
             read.verifier = Some(verifier);
             read.interests.remove(&AUTH_INDEX);
-            self.fill_window(id, actions);
+            self.peers
+                .get_mut(&peer)
+                .unwrap()
+                .controller
+                .verified(self.policy.congestion);
+            self.fill_window(id);
             return Ok(());
         }
         if self.reads[&id].total != Some(total) {
@@ -190,7 +195,7 @@ impl<P: Protection> Engine<P> {
             let bytes = std::mem::take(&mut read.bytes);
             self.finish(id, Ok(bytes), actions);
         } else {
-            self.fill_window(id, actions);
+            self.fill_window(id);
         }
         Ok(())
     }
@@ -212,6 +217,11 @@ impl<P: Protection> Engine<P> {
         read.bytes[offset..offset + bytes.len()].copy_from_slice(bytes);
         read.unverified.remove(&index);
         read.interests.remove(&index);
+        self.peers
+            .get_mut(&read.peer)
+            .unwrap()
+            .controller
+            .verified(self.policy.congestion);
         read.remaining -= 1;
         read.received += 1;
         Ok(())
