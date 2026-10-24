@@ -136,7 +136,18 @@ fn actions(
                 let kind = match request.change {
                     Change::Enqueue { .. } => "enqueue",
                     Change::Deliver { .. } => "deliver",
+                    Change::Settle { ref id, .. }
+                        if request
+                            .checkpoint
+                            .flow(id.flow)
+                            .unwrap()
+                            .batch_settled(request.checkpoint.batch_size) =>
+                    {
+                        "release"
+                    }
                     Change::Settle { .. } => "settle",
+                    Change::RetireReceived { .. } => "retire-received",
+                    Change::RetireSent { .. } => "retire-sent",
                 };
                 let revision = request.checkpoint.revision;
                 pause(gate, kind, "before", marker, revision)?;
@@ -165,10 +176,24 @@ fn run(args: &[String]) -> Result<(), Box<dyn std::error::Error>> {
     if id > 1 {
         return Err("peer must be 0 or 1".into());
     }
+    let count: u64 = args.get(8).map_or(Ok(4), |s| s.parse())?;
+    let batch_size: u64 = args.get(9).map_or(Ok(64), |s| s.parse())?;
+    if count == 0 || count > 16384 || !(1..=1024).contains(&batch_size) {
+        return Err("invalid count or batch size".into());
+    }
     let gate = &args[6];
     let marker = &args[7];
     if gate != "none"
-        && !["enqueue", "deliver", "settle"].iter().any(|kind| {
+        && ![
+            "enqueue",
+            "deliver",
+            "settle",
+            "release",
+            "retire-received",
+            "retire-sent",
+        ]
+        .iter()
+        .any(|kind| {
             ["before", "prepared", "committed", "callback"]
                 .iter()
                 .any(|phase| gate == &format!("{kind}/{phase}"))
@@ -179,10 +204,13 @@ fn run(args: &[String]) -> Result<(), Box<dyn std::error::Error>> {
     let io = lane(id, &args[2], args[4].parse()?, args[5].parse()?)?;
     let mut store = Store::open(
         &args[3],
-        &Checkpoint::empty(&view(id), &flows(id)),
+        &Checkpoint::empty_with_batch(&view(id), &flows(id), batch_size),
         Limits::default(),
     )?;
     let mut c = config();
+    c.max_messages = batch_size;
+    c.core.max_bindings = c.core.max_bindings.max(2 * batch_size as usize + 6);
+    c.window = c.window.min(batch_size as usize);
     c.transfer.timers.read_timeout = 15000;
     c.transfer.recovery.max_attempts = 200;
     let node = Node::new(
@@ -202,22 +230,37 @@ fn run(args: &[String]) -> Result<(), Box<dyn std::error::Error>> {
         let batch = host.poll(start.elapsed().as_millis() as u64)?;
         actions(&mut host, &mut store, batch, gate, marker)?;
         let flow = host.node().checkpoint().flow(7).unwrap();
-        if flow.next_send < 4 && flow.outbox.len() < 4 {
+        if flow.next_send < count
+            && flow.outbox.len() < 4.min(batch_size as usize)
+            && flow.next_send - flow.send_floor < batch_size
+        {
             let sequence = flow.next_send;
             let batch = host.step(Event::Enqueue {
                 flow: 7,
                 sequence,
-                bytes: payload(sizes[sequence as usize]),
+                bytes: payload(sizes[sequence as usize % sizes.len()]),
             })?;
             actions(&mut host, &mut store, batch, gate, marker)?;
         }
         let flow = host.node().checkpoint().flow(7).unwrap();
-        if !done && flow.settled.len() == 4 && flow.received.len() == 4 {
-            mark(&format!("{marker}.done"), "settled 4, received 4")?;
+        if !done
+            && flow.send_floor + flow.settled.len() as u64 == count
+            && flow.next_receive() == count
+            && flow.send_floor == count / batch_size * batch_size
+            && flow.receive_floor == count / batch_size * batch_size
+        {
+            mark(
+                &format!("{marker}.done"),
+                &format!("settled {count}, received {count}"),
+            )?;
             done = true;
-            println!("peer {id}: 4 settled, 3 accepted inbox effects, 1 durable rejection");
+            println!(
+                "peer {id}: {count} settled, {} accepted inbox effects, {} durable rejections",
+                count - u64::from(count > 1),
+                u64::from(count > 1)
+            );
         }
-        if !done && start.elapsed() > Duration::from_secs(30) {
+        if !done && start.elapsed() > Duration::from_secs(60) {
             return Err("flow deadline".into());
         }
         std::thread::sleep(Duration::from_millis(1));
@@ -226,14 +269,15 @@ fn run(args: &[String]) -> Result<(), Box<dyn std::error::Error>> {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<_> = std::env::args().skip(1).collect();
     match args.first().map(String::as_str) {
-        Some("init") if args.len() == 3 => {
+        Some("init") if matches!(args.len(), 3 | 4) => {
             let id: usize = args[1].parse()?;
             if id > 1 {
                 return Err("peer must be 0 or 1".into());
             }
+            let batch_size = args.get(3).map_or(Ok(64), |s| s.parse())?;
             Store::create(
                 Path::new(&args[2]),
-                &Checkpoint::empty(&view(id), &flows(id)),
+                &Checkpoint::empty_with_batch(&view(id), &flows(id), batch_size),
                 Limits::default(),
             )?;
             println!("initialized peer {id}");
@@ -244,10 +288,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("{}", serde_json::to_string_pretty(&snapshot)?);
             Ok(())
         }
-        Some("run") if args.len() == 8 => run(&args),
+        Some("run") if matches!(args.len(), 8 | 10) => run(&args),
         _ => Err(concat!(
-            "usage: persistent-peer init <0|1> <db> | inspect <db> | ",
-            "run <0|1> <udp|tcp> <db> <bind> <remote> <fault-gate|none> <marker-prefix>; ",
+            "usage: persistent-peer init <0|1> <db> [batch-size] | inspect <db> | ",
+            "run <0|1> <udp|tcp> <db> <bind> <remote> <fault-gate|none> <marker-prefix> [count batch-size]; ",
             "public fixture keys, loopback only"
         )
         .into()),

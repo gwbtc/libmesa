@@ -126,9 +126,11 @@ harness preserves endpoint retries through disconnect and receiver restart.
 See [the transport contract](../spec/11-flow-transports.md). A
 [reference persistent host](../spec/12-persistent-host.md) now stores the inbox
 and checkpoint atomically in SQLite, fences old writers, and passes subprocess
-crash tests across both transports. Continuous log reclamation, arbitrary
-application transactions, multihoming, and general relay service remain
-unimplemented. Private-space encryption remains unimplemented. The RINA engine
+crash tests across both transports. [Continuous flow profile 2](../spec/13-continuous-flows.md)
+adds signed batch retirement, bounded namespace fences, separate application
+history, and watermark crash/continuous-operation tests. Host-managed application
+retention, arbitrary application transactions, multihoming, and general relay
+service remain unimplemented. Private-space encryption remains unimplemented. The RINA engine
 sequence remains the priority; the later comet-demo deadline is superseded.
 
 ## Deferred work
@@ -146,17 +148,16 @@ while the authority provider is a fixture.
 
 ## Fresh-task prompt
 
-> Continue with safe continuous flow-log reclamation. Specify the authenticated
-> and durably committed evidence that permits each endpoint to retire history.
-> Keep message names monotonic and duplicate rejection valid across restart.
-> Implement bounded protocol state and test delayed/replayed packets, lost
-> acknowledgments, reconnects, and crashes around every watermark transition.
-> Separate protocol-history reclamation from application inbox retention; do
-> not delete application records without an explicit host retention decision.
-> Reuse the persistent host and UDP/TCP paths. Keep preconfigured peers and the
-> fixed signed-public v2 profile. Do not add generalized PKI, Jael, userspace
-> verifiers, enrollment, or comet compatibility.
+> Continue with host-managed application consumption and retention. Define
+> durable consumer cursors for inbox records and sender outcomes, then implement
+> explicit retention decisions that release storage quota without resetting
+> message sequences or protocol floors. Preserve deduplication across restart
+> and crashes around consumption/retention commits. Keep protocol retirement
+> independent of application retention; no silent deletion or database reset.
+> Reuse the SQLite host, continuous flow profile, and UDP/TCP harnesses. Keep
+> preconfigured peers and signed-public v2. Do not add generalized PKI, Jael,
+> userspace verifiers, enrollment, or comet compatibility.
 
-Read this file, current crate APIs, and spec chapters 7 through 12. Consult
+Read this file, current crate APIs, and spec chapters 7 through 13. Consult
 Ames/Mesa and Vere source only for the mechanism being implemented. The prior
 identity discussion and all planning documents are not required opening context.

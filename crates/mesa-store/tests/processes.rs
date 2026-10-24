@@ -9,6 +9,9 @@ use std::{
     time::{Duration, Instant},
 };
 use support::*;
+// Serialize port selection and startup across socket tests in this binary.
+// Concurrent matrix cases could otherwise select the same released port.
+static SOCKET_TEST: std::sync::Mutex<()> = std::sync::Mutex::new(());
 struct Peer {
     child: Child,
     log: PathBuf,
@@ -29,6 +32,17 @@ impl Peer {
         gate: &str,
         round: usize,
     ) -> Self {
+        Self::spawn_profile(root, id, mode, addresses, gate, round, (4, 64))
+    }
+    fn spawn_profile(
+        root: &Path,
+        id: usize,
+        mode: &str,
+        addresses: [SocketAddr; 2],
+        gate: &str,
+        round: usize,
+        profile: (u64, u64),
+    ) -> Self {
         let log = root.join(format!("peer-{id}-{round}.log"));
         let marker = root.join(format!("peer-{id}-{round}"));
         let out = File::create(&log).unwrap();
@@ -41,6 +55,8 @@ impl Peer {
             .arg(addresses[1 - id].to_string())
             .arg(gate)
             .arg(&marker)
+            .arg(profile.0.to_string())
+            .arg(profile.1.to_string())
             .stdout(Stdio::from(out.try_clone().unwrap()))
             .stderr(Stdio::from(out))
             .spawn()
@@ -91,7 +107,7 @@ fn wait(peers: &mut [Peer; 2], gate: bool) {
             return;
         }
         assert!(
-            start.elapsed() < Duration::from_secs(20),
+            start.elapsed() < Duration::from_secs(45),
             "wait timed out: {:?}",
             peers
                 .iter()
@@ -101,54 +117,88 @@ fn wait(peers: &mut [Peer; 2], gate: bool) {
         std::thread::sleep(Duration::from_millis(5));
     }
 }
-fn assert_final(root: &Path) {
+fn assert_final(root: &Path, count: u64, batch: u64) {
     for id in 0..2 {
         let snapshot =
             Store::inspect(root.join(format!("{id}.sqlite")), Limits::default()).unwrap();
         let flow = snapshot.checkpoint.flow(7).unwrap();
-        assert_eq!(snapshot.checkpoint.revision, 12);
-        assert_eq!(flow.next_send, 4);
+        assert_eq!(
+            snapshot.checkpoint.revision,
+            count * 3 + 2 * (count / batch)
+        );
+        assert_eq!(flow.next_send, count);
         assert!(flow.outbox.is_empty());
-        assert_eq!(flow.settled.len(), 4);
-        assert_eq!(flow.received.len(), 4);
-        assert_eq!(snapshot.deliveries.len(), 4);
+        assert_eq!(flow.settled.len() as u64, count % batch);
+        assert_eq!(flow.received.len() as u64, count % batch);
+        assert_eq!(snapshot.deliveries.len() as u64, count);
+        assert_eq!(snapshot.settlements.len() as u64, count);
+        assert_eq!(flow.send_floor, count / batch * batch);
+        assert_eq!(flow.receive_floor, count / batch * batch);
         assert_eq!(
             snapshot
                 .deliveries
                 .iter()
                 .filter(|r| r.outcome == Outcome::Accepted)
                 .count(),
-            3
+            count as usize - 1
         );
         let sizes = [0, 1024, 1025, 17425];
         for (sequence, record) in snapshot.deliveries.iter().enumerate() {
             assert_eq!(record.id.sequence, sequence as u64);
-            assert_eq!(record.bytes, fixture::payload(sizes[sequence]));
+            assert_eq!(
+                record.bytes,
+                fixture::payload(sizes[sequence % sizes.len()])
+            );
             let outcome = if sequence == 1 {
                 Outcome::Rejected(23)
             } else {
                 Outcome::Accepted
             };
             assert_eq!(record.outcome, outcome);
-            assert_eq!(flow.settled[&(sequence as u64)], outcome);
+            assert_eq!(
+                snapshot
+                    .settlements
+                    .iter()
+                    .find(|s| s.id.sequence == sequence as u64)
+                    .unwrap()
+                    .outcome,
+                outcome
+            );
         }
     }
 }
 fn case(mode: &str, kind: &str, phase: &str) {
+    let profile = if matches!(kind, "release" | "retire-received" | "retire-sent") {
+        (12, 4)
+    } else {
+        (4, 64)
+    };
     let tmp = Temp::new();
     let root = &tmp.0;
     for id in 0..2 {
         Store::create(
             root.join(format!("{id}.sqlite")),
-            &initial(id),
+            &mesa_flow::Checkpoint::empty_with_batch(
+                &fixture::view(id),
+                &fixture::flows(id),
+                profile.1,
+            ),
             Limits::default(),
         )
         .unwrap();
     }
     let routes = addresses(mode);
     let mut peers = [
-        Peer::spawn(root, 0, mode, routes, &format!("{kind}/{phase}"), 0),
-        Peer::spawn(root, 1, mode, routes, "none", 0),
+        Peer::spawn_profile(
+            root,
+            0,
+            mode,
+            routes,
+            &format!("{kind}/{phase}"),
+            0,
+            profile,
+        ),
+        Peer::spawn_profile(root, 1, mode, routes, "none", 0, profile),
     ];
     wait(&mut peers, true);
     let receipt = std::fs::read_to_string(peers[0].file("gate")).unwrap();
@@ -176,8 +226,32 @@ fn case(mode: &str, kind: &str, phase: &str) {
             usize::from(committed)
         );
     }
+    if kind == "retire-received" {
+        assert_eq!(
+            before.checkpoint.flows[0].receive_floor,
+            4 * u64::from(committed)
+        );
+    }
+    if kind == "retire-sent" {
+        assert_eq!(
+            before.checkpoint.flows[0].send_floor,
+            4 * u64::from(committed)
+        );
+    }
     if phase != "callback" {
         let remote = Store::inspect(root.join("1.sqlite"), Limits::default()).unwrap();
+        if kind == "release" {
+            assert_eq!(
+                remote.checkpoint.flows[0].receive_floor, 0,
+                "unpublished release cannot retire receipts"
+            );
+        }
+        if kind == "retire-received" {
+            assert_eq!(
+                remote.checkpoint.flows[0].send_floor, 0,
+                "unpublished acknowledgment cannot retire settlements"
+            );
+        }
         if kind == "enqueue" {
             assert!(
                 remote.checkpoint.flows[0].received.is_empty(),
@@ -200,11 +274,11 @@ fn case(mode: &str, kind: &str, phase: &str) {
     );
     let routes = addresses(mode);
     let mut peers = [
-        Peer::spawn(root, 0, mode, routes, "none", 1),
-        Peer::spawn(root, 1, mode, routes, "none", 1),
+        Peer::spawn_profile(root, 0, mode, routes, "none", 1, profile),
+        Peer::spawn_profile(root, 1, mode, routes, "none", 1, profile),
     ];
     wait(&mut peers, false);
-    assert_final(root);
+    assert_final(root, profile.0, profile.1);
     peers[0].kill();
     peers[1].kill();
     // Replay a completed database once more: no new accepted or rejected effect.
@@ -214,11 +288,11 @@ fn case(mode: &str, kind: &str, phase: &str) {
     ];
     let routes = addresses(mode);
     let mut peers = [
-        Peer::spawn(root, 0, mode, routes, "none", 2),
-        Peer::spawn(root, 1, mode, routes, "none", 2),
+        Peer::spawn_profile(root, 0, mode, routes, "none", 2, profile),
+        Peer::spawn_profile(root, 1, mode, routes, "none", 2, profile),
     ];
     wait(&mut peers, false);
-    assert_final(root);
+    assert_final(root, profile.0, profile.1);
     for (id, snapshot) in expected.iter().enumerate() {
         assert_eq!(
             &Store::inspect(root.join(format!("{id}.sqlite")), Limits::default()).unwrap(),
@@ -228,6 +302,7 @@ fn case(mode: &str, kind: &str, phase: &str) {
 }
 #[test]
 fn udp_process_crashes_at_every_transaction_boundary() {
+    let _serial = SOCKET_TEST.lock().unwrap_or_else(|p| p.into_inner());
     for kind in ["enqueue", "deliver", "settle"] {
         for phase in ["before", "prepared", "committed", "callback"] {
             case("udp", kind, phase);
@@ -236,6 +311,7 @@ fn udp_process_crashes_at_every_transaction_boundary() {
 }
 #[test]
 fn tcp_process_crashes_at_every_transaction_boundary() {
+    let _serial = SOCKET_TEST.lock().unwrap_or_else(|p| p.into_inner());
     for kind in ["enqueue", "deliver", "settle"] {
         for phase in ["before", "prepared", "committed", "callback"] {
             case("tcp", kind, phase);
@@ -245,6 +321,7 @@ fn tcp_process_crashes_at_every_transaction_boundary() {
 
 #[test]
 fn writer_takeover_fences_a_live_stale_process_before_storage_commit() {
+    let _serial = SOCKET_TEST.lock().unwrap_or_else(|p| p.into_inner());
     let tmp = Temp::new();
     let root = &tmp.0;
     for id in 0..2 {
@@ -287,4 +364,55 @@ fn writer_takeover_fences_a_live_stale_process_before_storage_commit() {
         .flows[0]
         .received
         .is_empty());
+}
+
+#[test]
+fn udp_watermark_crashes_at_every_transaction_boundary() {
+    let _serial = SOCKET_TEST.lock().unwrap_or_else(|p| p.into_inner());
+    for kind in ["release", "retire-received", "retire-sent"] {
+        for phase in ["before", "prepared", "committed", "callback"] {
+            case("udp", kind, phase);
+        }
+    }
+}
+#[test]
+fn tcp_watermark_crashes_at_every_transaction_boundary() {
+    let _serial = SOCKET_TEST.lock().unwrap_or_else(|p| p.into_inner());
+    for kind in ["release", "retire-received", "retire-sent"] {
+        for phase in ["before", "prepared", "committed", "callback"] {
+            case("tcp", kind, phase);
+        }
+    }
+}
+#[test]
+fn continuous_udp_and_tcp_keep_full_application_history_across_restart() {
+    let _serial = SOCKET_TEST.lock().unwrap_or_else(|p| p.into_inner());
+    for mode in ["udp", "tcp"] {
+        let tmp = Temp::new();
+        let root = &tmp.0;
+        for id in 0..2 {
+            Store::create(
+                root.join(format!("{id}.sqlite")),
+                &mesa_flow::Checkpoint::empty_with_batch(
+                    &fixture::view(id),
+                    &fixture::flows(id),
+                    8,
+                ),
+                Limits::default(),
+            )
+            .unwrap();
+        }
+        for round in 0..2 {
+            let routes = addresses(mode);
+            let mut peers = [
+                Peer::spawn_profile(root, 0, mode, routes, "none", round, (128, 8)),
+                Peer::spawn_profile(root, 1, mode, routes, "none", round, (128, 8)),
+            ];
+            wait(&mut peers, false);
+            assert_final(root, 128, 8);
+            for p in &mut peers {
+                p.kill();
+            }
+        }
+    }
 }

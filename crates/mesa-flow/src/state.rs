@@ -37,9 +37,11 @@ impl MessageId {
         let role = match kind {
             ReadKind::Message => "msg",
             ReadKind::Receipt => "receipt",
+            ReadKind::Release => "release",
+            ReadKind::Released => "released",
         };
         format!(
-            "flow/1/{:032x}/{:08x}/{:032x}/{:08x}/{:016x}/{role}/{:016x}",
+            "flow/2/{:032x}/{:08x}/{:032x}/{:08x}/{:016x}/{role}/{:016x}",
             self.sender,
             self.sender_rift,
             self.receiver,
@@ -98,6 +100,8 @@ impl Receipt {
 pub enum ReadKind {
     Message,
     Receipt,
+    Release,
+    Released,
 }
 
 /// Host-owned durable state. Store a proposed checkpoint atomically with its
@@ -107,6 +111,8 @@ pub enum ReadKind {
 pub struct Checkpoint {
     pub version: u32,
     pub revision: u64,
+    /// Pinned reclamation batch size, shared by both endpoints.
+    pub batch_size: u64,
     pub local: Endpoint,
     pub flows: Vec<FlowState>,
 }
@@ -115,20 +121,84 @@ pub struct FlowState {
     pub flow: FlowId,
     pub remote: Endpoint,
     pub next_send: Sequence,
+    pub send_floor: Sequence,
+    pub receive_floor: Sequence,
     pub outbox: BTreeMap<Sequence, Vec<u8>>,
     pub settled: BTreeMap<Sequence, Outcome>,
-    /// Contiguous committed receive prefix. Retained receipts allow re-ack
-    /// after the receiver restarts, without repeating application effects.
+    /// Receipts for [receive_floor, next_receive()). The floor permanently
+    /// rejects earlier deliveries even after their receipts are reclaimed.
     pub received: Vec<Receipt>,
 }
+impl FlowState {
+    pub fn next_receive(&self) -> Sequence {
+        self.receive_floor
+            .saturating_add(self.received.len() as u64)
+    }
+    pub fn batch_settled(&self, batch: u64) -> bool {
+        self.send_floor.checked_add(batch) == Some(self.next_send)
+            && self.outbox.is_empty()
+            && self.settled.len() as u64 == batch
+    }
+    /// Structural bounds independent of a host's payload quotas.
+    pub fn valid(&self, batch: u64) -> bool {
+        batch > 0
+            && batch <= 1024
+            && self.send_floor.is_multiple_of(batch)
+            && self.receive_floor.is_multiple_of(batch)
+            && self
+                .next_send
+                .checked_sub(self.send_floor)
+                .is_some_and(|n| n <= batch && n == (self.outbox.len() + self.settled.len()) as u64)
+            && self.received.len() as u64 <= batch
+            && self
+                .receive_floor
+                .checked_add(self.received.len() as u64)
+                .is_some()
+            && self.outbox.keys().all(|s| {
+                *s >= self.send_floor && *s < self.next_send && !self.settled.contains_key(s)
+            })
+            && self
+                .settled
+                .keys()
+                .all(|s| *s >= self.send_floor && *s < self.next_send)
+    }
+}
 impl Checkpoint {
+    pub fn expected_revision(&self) -> Option<u64> {
+        if !(1..=1024).contains(&self.batch_size) {
+            return None;
+        }
+        self.flows.iter().try_fold(0u64, |sum, f| {
+            [
+                f.next_send,
+                f.send_floor,
+                f.settled.len() as u64,
+                f.receive_floor,
+                f.received.len() as u64,
+                f.send_floor / self.batch_size,
+                f.receive_floor / self.batch_size,
+            ]
+            .into_iter()
+            .try_fold(sum, u64::checked_add)
+        })
+    }
+
     pub fn empty(local: &PreconfiguredPeer, flows: &[crate::FlowConfig]) -> Self {
+        Self::empty_with_batch(local, flows, 64)
+    }
+    pub fn empty_with_batch(
+        local: &PreconfiguredPeer,
+        flows: &[crate::FlowConfig],
+        batch_size: u64,
+    ) -> Self {
         let mut states: Vec<_> = flows
             .iter()
             .map(|f| FlowState {
                 flow: f.id,
                 remote: (&f.peer).into(),
                 next_send: 0,
+                send_floor: 0,
+                receive_floor: 0,
                 outbox: BTreeMap::new(),
                 settled: BTreeMap::new(),
                 received: vec![],
@@ -136,7 +206,8 @@ impl Checkpoint {
             .collect();
         states.sort_by_key(|s| s.flow);
         Self {
-            version: 1,
+            version: 2,
+            batch_size,
             revision: 0,
             local: local.into(),
             flows: states,
@@ -180,6 +251,14 @@ pub struct CommitToken {
 }
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Change {
+    /// Authenticated sender watermark permits receipt retirement.
+    RetireReceived {
+        id: MessageId,
+    },
+    /// Authenticated receiver acknowledgment permits settlement retirement.
+    RetireSent {
+        id: MessageId,
+    },
     Enqueue {
         id: MessageId,
     },

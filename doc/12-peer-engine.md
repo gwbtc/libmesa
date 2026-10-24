@@ -49,6 +49,7 @@ opaque integers whose interpretation belongs to the host.
 | `SetService` | Gate both directions; blocking fails active reads immediately |
 | `SetAttachment` | Change or remove a route while preserving active reads |
 | `Bind`, `Unbind` | Install immutable bytes and explicit access; withdraw bytes |
+| `RetireBefore` | Replace a retired prefix range with a monotonic namespace fence |
 | `Read`, `Cancel` | Start a bounded read or terminate it immediately |
 | `Receive` | Supply a claimed peer, attachment, and borrowed packet bytes |
 | `AdvanceTo` | Advance monotonic virtual time and process due work |
@@ -78,11 +79,11 @@ This is a closed fixture profile: anonymous public peeks and encrypted namespace
 spaces remain unimplemented. A denied or absent binding sends no response.
 
 A bound path cannot be replaced. Unbind releases its data but retains a bounded
-retired-name slot, preventing rebind with different bytes while old fragments
-may remain in flight. `max_bindings` includes these slots; unbind does not reclaim
-them. Local activation is frozen, so recycling slots requires a future epoch
-and persistence design. The host must preserve name immutability across restart;
-this engine has no persisted tombstones.
+tombstone; `max_bindings` includes these slots. `RetireBefore` replaces names
+below a prefix cutoff with one monotonic fence. Future binds check that fence,
+so reclamation cannot reuse old names. The host restores fences before bindings
+after restart. [Continuous flows](../spec/13-continuous-flows.md) derives these
+cutoffs from authenticated, durably committed watermarks.
 
 A read first requests `Data(0)`. Its verified test response supplies the bounded
 total length and first fragment. The reader then fills a fixed window with

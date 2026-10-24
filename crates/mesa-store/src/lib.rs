@@ -11,6 +11,7 @@ use std::{fs::OpenOptions, path::Path, time::Duration};
 pub struct Limits {
     pub checkpoint_bytes: usize,
     pub message_bytes: usize,
+    /// Maximum rows in each application table (deliveries and settlements).
     pub delivery_records: usize,
     pub delivery_bytes: usize,
 }
@@ -77,9 +78,16 @@ pub struct Delivery {
     pub outcome: Outcome,
 }
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Settlement {
+    pub revision: u64,
+    pub id: MessageId,
+    pub outcome: Outcome,
+}
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Snapshot {
     pub checkpoint: Checkpoint,
     pub deliveries: Vec<Delivery>,
+    pub settlements: Vec<Settlement>,
 }
 /// One fenced writer. Opening a newer writer invalidates all older instances.
 /// Do not recreate, copy, roll back, or delete a live database to reset a flow.
@@ -129,7 +137,7 @@ impl Store {
         tx.execute_batch(
             "CREATE TABLE state (
             singleton INTEGER PRIMARY KEY CHECK(singleton=1),
-            format INTEGER NOT NULL CHECK(format=1),
+            format INTEGER NOT NULL CHECK(format=2),
             tag BLOB NOT NULL CHECK(length(tag)=8),
             generation INTEGER NOT NULL CHECK(generation>0),
             revision INTEGER NOT NULL CHECK(revision>=0),
@@ -138,10 +146,14 @@ impl Store {
             id BLOB PRIMARY KEY NOT NULL,
             revision INTEGER UNIQUE NOT NULL CHECK(revision>0),
             bytes BLOB NOT NULL,
+            outcome INTEGER NOT NULL CHECK(outcome BETWEEN -1 AND 65535));
+            CREATE TABLE settlements (
+            id BLOB PRIMARY KEY NOT NULL,
+            revision INTEGER UNIQUE NOT NULL CHECK(revision>0),
             outcome INTEGER NOT NULL CHECK(outcome BETWEEN -1 AND 65535));",
         )?;
         tx.execute(
-            "INSERT INTO state VALUES(1,1,randomblob(8),1,0,?1)",
+            "INSERT INTO state VALUES(1,2,randomblob(8),1,0,?1)",
             [bytes],
         )?;
         let incarnation = read_incarnation(&tx)?;
@@ -229,6 +241,24 @@ impl Store {
                 ],
             )?;
         }
+        if let Change::Settle { id, outcome } = &request.change {
+            let count: i64 = tx.query_row("SELECT count(*) FROM settlements", [], |r| r.get(0))?;
+            if count >= self.limits.delivery_records as i64 {
+                return Err(Error::Limit);
+            }
+            let code = match outcome {
+                Outcome::Accepted => -1,
+                Outcome::Rejected(code) => i64::from(*code),
+            };
+            tx.execute(
+                "INSERT INTO settlements(id,revision,outcome) VALUES(?1,?2,?3)",
+                params![
+                    serde_json::to_vec(id)?,
+                    revision(request.checkpoint.revision)?,
+                    code
+                ],
+            )?;
+        }
         if tx.execute(
             "UPDATE state SET checkpoint=?1,revision=?2 WHERE singleton=1 AND revision=?3",
             params![
@@ -289,7 +319,7 @@ fn read_checkpoint(connection: &Connection, limits: Limits) -> Result<Checkpoint
         connection.prepare("SELECT format,revision,checkpoint FROM state WHERE singleton=1")?;
     let mut rows = stmt.query([])?;
     let row = rows.next()?.ok_or(Error::InvalidState)?;
-    if row.get::<_, i64>(0)? != 1 {
+    if row.get::<_, i64>(0)? != 2 {
         return Err(Error::InvalidState);
     }
     let bytes = row.get_ref(2)?.as_blob().map_err(|_| Error::InvalidState)?;
@@ -372,9 +402,30 @@ fn read_snapshot(connection: &Connection, limits: Limits) -> Result<Snapshot, Er
         });
     }
     validation::inbox(&checkpoint, &deliveries)?;
+    let count: i64 = connection.query_row("SELECT count(*) FROM settlements", [], |r| r.get(0))?;
+    if count < 0 || count > limits.delivery_records as i64 {
+        return Err(Error::Limit);
+    }
+    let mut stmt =
+        connection.prepare("SELECT revision,id,outcome FROM settlements ORDER BY revision")?;
+    let mut rows = stmt.query([])?;
+    let mut settlements = vec![];
+    while let Some(row) = rows.next()? {
+        let id = row.get_ref(1)?.as_blob().map_err(|_| Error::InvalidState)?;
+        if id.len() > 512 {
+            return Err(Error::Limit);
+        }
+        settlements.push(Settlement {
+            revision: u64::try_from(row.get::<_, i64>(0)?).map_err(|_| Error::InvalidState)?,
+            id: serde_json::from_slice(id)?,
+            outcome: outcome(row.get(2)?)?,
+        });
+    }
+    validation::settlements(&checkpoint, &settlements)?;
     Ok(Snapshot {
         checkpoint,
         deliveries,
+        settlements,
     })
 }
 

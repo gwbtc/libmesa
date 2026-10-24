@@ -7,16 +7,17 @@ host passes to `Node::step(Committed(token))`. The transport never acknowledges
 storage on the application's behalf.
 
 This is a reference inbox application over preconfigured peers and public
-signed objects. The engine and transport APIs remain unchanged. The store adds
-process-crash recovery for the existing finite flow log. It does not add log
-reclamation, private spaces, enrollment, generalized authority provisioning, or
-an adapter for unchanged Urbit peers.
+signed objects. The store adds process-crash recovery to the flow transaction contract.
+[Continuous profile 2](13-continuous-flows.md) now adds protocol reclamation
+and a separate sender-outcome table. Private spaces, enrollment, generalized
+authority provisioning, and unchanged-Urbit interoperability remain deferred.
 
 ## Atomic state and application effect
 
 One database owns one node checkpoint. Its `state` row contains a schema format,
 random database tag, persistent writer generation, durable revision, and the
-serialized checkpoint. The `deliveries` table contains stable message IDs,
+serialized checkpoint. Format 2 adds `settlements` rows for sender outcomes,
+with stable message IDs and commit revisions. The `deliveries` table contains stable message IDs,
 commit revisions, exact payloads, and accepted or rejected outcomes. Message IDs
 are primary keys; delivery revisions are unique. Endpoint IDs retain all 128
 bits, and flow IDs retain all 64 bits.
@@ -31,7 +32,9 @@ under the stable delivery ID, as required by [chapter 10](10-durable-flows.md).
 |---|---|---|
 | Enqueue | Exact outbox payload, next-send sequence, checkpoint revision | Publishing the message |
 | Deliver | Inbox/disposition row, receipt digest/outcome, receive prefix, checkpoint revision | Publishing the ACK or terminal NACK |
-| Settle | Recorded outcome, outbox removal, checkpoint revision | Releasing the send window |
+| Settle | Sender-outcome row, outbox removal, checkpoint revision | Releasing the send window; publishing release at a full batch |
+| RetireReceived | Receive floor, receipt removal, checkpoint revision | Publishing the retirement acknowledgment |
+| RetireSent | Send floor, settlement removal, checkpoint revision | Enqueueing the next batch |
 
 `Store::prepare` starts an IMMEDIATE transaction, checks the writer fence and
 base revision, validates the proposed transition, and stages every write.
@@ -63,7 +66,7 @@ On Unix, creation also syncs the containing directory entry.
 
 `Store::open(path, expected_empty_checkpoint, limits)` requires an existing
 database. It validates the format, checkpoint structure, delivery order,
-receipt digests, outcomes, and endpoint/flow scope before claiming a writer
+retained receipt digests, complete outcome history, batch size, and endpoint/flow scope before claiming a writer
 generation. The caller then constructs the node with the stored checkpoint and
 `Store::incarnation()`. The node separately validates its configured engine
 limits and peer keys. Missing files, changed endpoint epochs/domains, invalid
@@ -87,7 +90,7 @@ Database rollback, copying a live database into an independently writable fork,
 and recreating an existing flow with an empty database violate this contract.
 The store has no external anti-rollback authority. Preserve the authoritative
 database and its required SQLite sidecar files; do not reset it to clear a
-sequence limit.
+storage quota.
 
 ## Storage configuration and bounds
 
@@ -107,7 +110,7 @@ a complete backup. See [SQLite's WAL contract](https://www.sqlite.org/wal.html).
 |---|---:|---:|
 | Serialized checkpoint | 8 MiB | 64 MiB |
 | One message/disposition payload | 64 KiB | 1 MiB |
-| Retained delivery records | 16384 | 16384 |
+| Retained records in each application table | 16384 | 16384 |
 | Total retained delivery payloads | 64 MiB | 1 GiB |
 
 Checkpoint serialization stops at the configured byte limit. Reads check the
@@ -118,10 +121,11 @@ checkpoint nor its application row. These are host data limits, not a hard
 quota for SQLite pages, WAL files, caches, or allocator overhead.
 
 The engine's configured limits can be smaller and still apply. The store also
-checks the current finite protocol maxima: at most 16 flows and 1024 sequences
-per flow. The default engine profile remains 64 sequences per direction.
-Receipts, settlements, retired names, and inbox rows are retained; this phase
-adds no deletion or compaction protocol.
+checks the protocol maxima: at most 16 flows and 1024 messages per retained
+batch. The default batch contains 64 sequences per direction. Checkpoint
+histories and namespace entries are reclaimed by authenticated watermarks;
+application rows remain until a future explicit host retention API. A full
+application table fails the transaction even when protocol history is empty.
 
 ## Executable slice and crash evidence
 
@@ -160,8 +164,9 @@ that run. `persistent-peer inspect <db>` returns the checkpoint and inbox as
 JSON without claiming a writer generation. Existing database paths remain
 intact; rerunning `init` against them fails.
 
-The crash matrix runs enqueue, delivery, and settlement at four boundaries on
-both UDP and TCP: 24 cases. The child pauses before preparation, after staging
+The original crash matrix runs enqueue, delivery, and settlement at four
+boundaries on both UDP and TCP: 24 cases. Profile 2 adds another 24 cases for
+watermark publication and retirement; see [chapter 13](13-continuous-flows.md). The child pauses before preparation, after staging
 uncommitted writes, after the database commit, or after the engine callback.
 The parent reads the authoritative snapshot while the child is paused, then
 kills it without destructors. On Unix the test requires SIGKILL. The other peer
@@ -191,14 +196,8 @@ Those boundaries remain explicit despite the use of real persistent storage.
 
 ## Next phase
 
-Specify and implement safe continuous flow-log reclamation. Replace the finite
-history cap with bounded protocol state only after both endpoints have durable,
-authenticated evidence that the retired prefix can no longer require replay.
-Preserve monotonic message names and restart-safe duplicate rejection. Test
-compaction against delayed packets, lost acknowledgments, reconnects, and crashes
-on either side of each durable watermark transition.
-
-Protocol-history reclamation and application inbox retention need separate
-policies. Keep application records until an explicit host retention decision.
-Generalized PKI, Jael, userspace verifiers, enrollment, and comet compatibility
-remain outside this networking milestone.
+Protocol reclamation is implemented in [chapter 13](13-continuous-flows.md).
+Next add host-managed application consumption and retention with durable cursors
+and explicit quota release. Preserve protocol floors and application delivery
+identity across restart. Format-1 databases require an explicit future migration;
+current code fails closed rather than resetting existing state.

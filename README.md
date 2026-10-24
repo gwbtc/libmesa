@@ -20,8 +20,9 @@ nodes, Shrubbery ships, and ChatControl-threatened phones.
 > a fake atomic store. Its messages are public plaintext. `mesa-transport` runs
 > those flows over UDP and framed TCP and exercises a bounded two-leg relay
 > with endpoint recovery across a lossy downstream leg. `mesa-store` adds a
-> transactional SQLite inbox, checkpoint recovery, writer fencing, and process
-> crash tests over UDP and TCP.
+> transactional SQLite inbox, durable sender outcomes, checkpoint recovery,
+> writer fencing, and process crash tests over UDP and TCP. Signed batch
+> watermarks reclaim protocol history while sequence numbers keep increasing.
 > Rust parses and encodes all three packet
 > bodies in experimental v2: fixed 128-bit names, explicit domain selectors,
 > exact-byte checksums, length-prefixed signatures, and none/IPv4 trailers.
@@ -29,8 +30,7 @@ nodes, Shrubbery ships, and ChatControl-threatened phones.
 > module. Noun primitives include canonical atoms, byte mug, bounded mat/rub,
 > and canonical jam/cue. Suite-C public-pass and current-ring parsing are
 > implemented alongside fragment reconstruction and C wire APIs. Domain
-> authority verification, private-space encryption, and continuous flow-log
-> reclamation remain unimplemented. Persistent storage currently supports the
+> authority verification and private-space encryption remain unimplemented. Persistent storage currently supports the
 > reference inbox application. The core's service and binding-access checks
 > operate on trusted host configuration. Public reads do not authenticate requesters.
 > Suite-C name derivation, signing, and agreement match executed Hoon vectors.
@@ -69,7 +69,8 @@ explicit public binds; private binds are rejected.
 The flow example adds explicit enqueue, delivery, and settlement commits over
 the signed-read engine. It restarts both fake stores and peers and checks that
 application effects occur once. See the [durable flow profile](spec/10-durable-flows.md)
-for the host transaction contract, finite sequence cap, and acceptance tests.
+for the original host transaction contract. The [continuous flow profile](spec/13-continuous-flows.md)
+replaces its finite sequence cap with signed batch retirement and bounded protocol history.
 
 The transport example exchanges four messages in each direction over real
 loopback UDP and TCP sockets within one process. The relay harness adds
@@ -79,9 +80,10 @@ disconnects, and a receiver crash after storage succeeds. See the
 bounds and recovery.
 
 The [persistent host](spec/12-persistent-host.md) commits checkpoints and inbox
-records atomically with SQLite. Its subprocess tests kill peers at 24 transaction
+records atomically with SQLite. Its subprocess tests kill peers at 48 transaction
 boundaries over UDP and TCP, restart from the same stores, and verify exact
-ordered delivery and settlement. Run `cargo test -p mesa-store` for the matrix.
+ordered delivery and settlement. Continuous runs retain all 128 application
+records per direction across 16 protocol batches and restart. Run `cargo test -p mesa-store` for the matrix.
 These are process-crash tests; they do not establish power-loss durability on
 arbitrary storage.
 
@@ -158,7 +160,8 @@ revisions, implemented identity mechanics, companion status, and release gates.
 **Spec (`spec/`) — the skeleton that implementations conform to:**
 `00-scope` · `01-wire` · `02-packets` · `03-namespace` · `04-flows` ·
 `05-identity` · `06-routing` · `07-transports` · `08-signed-public` ·
-`09-transfer-policies` · `10-durable-flows`. The wire chapter specifies
+`09-transfer-policies` · `10-durable-flows` · `11-flow-transports` ·
+`12-persistent-host` · `13-continuous-flows`. The wire chapter specifies
 the implemented codec profile. Chapter 5 defines the domain-first identity
 contract, including opt-in life-1 fallback and explicit provisional bootstrap;
 it is not yet implemented. Other chapters contain proposals and outlines.
@@ -199,10 +202,11 @@ preconfigured peers, bounded namespace reads, fragmentation, and timers.
 Step 3 now adds a fixed signed-public v2 context, real LSS verification, and
 libmesa-to-libmesa UDP reads. The engine now separates recovery, congestion,
 and timer policies with bounded peer scheduling and deterministic tests.
-The bounded durable flow profile now implements enqueue, delivery, and settlement
-transactions with a fake atomic host. Next connect it to host I/O and exercise
-a second attachment model and relay path. Production storage, receipt compaction,
-and continuous operation beyond the finite sequence cap remain separate gates.
+Durable flow transactions run over UDP, framed TCP, and a bounded relay harness.
+The SQLite reference host persists inbox records and sender outcomes, fences
+writers, and recovers from process crashes. Signed batch retirement bounds
+protocol history across continuous operation. Next add host-managed application
+consumption and retention so storage quotas can recover without resetting flows.
 Private-space confidentiality remains a protection workstream. The earlier comet deadline and proposed v1
 adapter are off the critical path; the default remains v2.
 Generalized identity and the Groundwire verifier remain separate integration

@@ -213,6 +213,13 @@ pub enum Event<'a> {
     Unbind {
         path: &'a [u8],
     },
+    /// Permanently retire all paths starting with prefix whose remaining bytes
+    /// sort before suffix. Replaces individual names with one monotonic fence.
+    /// The host must restore fences before publishing after restart.
+    RetireBefore {
+        prefix: Vec<u8>,
+        suffix: Vec<u8>,
+    },
     Read {
         id: ReadId,
         peer: PeerId,
@@ -372,6 +379,7 @@ pub struct Engine<P> {
     peers: BTreeMap<PeerId, PeerState>,
     // None is a bounded tombstone: a path is immutable within the local epoch.
     bindings: BTreeMap<Vec<u8>, Option<Binding>>,
+    retired: BTreeMap<Vec<u8>, Vec<u8>>,
     reads: BTreeMap<ReadId, Read>,
 }
 
@@ -410,6 +418,7 @@ impl<P: Protection> Engine<P> {
             now: 0,
             peers: BTreeMap::new(),
             bindings: BTreeMap::new(),
+            retired: BTreeMap::new(),
             reads: BTreeMap::new(),
         })
     }
@@ -417,7 +426,7 @@ impl<P: Protection> Engine<P> {
     pub fn usage(&self) -> Usage {
         Usage {
             peers: self.peers.len(),
-            namespace_slots: self.bindings.len(),
+            namespace_slots: self.bindings.len() + self.retired.len(),
             bindings: self.bindings.values().flatten().count(),
             binding_bytes: self
                 .bindings
@@ -498,6 +507,12 @@ impl<P: Protection> Engine<P> {
                 access,
             } => {
                 self.check_path(&path)?;
+                if self.retired.iter().any(|(prefix, suffix)| {
+                    path.strip_prefix(prefix.as_slice())
+                        .is_some_and(|tail| tail < suffix.as_slice())
+                }) {
+                    return Err(Error::RetiredName);
+                }
                 if P::SIGNED_PUBLIC && access != Access::Public {
                     return Err(Error::UnsupportedAccess);
                 }
@@ -508,7 +523,7 @@ impl<P: Protection> Engine<P> {
                         Error::RetiredName
                     });
                 }
-                if self.bindings.len() >= self.config.max_bindings
+                if self.usage().namespace_slots >= self.config.max_bindings
                     || bytes.len() > self.config.max_read_bytes
                     || bytes.len().div_ceil(self.capacity).max(1) > self.config.max_fragments
                     || bytes.len()
@@ -556,6 +571,30 @@ impl<P: Protection> Engine<P> {
                     .get_mut(path)
                     .and_then(Option::take)
                     .ok_or(Error::Unbound)?;
+            }
+            Event::RetireBefore { prefix, suffix } => {
+                self.check_path(&prefix)?;
+                self.check_path(&suffix)?;
+                if self.retired.get(&prefix).is_some_and(|old| old >= &suffix) {
+                    return Err(Error::RetiredName);
+                }
+                let removed = self
+                    .bindings
+                    .keys()
+                    .filter(|path| {
+                        path.strip_prefix(prefix.as_slice())
+                            .is_some_and(|tail| tail < suffix.as_slice())
+                    })
+                    .count();
+                let added = usize::from(!self.retired.contains_key(&prefix));
+                if self.usage().namespace_slots - removed + added > self.config.max_bindings {
+                    return Err(Error::ResourceLimit);
+                }
+                self.bindings.retain(|path, _| {
+                    path.strip_prefix(prefix.as_slice())
+                        .is_none_or(|tail| tail >= suffix.as_slice())
+                });
+                self.retired.insert(prefix, suffix);
             }
             Event::Read { id, peer, path } => self.start_read(id, peer, path)?,
             Event::Cancel { id } => {

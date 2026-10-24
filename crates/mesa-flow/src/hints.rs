@@ -10,6 +10,12 @@ pub(super) struct Attempt {
 
 impl Node {
     pub(super) fn emit_hint(&self, id: &MessageId, incoming: bool, out: &mut Vec<Action>) {
+        self.emit_pair(id, incoming, false, out);
+    }
+    pub(super) fn emit_control_hint(&self, id: &MessageId, incoming: bool, out: &mut Vec<Action>) {
+        self.emit_pair(id, incoming, true, out);
+    }
+    fn emit_pair(&self, id: &MessageId, incoming: bool, control: bool, out: &mut Vec<Action>) {
         let flow = self.flows.iter().find(|f| f.id == id.flow).unwrap();
         if !flow.peer.service_allowed {
             return;
@@ -23,8 +29,16 @@ impl Node {
         } else {
             (&self.checkpoint.local, remote)
         };
-        let payload_path = id.path(ReadKind::Message);
-        let ack_path = id.path(ReadKind::Receipt);
+        let payload_path = id.path(if control {
+            ReadKind::Release
+        } else {
+            ReadKind::Message
+        });
+        let ack_path = id.path(if control {
+            ReadKind::Released
+        } else {
+            ReadKind::Receipt
+        });
         fn name<'a>(endpoint: &'a Endpoint, path: &'a [u8]) -> Name<'a> {
             Name {
                 publisher: PeerId(endpoint.name),
@@ -83,7 +97,7 @@ impl Node {
             drop(out, mesa_core::DropReason::Unsupported);
             return;
         }
-        let Some(id) = parse_path(payload.path) else {
+        let Some((id, control)) = parse_path(payload.path) else {
             drop(out, mesa_core::DropReason::Name);
             return;
         };
@@ -91,13 +105,18 @@ impl Node {
             drop(out, mesa_core::DropReason::Name);
             return;
         };
-        if flow.remote.name != peer.0 || id.sequence >= self.config.max_messages {
+        if flow.remote.name != peer.0 {
             drop(out, mesa_core::DropReason::Name);
             return;
         }
         let incoming = id.sender == peer.0;
         if id != self.checkpoint.message_id(id.flow, id.sequence, incoming)
-            || ack.path != id.path(ReadKind::Receipt)
+            || ack.path
+                != id.path(if control {
+                    ReadKind::Released
+                } else {
+                    ReadKind::Receipt
+                })
         {
             drop(out, mesa_core::DropReason::Name);
             return;
@@ -118,14 +137,40 @@ impl Node {
             drop(out, mesa_core::DropReason::Name);
             return;
         }
-        let kind = if incoming {
-            if id.sequence < flow.received.len() as u64 {
+        let kind = if control {
+            if incoming {
+                if id.sequence > 0 && id.sequence == flow.receive_floor {
+                    self.emit_control_hint(&id, true, out);
+                    return;
+                }
+                if flow.received.len() as u64 != self.config.max_messages
+                    || id.sequence != flow.next_receive()
+                {
+                    return;
+                }
+                ReadKind::Release
+            } else {
+                if !flow.batch_settled(self.config.max_messages) || id.sequence != flow.next_send {
+                    return;
+                }
+                ReadKind::Released
+            }
+        } else if incoming {
+            if id.sequence < flow.receive_floor {
+                return;
+            }
+            if id.sequence < flow.next_receive() {
                 // The durable prefix authorizes another availability hint. The
                 // sender must still authenticate the actual receipt by reading it.
                 self.emit_hint(&id, true, out);
                 return;
             }
-            if id.sequence >= flow.received.len() as u64 + self.config.window as u64 {
+            if id.sequence
+                >= flow
+                    .next_receive()
+                    .saturating_add(self.config.window as u64)
+                || id.sequence >= flow.receive_floor.saturating_add(self.config.max_messages)
+            {
                 drop(out, mesa_core::DropReason::ResourceLimit);
                 return;
             }
@@ -148,17 +193,40 @@ impl Node {
             .checkpoint
             .flows
             .iter()
-            .flat_map(|f| f.outbox.keys().map(|s| (f.flow, *s)))
+            .flat_map(|f| {
+                let mut work: Vec<_> = f
+                    .outbox
+                    .keys()
+                    .map(|s| Work {
+                        flow: f.flow,
+                        sequence: *s,
+                        kind: ReadKind::Message,
+                    })
+                    .collect();
+                if f.batch_settled(self.config.max_messages) {
+                    work.push(Work {
+                        flow: f.flow,
+                        sequence: f.next_send,
+                        kind: ReadKind::Release,
+                    });
+                }
+                work
+            })
             .collect();
-        for (flow, sequence) in pending {
-            if self.receipts.contains_key(&(flow, sequence)) {
+        for work in pending {
+            let Work {
+                flow,
+                sequence,
+                kind,
+            } = work;
+            if kind == ReadKind::Message && self.receipts.contains_key(&(flow, sequence)) {
                 continue;
             }
             let configured = self.flows.iter().find(|f| f.id == flow).unwrap();
             if !configured.peer.service_allowed || configured.attachment.is_none() {
                 continue;
             }
-            let attempt = self.hints.entry((flow, sequence)).or_insert(Attempt {
+            let attempt = self.hints.entry(work).or_insert(Attempt {
                 count: 0,
                 retry_at: self.now,
                 stopped: false,
@@ -177,14 +245,16 @@ impl Node {
                 attempt.stopped = true;
                 out.push(Action::AnnouncementStalled {
                     id: self.checkpoint.message_id(flow, sequence, false),
+                    kind,
                 });
                 continue;
             }
             attempt.count += 1;
             attempt.retry_at = next.unwrap();
-            self.emit_hint(
+            self.emit_pair(
                 &self.checkpoint.message_id(flow, sequence, false),
                 false,
+                kind == ReadKind::Release,
                 out,
             );
         }
@@ -192,25 +262,30 @@ impl Node {
     pub(super) fn next_timer(&self) -> Option<Tick> {
         self.hints
             .iter()
-            .filter(|((flow, sequence), attempt)| {
-                let configured = self.flows.iter().find(|f| f.id == *flow).unwrap();
+            .filter(|(work, attempt)| {
+                let configured = self.flows.iter().find(|f| f.id == work.flow).unwrap();
                 !attempt.stopped
                     && configured.peer.service_allowed
                     && configured.attachment.is_some()
-                    && !self.receipts.contains_key(&(*flow, *sequence))
+                    && !(work.kind == ReadKind::Message
+                        && self.receipts.contains_key(&(work.flow, work.sequence)))
             })
             .map(|(_, a)| a.retry_at)
             .chain(self.timer)
             .min()
     }
 }
-fn parse_path(path: &[u8]) -> Option<MessageId> {
-    if path.len() != 128 {
+fn parse_path(path: &[u8]) -> Option<(MessageId, bool)> {
+    if path.len() != 128 && path.len() != 132 {
         return None;
     }
     let text = std::str::from_utf8(path).ok()?;
     let parts: Vec<_> = text.split('/').collect();
-    if parts.len() != 9 || parts[0] != "flow" || parts[1] != "1" || parts[7] != "msg" {
+    if parts.len() != 9
+        || parts[0] != "flow"
+        || parts[1] != "2"
+        || !matches!(parts[7], "msg" | "release")
+    {
         return None;
     }
     let id = MessageId {
@@ -221,5 +296,11 @@ fn parse_path(path: &[u8]) -> Option<MessageId> {
         flow: u64::from_str_radix(parts[6], 16).ok()?,
         sequence: u64::from_str_radix(parts[8], 16).ok()?,
     };
-    (id.path(ReadKind::Message) == path).then_some(id)
+    let control = parts[7] == "release";
+    (id.path(if control {
+        ReadKind::Release
+    } else {
+        ReadKind::Message
+    }) == path)
+        .then_some((id, control))
 }
