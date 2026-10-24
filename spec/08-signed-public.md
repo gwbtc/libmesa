@@ -10,7 +10,9 @@ fail with `UnsupportedAccess`; there is no automatic downgrade to plaintext.
 This profile supplies the step-3 protection contract in the
 [peer-engine handoff](../doc/11-peer-engine-handoff.md). It narrows the broader
 space proposals in chapter 2. It does not implement `%chum`, `%shut`, the old
-Hoon signature transcript, or Urbit interoperability. The outer packet format
+Hoon v1 signature transcript, or native Ames interoperability. The separate
+[Urbit prototype](../interop/README.md) implements this profile in a Hoon Gall
+agent inside a running fake ship. The outer packet format
 remains experimental v2 with its existing explicit version and checksum.
 
 ## Configuration and exchange
@@ -156,8 +158,10 @@ with public deterministic test seeds. It checks exact bytes and SHA-256 receipts
 in both directions for lengths 0, 1, 1024, 1025, 17425, and 1048576. These are
 libmesa-to-libmesa tests. The separate virtual-link tests inject loss, duplication,
 delay, reordering, corrupt signatures/spines/pairs/data, context changes, and
-resource pressure. Network confidentiality and Urbit interoperability remain
-unimplemented. The separate [durable flow profile](10-durable-flows.md) uses
+resource pressure. Network confidentiality and native Ames interoperability remain
+unimplemented. The separate Hoon endpoint now exercises this profile across
+the Rust/Urbit boundary; its narrower fixture bounds are documented in the
+prototype README. The separate [durable flow profile](10-durable-flows.md) uses
 these reads for message and receipt objects with explicit host transactions.
 Its [transport profile](11-flow-transports.md) adds a bounded two-leg relay and
 preserves endpoint recovery across a lossy downstream attachment.
