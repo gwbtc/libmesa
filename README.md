@@ -35,7 +35,9 @@ nodes, Shrubbery ships, and ChatControl-threatened phones.
 > operate on trusted host configuration. Public reads do not authenticate requesters.
 > Suite-C name derivation, signing, and agreement match executed Hoon vectors.
 > The design beyond these primitives is
-> still a working-group draft.
+> still a working-group draft. A [Hoon endpoint](interop/README.md) now exchanges
+> authenticated v2 reads with Rust inside a running fake Urbit, through a byte-only
+> UDP/Lick bridge. Native Ames interoperability remains separate.
 
 ## Build and check
 
@@ -57,6 +59,10 @@ peek/page link. Its one-shot protection verdicts live in test support; they
 exercise engine behavior without implementing cryptography. See the
 [engine contract and test profile](doc/12-peer-engine.md) for limits, timers,
 peer updates, and the multi-fragment fault tests.
+
+The [Rust–Urbit runner](interop/README.md) boots an isolated ship and checks
+21 bidirectional clean/fault cases through 64 KiB. Hoon parses and authenticates
+the packets; native Ames remains unchanged.
 
 The separate UDP runner uses real signatures and LSS with public test seeds.
 It checks exact data in both directions from empty values through 1 MiB under
@@ -205,8 +211,10 @@ and timer policies with bounded peer scheduling and deterministic tests.
 Durable flow transactions run over UDP, framed TCP, and a bounded relay harness.
 The SQLite reference host persists inbox records and sender outcomes, fences
 writers, and recovers from process crashes. Signed batch retirement bounds
-protocol history across continuous operation. Next add host-managed application
-consumption and retention so storage quotas can recover without resetting flows.
+protocol history across continuous operation. The Rust–Urbit prototype now
+validates signed-public v2 reads in a Hoon agent.
+Next choose native Ames integration or durable application consumption and
+retention; the latter lets storage quotas recover without resetting flows.
 Private-space confidentiality remains a protection workstream. The earlier comet deadline and proposed v1
 adapter are off the critical path; the default remains v2.
 Generalized identity and the Groundwire verifier remain separate integration

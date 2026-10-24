@@ -146,6 +146,14 @@ LSS, namespace authorization, bounded memory, recovery, congestion policy and
 host acknowledgment semantics remain networking work. Keep them in scope even
 while the authority provider is a fixture.
 
+## Rust–Urbit prototype
+
+The [experimental v2 endpoint](../interop/README.md) now runs in a Hoon Gall
+agent on a fake Urbit. Rust and Hoon authenticate reads in both directions,
+including fragmentation, faults, timeout, and cancellation. A byte-only UDP/Lick
+bridge carries packets. Native Ames remains v1; this establishes cross-language
+behavior without changing that stack or introducing identity provisioning.
+
 ## Fresh-task prompt
 
 > Continue with host-managed application consumption and retention. Define
@@ -156,7 +164,8 @@ while the authority provider is a fixture.
 > independent of application retention; no silent deletion or database reset.
 > Reuse the SQLite host, continuous flow profile, and UDP/TCP harnesses. Keep
 > preconfigured peers and signed-public v2. Do not add generalized PKI, Jael,
-> userspace verifiers, enrollment, or comet compatibility.
+> userspace verifiers, enrollment, or native Ames compatibility. Preserve the
+> separate Hoon prototype and its recorded interoperability boundary.
 
 Read this file, current crate APIs, and spec chapters 7 through 13. Consult
 Ames/Mesa and Vere source only for the mechanism being implemented. The prior

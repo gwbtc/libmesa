@@ -1,0 +1,9 @@
+{
+  "pill_repository": "https://github.com/gwbtc/urbit",
+  "pill_commit": "a872698f59ca8bf8c5bbf4c9c89ed61fefa3b812",
+  "pill_path": "bin/mesa.pill",
+  "pill_sha256": "67143794b92980dc268b84db4005a618dc60a809e4178df00943d0925f119bda",
+  "tested_vere_version": "urbit 4.4-0fb1a3e\ngmp: 6.2.1\nsigsegv: 2.14\nopenssl: OpenSSL 1.1.1w  11 Sep 2023\nlibuv: 1.50.0\nlibh2o: 0.13.6\nlmdb: 0.9.70\ncurl: 8.9.1",
+  "tested_vere_sha256": "58a7d89d5e17953927bb563dbb9c1b46cbefc044ce7a5715e2a44ce2fef44ba3",
+  "note": "Existing local Vere binary, not rebuilt for this experiment. Hoon primitives may execute as jets."
+}
