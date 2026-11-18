@@ -93,13 +93,13 @@ impl Store {
         if let Change::Deliver { id, bytes, outcome } = &r.change {
             assert!(
                 next.records
-                    .insert(id.clone(), (bytes.clone(), *outcome))
+                    .insert(id.clone(), (bytes.to_vec(), *outcome))
                     .is_none(),
                 "duplicate application effect"
             );
             if *outcome == Outcome::Accepted {
                 assert!(
-                    next.effects.insert(id.clone(), bytes.clone()).is_none(),
+                    next.effects.insert(id.clone(), bytes.to_vec()).is_none(),
                     "duplicate application effect"
                 );
             }
@@ -170,7 +170,7 @@ impl Harness {
                 }),
                 Action::Commit(r) => self.commits.push_back((i, r.clone())),
                 Action::Deliver { id, bytes } => {
-                    self.deliveries.push_back((i, id.clone(), bytes.clone()))
+                    self.deliveries.push_back((i, id.clone(), bytes.to_vec()))
                 }
                 _ => {}
             }

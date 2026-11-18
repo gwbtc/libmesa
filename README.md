@@ -39,6 +39,12 @@ nodes, Shrubbery ships, and ChatControl-threatened phones.
 > authenticated v2 reads with Rust inside a running fake Urbit, through a byte-only
 > UDP/Lick bridge. Native Ames interoperability remains separate.
 
+The [C embedding API](spec/14-c-embedding.md) exposes immutable refcounted
+`[dat wid]` buffers, a raw deterministic engine, POSIX transport adapters, and a
+persistent SQLite inbox as separate components. Build and run its C host with
+`bash tools/test-ffi.sh`. The standard inbox acknowledges durable acceptance;
+hosts with their own transaction system can handle raw commit proposals.
+
 ## Build and check
 
 ```sh

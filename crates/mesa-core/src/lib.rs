@@ -5,6 +5,7 @@
 //! The original example/tests retain a controlled, test-only adapter. The UDP
 //! host lives in mesa-udp and accepts only the real signed-public implementation.
 
+pub use mesa_bytes::Buffer;
 use std::collections::BTreeMap;
 
 pub mod policy;
@@ -205,6 +206,11 @@ pub enum Event<'a> {
         peer: PeerId,
         attachment: Option<Attachment>,
     },
+    BindBuffer {
+        path: Vec<u8>,
+        bytes: Buffer,
+        access: Access,
+    },
     Bind {
         path: Vec<u8>,
         bytes: Vec<u8>,
@@ -335,7 +341,7 @@ struct PeerState {
     controller: Controller,
 }
 struct Binding {
-    bytes: Vec<u8>,
+    bytes: Buffer,
     access: Access,
     tree: Option<mesa_lss::Tree>,
     signature: Option<[u8; 64]>,
@@ -505,67 +511,12 @@ impl<P: Protection> Engine<P> {
                 path,
                 bytes,
                 access,
-            } => {
-                self.check_path(&path)?;
-                if self.retired.iter().any(|(prefix, suffix)| {
-                    path.strip_prefix(prefix.as_slice())
-                        .is_some_and(|tail| tail < suffix.as_slice())
-                }) {
-                    return Err(Error::RetiredName);
-                }
-                if P::SIGNED_PUBLIC && access != Access::Public {
-                    return Err(Error::UnsupportedAccess);
-                }
-                if let Some(old) = self.bindings.get(&path) {
-                    return Err(if old.is_some() {
-                        Error::NameInUse
-                    } else {
-                        Error::RetiredName
-                    });
-                }
-                if self.usage().namespace_slots >= self.config.max_bindings
-                    || bytes.len() > self.config.max_read_bytes
-                    || bytes.len().div_ceil(self.capacity).max(1) > self.config.max_fragments
-                    || bytes.len()
-                        > self
-                            .config
-                            .max_binding_bytes
-                            .saturating_sub(self.usage().binding_bytes)
-                {
-                    return Err(Error::ResourceLimit);
-                }
-                let tree = if P::SIGNED_PUBLIC {
-                    Some(mesa_lss::Tree::build(&bytes).map_err(|_| Error::ResourceLimit)?)
-                } else {
-                    None
-                };
-                let signature = if let Some(tree) = &tree {
-                    let name = Name {
-                        publisher: self.local.id,
-                        domain: self.local.domain(),
-                        rift: self.local.rift,
-                        bloq: self.config.bloq,
-                        fragment: Fragment::Auth(0),
-                        path: &path,
-                    };
-                    Some(
-                        self.protection
-                            .sign_root(&self.local, name, bytes.len() as u64, &tree.root())
-                            .ok_or(Error::MissingKey)?,
-                    )
-                } else {
-                    None
-                };
-                self.bindings.insert(
-                    path,
-                    Some(Binding {
-                        bytes,
-                        access,
-                        tree,
-                        signature,
-                    }),
-                );
-            }
+            } => self.bind(path, bytes.into(), access)?,
+            Event::BindBuffer {
+                path,
+                bytes,
+                access,
+            } => self.bind(path, bytes, access)?,
             Event::Unbind { path } => {
                 self.bindings
                     .get_mut(path)
@@ -623,6 +574,69 @@ impl<P: Protection> Engine<P> {
         self.schedule(&mut actions);
         actions.push(Action::SetTimer(self.next_timer()));
         Ok(actions)
+    }
+
+    fn bind(&mut self, path: Vec<u8>, bytes: Buffer, access: Access) -> Result<(), Error> {
+        self.check_path(&path)?;
+        if self.retired.iter().any(|(prefix, suffix)| {
+            path.strip_prefix(prefix.as_slice())
+                .is_some_and(|tail| tail < suffix.as_slice())
+        }) {
+            return Err(Error::RetiredName);
+        }
+        if P::SIGNED_PUBLIC && access != Access::Public {
+            return Err(Error::UnsupportedAccess);
+        }
+        if let Some(old) = self.bindings.get(&path) {
+            return Err(if old.is_some() {
+                Error::NameInUse
+            } else {
+                Error::RetiredName
+            });
+        }
+        if self.usage().namespace_slots >= self.config.max_bindings
+            || bytes.len() > self.config.max_read_bytes
+            || bytes.len().div_ceil(self.capacity).max(1) > self.config.max_fragments
+            || bytes.len()
+                > self
+                    .config
+                    .max_binding_bytes
+                    .saturating_sub(self.usage().binding_bytes)
+        {
+            return Err(Error::ResourceLimit);
+        }
+        let tree = if P::SIGNED_PUBLIC {
+            Some(mesa_lss::Tree::build_buffer(&bytes).map_err(|_| Error::ResourceLimit)?)
+        } else {
+            None
+        };
+        let signature = if let Some(tree) = &tree {
+            let name = Name {
+                publisher: self.local.id,
+                domain: self.local.domain(),
+                rift: self.local.rift,
+                bloq: self.config.bloq,
+                fragment: Fragment::Auth(0),
+                path: &path,
+            };
+            Some(
+                self.protection
+                    .sign_root(&self.local, name, bytes.len() as u64, &tree.root())
+                    .ok_or(Error::MissingKey)?,
+            )
+        } else {
+            None
+        };
+        self.bindings.insert(
+            path,
+            Some(Binding {
+                bytes,
+                access,
+                tree,
+                signature,
+            }),
+        );
+        Ok(())
     }
 
     fn check_path(&self, path: &[u8]) -> Result<(), Error> {
@@ -847,10 +861,15 @@ impl<P: Protection> Engine<P> {
         let end = offset
             .saturating_add(self.capacity)
             .min(binding.bytes.len());
+        let mut fragment = vec![0; end - offset];
+        binding
+            .bytes
+            .copy_range(offset, &mut fragment)
+            .expect("bounded leaf");
         let data = Data {
             total_bytes: binding.bytes.len() as u64,
             auth: Auth::None,
-            fragment: &binding.bytes[offset..end],
+            fragment: &fragment,
         };
         let bytes = encode(
             &Packet {

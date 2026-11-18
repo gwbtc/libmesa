@@ -170,3 +170,15 @@ behavior without changing that stack or introducing identity provisioning.
 Read this file, current crate APIs, and spec chapters 7 through 13. Consult
 Ames/Mesa and Vere source only for the mechanism being implemented. The prior
 identity discussion and all planning documents are not required opening context.
+
+## C embedding phase
+
+The [embedding contract](../spec/14-c-embedding.md) separates the raw engine,
+POSIX transport adapters, and persistent inbox. Public buffers share immutable
+`[dat wid]` storage. The Rust engine dependency graph is noun-free; compatibility
+and identity codecs remain separate. Compiled C tests cover ownership, batch
+prefixes, transport queues, and process crashes around persistence/confirmation.
+The persistent adapter accepts into a durable inbox; explicit transaction hosts
+can include Mesa progress in their own application or OS transaction. Application
+history pruning, production congestion pacing, and generalized enrollment remain
+outside this phase.

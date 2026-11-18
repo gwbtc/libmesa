@@ -1,5 +1,5 @@
 //! Experimental v2 vectors are hand-specified bytes, not Rust encoder output.
-use mesa_noun::mug::mug_bytes;
+use mesa_bytes::mug::mug_bytes;
 use mesa_wire::{
     decode, encode, legacy_v1, Auth, Body, Data, DomainTag, Error, Fragment, Limits, Name, Packet,
     PeerId, COOKIE, VERSION,

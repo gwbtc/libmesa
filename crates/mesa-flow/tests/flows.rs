@@ -425,10 +425,10 @@ fn checkpoint_validation_and_epoch_invalidation_preserve_durable_evidence() {
     bad.flows[0].settled.insert(0, Outcome::Accepted);
     invalid.push(bad);
     let mut bad = checkpoint.clone();
-    bad.flows[0].outbox.insert(9, vec![]);
+    bad.flows[0].outbox.insert(9, vec![].into());
     invalid.push(bad);
     let mut bad = checkpoint.clone();
-    bad.flows[0].outbox.insert(0, vec![0; 65537]);
+    bad.flows[0].outbox.insert(0, vec![0; 65537].into());
     invalid.push(bad);
     let mut bad = checkpoint.clone();
     bad.revision = u64::MAX;

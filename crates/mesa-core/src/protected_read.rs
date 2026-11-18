@@ -11,6 +11,7 @@ impl<P: Protection> Engine<P> {
     ) -> Result<(), DropReason> {
         let tree = binding.tree.as_ref().ok_or(DropReason::Protection)?;
         let proof;
+        let mut leaf = [0; mesa_lss::LEAF_BYTES];
         let mut pair_bytes = [0; 64];
         let (fragment, auth) = match name.fragment {
             Fragment::Auth(0) => {
@@ -27,8 +28,12 @@ impl<P: Protection> Engine<P> {
                     return Err(DropReason::Fragment);
                 }
                 let offset = index * self.capacity;
-                let fragment =
-                    &binding.bytes[offset..binding.bytes.len().min(offset + self.capacity)];
+                let len = (binding.bytes.len() - offset).min(self.capacity);
+                binding
+                    .bytes
+                    .copy_range(offset, &mut leaf[..len])
+                    .expect("bounded leaf");
+                let fragment = &leaf[..len];
                 let auth = if let Some(pair) = tree.pair(index) {
                     pair_bytes[..32].copy_from_slice(&pair[0]);
                     pair_bytes[32..].copy_from_slice(&pair[1]);

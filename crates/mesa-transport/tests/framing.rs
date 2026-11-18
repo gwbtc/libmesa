@@ -160,3 +160,64 @@ fn invalid_length_and_eof_poison_lane_and_release_buffers() {
         assert_eq!(stream.buffered_bytes(), 0);
     }
 }
+
+#[test]
+fn vectored_flush_combines_frames_and_handles_cross_frame_short_writes() {
+    struct Gather {
+        output: Vec<u8>,
+        calls: usize,
+        chunk: usize,
+    }
+    impl Read for Gather {
+        fn read(&mut self, _: &mut [u8]) -> io::Result<usize> {
+            Err(io::ErrorKind::WouldBlock.into())
+        }
+    }
+    impl Write for Gather {
+        fn write(&mut self, _: &[u8]) -> io::Result<usize> {
+            panic!("expected vectored write")
+        }
+        fn write_vectored(&mut self, parts: &[io::IoSlice<'_>]) -> io::Result<usize> {
+            self.calls += 1;
+            let mut available = self.chunk;
+            let before = self.output.len();
+            for p in parts {
+                let n = p.len().min(available);
+                self.output.extend_from_slice(&p[..n]);
+                available -= n;
+                if available == 0 {
+                    break;
+                }
+            }
+            Ok(self.output.len() - before)
+        }
+        fn flush(&mut self) -> io::Result<()> {
+            Ok(())
+        }
+    }
+    for chunk in [13, 19, usize::MAX] {
+        let mut io = Gather {
+            output: vec![],
+            calls: 0,
+            chunk,
+        };
+        let expected: Vec<_> = (0..16).flat_map(|i| frame(&[i; 8])).collect();
+        {
+            let mut stream = Stream::new(&mut io, 1472, 4096).unwrap();
+            for i in 0..16 {
+                assert!(stream.send(&[i; 8]).unwrap());
+            }
+            stream.flush().unwrap();
+            assert_eq!(stream.queued_bytes(), 0);
+        }
+        assert_eq!(io.output, expected);
+        assert_eq!(
+            io.calls,
+            if chunk == usize::MAX {
+                1
+            } else {
+                192usize.div_ceil(chunk)
+            }
+        );
+    }
+}

@@ -7,6 +7,7 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+mesa-bytes = { path = "../mesa-bytes" }
 mesa-wire = { path = "../mesa-wire" }
 mesa-lss = { path = "../mesa-lss" }
 mesa-crypto = { path = "../mesa-crypto" }

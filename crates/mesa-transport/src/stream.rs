@@ -1,7 +1,7 @@
 use crate::{invalid, validate_max, Capabilities, Framing, PacketIo, Received};
 use std::{
     collections::VecDeque,
-    io::{self, Read, Write},
+    io::{self, IoSlice, Read, Write},
     net::TcpStream,
 };
 
@@ -154,19 +154,32 @@ impl<S: Read + Write> PacketIo for Stream<S> {
     fn flush(&mut self) -> io::Result<()> {
         self.check()?;
         for _ in 0..64 {
-            let Some(frame) = self.tx.front() else {
+            if self.tx.is_empty() {
                 break;
-            };
-            match self.io.write(&frame[self.offset..]) {
+            }
+            let slices: Vec<_> = self
+                .tx
+                .iter()
+                .take(64)
+                .enumerate()
+                .map(|(i, frame)| IoSlice::new(&frame[if i == 0 { self.offset } else { 0 }..]))
+                .collect();
+            match self.io.write_vectored(&slices) {
                 Ok(0) => {
                     return self.fail(io::Error::new(
                         io::ErrorKind::WriteZero,
                         "stream write returned zero",
                     ))
                 }
-                Ok(n) => {
-                    self.offset += n;
-                    if self.offset == frame.len() {
+                Ok(mut n) => {
+                    while n > 0 {
+                        let frame = self.tx.front().expect("write within supplied slices");
+                        let remaining = frame.len() - self.offset;
+                        if n < remaining {
+                            self.offset += n;
+                            break;
+                        }
+                        n -= remaining;
                         self.queued -= frame.len();
                         self.tx.pop_front();
                         self.offset = 0;
