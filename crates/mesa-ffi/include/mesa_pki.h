@@ -25,6 +25,7 @@ typedef struct {
   uint64_t dispatch_interval;
 } mesa_pki_options;
 typedef struct {
+  uint8_t domain_hash[32]; /* obtained from mesa_pki_provider; preserve exactly */
   uint8_t incarnation[16];
   uint64_t generation, request;
   uint8_t peer[16];
@@ -42,7 +43,7 @@ enum {
 };
 /* Zero-initialize. All domains are canonical NUL-terminated, zero-padded.
  * REGISTER: domain, expected old generation (0 if new), value new generation.
- * STATUS: domain, ticket provider incarnation/generation; flags bit0 available,
+ * STATUS: domain, ticket provider domain binding/incarnation/generation; flags bit0 available,
  *         bit1 ready. Availability alone neither revokes nor restores permission.
  * LIFECYCLE: domain, provider; value 1 suspend, 2 remove. Revive/register with a
  *            larger generation; removed/suspended history is retained.
@@ -109,6 +110,10 @@ int32_t mesa_pki_options_default(mesa_pki_options *out);
 int32_t mesa_pki_create(uint32_t kind, const mesa_pki_options *options,
                         const mesa_buffer *checkpoint, mesa_pki **out);
 void mesa_pki_release(mesa_pki *handle);
+/* Capture a registered provider capability for host-side verifier routing.
+ * Domain binding prevents equal generations in different domains from aliasing.
+ * A ticket is not a secret credential and must never be trusted from a packet. */
+int32_t mesa_pki_provider(const mesa_pki *, const uint8_t domain[64], mesa_pki_ticket *out);
 /* At most 64 events. Prefix semantics: errors consume their event and stop;
  * capacity before first event returns MESA_CAPACITY without mutation. Reserve
  * records >= max_pending+max_subscriptions+work_per_tick+4, bytes >=

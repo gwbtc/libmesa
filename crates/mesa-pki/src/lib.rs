@@ -160,6 +160,7 @@ pub struct Proposal {
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Provider {
+    pub domain_hash: [u8; 32],
     pub incarnation: u128,
     pub generation: u64,
 }
@@ -322,7 +323,14 @@ impl Authority {
         if d.lifecycle != Lifecycle::Active {
             return Err(Error::Unavailable);
         }
+        self.registered_provider(domain)
+    }
+    /// Includes suspended/removed registrations for administrative transitions.
+    /// Verification and readiness still require an active provider.
+    pub fn registered_provider(&self, domain: &str) -> Result<Provider, Error> {
+        let d = self.state.domains.get(domain).ok_or(Error::Unavailable)?;
         Ok(Provider {
+            domain_hash: sha256(domain.as_bytes()),
             incarnation: self.incarnation,
             generation: d.generation,
         })
@@ -445,8 +453,7 @@ impl Authority {
         lifecycle: Lifecycle,
     ) -> Result<Proposal, Error> {
         let registered = self.state.domains.get(domain).ok_or(Error::Unavailable)?;
-        if provider.incarnation != self.incarnation || provider.generation != registered.generation
-        {
+        if self.registered_provider(domain)? != provider {
             return Err(Error::Stale);
         }
         if registered.lifecycle == Lifecycle::Removed {

@@ -324,3 +324,71 @@ fn restriction_closes_readiness_even_when_checkpoint_capacity_is_exhausted() {
     assert!(!a.policy(10).unwrap().ordinary());
     assert!(!a.provider_status("gw-btc").ready);
 }
+
+#[test]
+fn equal_generations_do_not_alias_provider_capabilities_between_domains() {
+    let (mut a, gw) = setup();
+    let proposal = a.register("other", 0, 1).unwrap();
+    a.commit(proposal.token).unwrap();
+    let other = a.provider("other").unwrap();
+    assert_eq!(gw.generation, other.generation);
+    assert_ne!(gw, other);
+    assert_eq!(
+        a.set_status(
+            "other",
+            gw,
+            ProviderStatus {
+                available: true,
+                ready: true
+            }
+        ),
+        Err(Error::Stale)
+    );
+    a.set_status(
+        "other",
+        other,
+        ProviderStatus {
+            available: true,
+            ready: true,
+        },
+    )
+    .unwrap();
+    let mut c = candidate(22, 1, 0, 3);
+    c.domain = "other".into();
+    assert_eq!(a.accept(gw, 0, c.clone(), None, None), Err(Error::Stale));
+    assert_eq!(a.withdraw("other", gw, 22, 0), Err(Error::Stale));
+    assert_eq!(
+        a.lifecycle("other", gw, Lifecycle::Suspended),
+        Err(Error::Stale)
+    );
+    let proposal = a.accept(other, 0, c, None, None).unwrap();
+    a.commit(proposal.token).unwrap();
+    assert!(a.policy(22).unwrap().ordinary());
+}
+
+#[test]
+fn suspended_registration_can_be_removed_after_restart_without_becoming_ready() {
+    let (mut a, p) = setup();
+    let suspended = a.lifecycle("gw-btc", p, Lifecycle::Suspended).unwrap();
+    a.commit(suspended.token).unwrap();
+    let mut restored = Authority::restore(Limits::default(), 2, &suspended.checkpoint).unwrap();
+    assert_eq!(restored.provider("gw-btc"), Err(Error::Unavailable));
+    let p = restored.registered_provider("gw-btc").unwrap();
+    assert_eq!(
+        restored.set_status(
+            "gw-btc",
+            p,
+            ProviderStatus {
+                available: true,
+                ready: true
+            }
+        ),
+        Err(Error::Unavailable)
+    );
+    let removed = restored.lifecycle("gw-btc", p, Lifecycle::Removed).unwrap();
+    restored.commit(removed.token).unwrap();
+    assert_eq!(
+        restored.snapshot().domains["gw-btc"].lifecycle,
+        Lifecycle::Removed
+    );
+}

@@ -40,8 +40,11 @@ use it directly. `Jael` owns optional request orchestration, subscriptions,
 admission budgets and retries; it contains one Authority, not a second ledger.
 Both paths use the same engine bridge and successor validation.
 
-A Provider value identifies a registered domain generation and a live handle
-incarnation. It is a capability of the embedding integration, not a secret
+A Provider value binds a domain fingerprint, registration generation and a live
+handle incarnation. Equal generation numbers in different domains cannot alias.
+`registered_provider` / `mesa_pki_provider` also exposes suspended registrations
+for administrative removal after restart; verification still requires an active
+provider. It is a capability of the embedding integration, not a secret
 network authenticator. The embedding host must ensure only the registered
 provider can submit that domain's results. Never construct a provider result
 from packet-supplied fields. Standalone provider execution and chain-view

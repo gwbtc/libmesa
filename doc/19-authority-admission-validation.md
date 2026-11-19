@@ -8,9 +8,9 @@ keeps Shrine migration and native wire integration outside the change.
 ## Executed checks
 
 Local checks ran on 2026-11-19. The full workspace run passed 206 tests. Final
-capacity-failure and preconfigured-peer bridge regressions were then added;
-the targeted PKI/Jael run passed all 20 tests, including the bridge correction.
-The final branch therefore contains 208 Rust tests; CI reruns the workspace
+capacity-failure, preconfigured-peer bridge, and provider-domain isolation
+regressions were then added; the targeted PKI/Jael run passed all 22 tests.
+The final branch therefore contains 210 Rust tests; CI reruns the workspace
 against the final head.
 
 | Command | Result |
@@ -18,7 +18,7 @@ against the final head.
 | `cargo fmt --all -- --check` | Passed |
 | `cargo clippy --workspace --all-targets -- -D warnings` | Passed |
 | `cargo test --workspace` | 206 passed before the final bridge correction |
-| `cargo test -p mesa-pki -p mesa-jael` | 20 passed after the final bridge correction |
+| `cargo test -p mesa-pki -p mesa-jael` | 22 passed after the final bridge and provider-domain corrections |
 | `cargo run -p mesa-core --example two-peer` | Passed |
 | `cargo run -p mesa-flow --example two-peer-flows` | Passed |
 | `cargo run -p mesa-transport --example flow-loopback` | Passed |
@@ -38,7 +38,7 @@ SQLite and BLAKE3 objects. No sanitizer failure occurred.
 
 The authority tests cover registration, replacement, suspension, revival,
 removal from active and suspended states, retained history, operator blocks,
-evidence refresh, rollback, same-life key substitution, cross-domain conflict,
+evidence refresh, rollback, same-life key substitution, cross-domain conflict and equal-generation provider isolation,
 unknown-peer withdrawal fences and capacity. A valid restriction closes
 readiness even when its checkpoint exceeds capacity.
 

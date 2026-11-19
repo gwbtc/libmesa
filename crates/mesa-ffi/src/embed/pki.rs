@@ -52,6 +52,7 @@ impl PkiOptions {
 #[repr(C)]
 #[derive(Clone, Copy, Default)]
 pub struct PkiTicket {
+    domain_hash: [u8; 32],
     incarnation: [u8; 16],
     generation: u64,
     request: u64,
@@ -63,6 +64,7 @@ impl From<PkiTicket> for Ticket {
     fn from(t: PkiTicket) -> Self {
         Self {
             provider: Provider {
+                domain_hash: t.domain_hash,
                 incarnation: u128::from_le_bytes(t.incarnation),
                 generation: t.generation,
             },
@@ -76,6 +78,7 @@ impl From<PkiTicket> for Ticket {
 impl From<Ticket> for PkiTicket {
     fn from(t: Ticket) -> Self {
         Self {
+            domain_hash: t.provider.domain_hash,
             incarnation: t.provider.incarnation.to_le_bytes(),
             generation: t.provider.generation,
             request: t.request,
@@ -160,6 +163,7 @@ impl PkiHandle {
         let domain = domain(&e.domain)?;
         let peer = u128::from_le_bytes(e.peer);
         let provider = Provider {
+            domain_hash: e.ticket.domain_hash,
             incarnation: u128::from_le_bytes(e.ticket.incarnation),
             generation: e.ticket.generation,
         };
@@ -756,6 +760,47 @@ pub unsafe extern "C" fn mesa_pki_describe(h: *const PkiHandle, out: *mut *const
         }
         *out = owned((*h).descriptor.clone());
         0
+    }))
+    .unwrap_or(PANIC)
+}
+
+/// # Safety
+/// Live serialized handle, readable 64-byte domain and writable provider ticket.
+/// Routing this capability to the authenticated verifier remains host-owned.
+#[no_mangle]
+pub unsafe extern "C" fn mesa_pki_provider(
+    h: *const PkiHandle,
+    name: *const u8,
+    out: *mut PkiTicket,
+) -> i32 {
+    catch_unwind(AssertUnwindSafe(|| unsafe {
+        if out.is_null() {
+            return ARG;
+        }
+        *out = PkiTicket::default();
+        if h.is_null() || name.is_null() {
+            return ARG;
+        }
+        if (*h).poisoned {
+            return PANIC;
+        }
+        let result = (|| {
+            let name = domain(array(name, 64)?.try_into().unwrap())?;
+            let p = (*h).authority().registered_provider(&name).map_err(code)?;
+            Ok::<_, i32>(PkiTicket {
+                domain_hash: p.domain_hash,
+                incarnation: p.incarnation.to_le_bytes(),
+                generation: p.generation,
+                ..Default::default()
+            })
+        })();
+        match result {
+            Ok(p) => {
+                *out = p;
+                0
+            }
+            Err(e) => e,
+        }
     }))
     .unwrap_or(PANIC)
 }

@@ -29,7 +29,7 @@ static mesa_pki *setup(uint32_t kind,uint8_t incarnation){
   options.incarnation[0]=incarnation;memset(&provider,0,sizeof(provider));provider.incarnation[0]=incarnation;provider.generation=1;
   mesa_pki *h=NULL;OK(mesa_pki_create(kind,&options,NULL,&h));
   mesa_pki_event e=event(MESA_PKI_REGISTER);e.value=1;mesa_pki_record p=run(h,e,MESA_PKI_PERSIST);commit(h,&p);mesa_pki_record_release(&p);
-  e=event(MESA_PKI_STATUS);e.flags=3;run(h,e,0);return h;
+  OK(mesa_pki_provider(h,e.domain,&provider));e=event(MESA_PKI_STATUS);e.flags=3;run(h,e,0);return h;
 }
 static const mesa_buffer *evidence(void){const uint8_t bytes[]={1,2};const mesa_buffer *b=NULL;OK(mesa_buffer_new(bytes,2,4,&b));return b;}
 static mesa_pki_event candidate(uint32_t tag){mesa_pki_event e=event(tag);e.life=1;e.evidence=evidence();uint8_t seed[32];memset(seed,2,32);OK(mesa_key_from_seed(seed,e.public_key));return e;}
@@ -93,7 +93,7 @@ static void crash_case(int stage){
   size_t done=0;while(done<(size_t)n){ssize_t k=read(fd,bytes+done,(size_t)n-done);assert(k>0);done+=(size_t)k;}close(fd);unlink(path);
   const mesa_buffer *checkpoint=NULL;OK(mesa_buffer_new(bytes,(size_t)n,(size_t)n,&checkpoint));free(bytes);
   options.incarnation[0]=11;mesa_pki *h=NULL;OK(mesa_pki_create(MESA_PKI_JAEL,&options,checkpoint,&h));mesa_buffer_release(checkpoint);
-  memset(&provider,0,sizeof(provider));provider.incarnation[0]=11;provider.generation=1;mesa_pki_event e=event(MESA_PKI_STATUS);e.flags=3;run(h,e,0);
+  memset(&provider,0,sizeof(provider));provider.incarnation[0]=11;provider.generation=1;mesa_pki_event e=event(MESA_PKI_STATUS);OK(mesa_pki_provider(h,e.domain,&provider));e.ticket=provider;e.flags=3;run(h,e,0);
   char *s=snapshot(h);assert(!strstr(s,"\"ordinary\":true"));free(s);mesa_pki_release(h);
 }
 int main(void){OK(mesa_pki_options_default(&options));exercise(MESA_PKI_RAW);exercise(MESA_PKI_JAEL);lookup();
