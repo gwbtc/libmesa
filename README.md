@@ -45,6 +45,15 @@ persistent SQLite inbox as separate components. Build and run its C host with
 `bash tools/test-ffi.sh`. The standard inbox acknowledges durable acceptance;
 hosts with their own transaction system can handle raw commit proposals.
 
+The current [integration roadmap](doc/14-shrine-groundwire-roadmap.md) prioritizes
+Shrine embedding, separable Jael/PKI modules, and native network interoperability
+between suite-C/Groundwire peers. Shrine owns migration of its older bridge to
+this API. Azimuth-ID peers, standalone verifier packaging, and the composed inbox
+wrapper follow later. Start a new work session with the
+[continuation handoff](doc/16-shrine-groundwire-handoff.md); the
+[reference snapshot](doc/15-shrine-groundwire-reference.md) pins the inspected
+Shrine and Groundwire sources.
+
 ## Build and check
 
 ```sh

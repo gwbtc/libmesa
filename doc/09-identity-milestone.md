@@ -1,5 +1,11 @@
 # Deferred integration track: authenticated identity
 
+**Historical milestone, superseded 2026-11-19.** Follow the
+[Shrine/Groundwire roadmap](14-shrine-groundwire-roadmap.md) for current scope:
+kernel-side PKI becomes selectable Mesa modules, including a separable Jael.
+Verifiers remain host-provided. The implementation-status statements below
+describe earlier increments, not the current core or C API.
+
 **Scheduling update, 2026-10-22:** the
 [peer-engine milestone](11-peer-engine-handoff.md) takes priority. Preconfigured
 peers and test-only protection outcomes allow engine work without this track.

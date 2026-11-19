@@ -1,5 +1,16 @@
 # libmesa spec — 5: Identity
 
+**Planning update, 2026-11-19.** The
+[Shrine/Groundwire roadmap](../doc/14-shrine-groundwire-roadmap.md) now governs
+sequencing and module scope. It supplies kernel-side PKI, including an optional
+Jael module, for suite-C peers on Shrine and Urbit. The raw C engine now exists;
+the older status below predates it. Section 8's requirement for an upstream
+Mesa-only announcement change is superseded as the default strategy: investigate
+an isolated native compatibility module for the control packets suite-C peers
+already use. Its protocol specification and tests remain future work. Preserve
+the authority/activation invariants below; do not read the historical transport
+choice or its dependent release gates as settled implementation requirements.
+
 **Status: domain-first design contract, 2026-10-22.** Rust implements bounded
 noun/suite-C parsing and suite-C name derivation, signing, and agreement.
 Identity authorization and lifecycle remain unimplemented. The C ABI exposes
@@ -325,7 +336,7 @@ Until that upstream change exists and passes interop tests, libmesa must not
 claim full rekey compatibility with the pinned kernel. The legacy `%keys`
 recipient-life-1 exception is not imported into the Mesa path.
 
-## 9. Required implementation evidence## 9. Required implementation evidence
+## 9. Required implementation evidence
 
 The next identity milestone needs kernel-derived fixtures and negative tests
 through the actual admission and activation path:

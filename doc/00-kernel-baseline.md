@@ -1,5 +1,10 @@
 # Kernel/runtime baseline libmesa tracks
 
+**Historical audit.** Preserve the revisions below as evidence from 2026-10-21.
+For the current planning baseline and implementation status, read the
+[2026-11-19 source snapshot](15-shrine-groundwire-reference.md) and
+[Shrine/Groundwire roadmap](14-shrine-groundwire-roadmap.md).
+
 **Source audit: 2026-10-21.** The identity reference is the composed
 `hd/cc-key-rotation` and `hd/cc-snob-only` stack. `hd/cc-kernel` alone still
 has the earlier identity behavior. The library currently implements wire
