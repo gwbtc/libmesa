@@ -1,0 +1,17 @@
+[package]
+name = "mesa-jael"
+description = "Optional bounded authority-provider orchestration and admission"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+[dependencies]
+mesa-pki = { path = "../mesa-pki" }
+mesa-bytes = { path = "../mesa-bytes" }
+mesa-crypto = { path = "../mesa-crypto" }
+[dev-dependencies]
+mesa-core = { path = "../mesa-core" }
+mesa-identity = { path = "../mesa-identity" }
+serde_json = "1"
+[lints]
+workspace = true

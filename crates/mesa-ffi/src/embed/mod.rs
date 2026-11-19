@@ -14,6 +14,7 @@ use std::{
 };
 mod engine;
 mod inbox;
+mod pki;
 #[cfg(unix)]
 mod transport;
 const ARG: i32 = 1;

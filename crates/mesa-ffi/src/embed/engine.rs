@@ -357,38 +357,7 @@ impl Engine {
                     if e.tag == 8 {
                         self.reads.insert(e.id);
                     }
-                    let mut out = Vec::new();
-                    for a in actions {
-                        match a {
-                            core::Action::SetTimer(t) => self.timer = t,
-                            core::Action::Send {
-                                peer,
-                                attachment,
-                                bytes,
-                            } => out.push(send(peer, attachment, bytes)),
-                            core::Action::Dropped(d) => out.push(Record::diagnostic(103, 0, d)),
-                            core::Action::ReadFinished { id, result } => {
-                                self.reads.remove(&id);
-                                let mut r = Record::new(102);
-                                r.c.id = id;
-                                match result {
-                                    Ok(b) => r.data = Some(b.into()),
-                                    Err(f) => {
-                                        r.c.status = match f {
-                                            core::ReadFailure::Cancelled => 201,
-                                            core::ReadFailure::Timeout => 202,
-                                            core::ReadFailure::RetriesExhausted => 203,
-                                            core::ReadFailure::Blocked => 204,
-                                            core::ReadFailure::PeerReset => 205,
-                                            core::ReadFailure::ResourceLimit => 206,
-                                        }
-                                    }
-                                }
-                                out.push(r);
-                            }
-                        }
-                    }
-                    Ok(out)
+                    Ok(self.core_records(actions))
                 }
                 Backend::Flow(n) => {
                     let event = match e.tag {
@@ -451,6 +420,44 @@ impl Engine {
             )
         })
     }
+    pub(super) fn core_records(&mut self, actions: Vec<core::Action>) -> Vec<Record> {
+        let mut out = Vec::new();
+        for a in actions {
+            match a {
+                core::Action::SetTimer(t) => self.timer = t,
+                core::Action::Send {
+                    peer,
+                    attachment,
+                    bytes,
+                } => out.push(send(peer, attachment, bytes)),
+                core::Action::Dropped(d) => out.push(Record::diagnostic(103, 0, d)),
+                core::Action::ReadFinished { id, result } => {
+                    self.reads.remove(&id);
+                    let mut r = Record::new(102);
+                    r.c.id = id;
+                    match result {
+                        Ok(b) => r.data = Some(b.into()),
+                        Err(f) => {
+                            r.c.status = match f {
+                                core::ReadFailure::Cancelled => 201,
+                                core::ReadFailure::Timeout => 202,
+                                core::ReadFailure::RetriesExhausted => 203,
+                                core::ReadFailure::Blocked => 204,
+                                core::ReadFailure::PeerReset => 205,
+                                core::ReadFailure::ResourceLimit => 206,
+                            }
+                        }
+                    }
+                    out.push(r);
+                }
+            }
+        }
+        out
+    }
+    pub(super) fn core_envelope(&self) -> (usize, usize) {
+        (self.step_records, self.step_bytes)
+    }
+
     pub(super) fn timer_record(&self) -> Record {
         let mut r = Record::new(104);
         r.c.event_index = usize::MAX;

@@ -1,0 +1,16 @@
+[package]
+name = "mesa-pki"
+description = "Deterministic authority transitions and engine credential bridge"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+[dependencies]
+mesa-bytes = { path = "../mesa-bytes", features = ["serde"] }
+mesa-core = { path = "../mesa-core" }
+mesa-crypto = { path = "../mesa-crypto" }
+mesa-wire = { path = "../mesa-wire" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+[lints]
+workspace = true
