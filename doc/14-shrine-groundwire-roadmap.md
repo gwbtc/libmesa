@@ -1,10 +1,14 @@
 # Shrine integration, modular PKI, and native Groundwire interoperability
 
-**Roadmap, 2026-11-19.** The `codex/raw-udp-embedding` phase PR implements the
-raw-host work in phases 1–3. See the [phase-0 contract](17-raw-udp-phase0.md),
+**Roadmap, 2026-11-19.** PR #12 merged the raw-host work in phases 1–3.
+The `phase4-authority-admission` branch implements phase 4; its
+[authority contract](../spec/16-authority-admission.md) defines the component API.
+See [phase-4 validation](19-authority-admission-validation.md) for executed tests
+and remaining integration risks. See the [phase-0 contract](17-raw-udp-phase0.md),
 [API extension](../spec/15-raw-udp-host.md) and
 [validation record](18-raw-udp-validation.md). Native live-capture evidence
-in phase 0 remains open. PKI implementation has not started.
+in phase 0 remains open. Phase 5 local activation and phase 6 native wire
+integration remain separate work.
 
 Build the modules an operating system needs to use Mesa and Groundwire ID.
 Shrine is the first integrator. Existing Urbit ships are network peers; they
@@ -107,6 +111,48 @@ requirements; do not duplicate the Shrine-side migration in this repository.
 
 ## 3. Module boundaries
 
+### Terms and incoming ownership
+
+The **embedding host** is the client calling Mesa: Shrine, or an application
+using the composed library. A **host application** runs within an embedding
+host such as Shrine. The **underlying OS** supplies sockets and platform
+facilities; it is not what this document means by host. The **host scheduler**
+drives readiness, deadlines and batches without interpreting network packets.
+
+The **Mesa transport adapter** carries packets over an N-1 attachment. The
+**Mesa admission path** screens incoming protocol traffic, bounds pending
+verification, and gates delivery. A **verifier provider** interprets domain
+evidence; Shrine supplies its provider, while a composed integrator selects
+a plugin. The adapter and admission path remain separate Mesa components.
+
+Incoming first contact follows this ownership sequence:
+
+1. The Mesa transport adapter feeds the selected Mesa protocol profile.
+2. Mesa bounds packet size, parsing, cryptographic screening, candidate storage
+   and verification dispatch. It discards unverified application traffic;
+   protocol-required provisional storage needs an explicit bound.
+3. The Mesa admission path emits a correlated, bounded verification request.
+   This is Shrine's first peer-specific semantic work: dispatch the attestation
+   to its verifier and return the verdict. Shrine does not parse an unsolicited
+   message to construct a candidate or initiate incoming admission.
+4. Mesa validates the verdict, prepares authority state for durable commitment,
+   installs committed credentials, and gates authenticated traffic by policy.
+5. Authorized deliveries reach the embedding host. In the composed library,
+   verifier dispatch and persistence stay inside the wrapper; its application
+   sees the admitted peer's message queue.
+
+Readiness calls and opaque driver buffers are scheduling/I/O crossings, not
+application delivery. Global budgets bound screening and verifier requests;
+source addresses and claimed peer names cannot defeat those budgets. Source
+routes do not authenticate peers. Administrative or outbound resolution uses
+the same authority acceptance rules but is a separate entry point.
+
+Phase 4 implements the admission state and profile-to-admission contract.
+Phase 6 connects native Groundwire wire decoding to that contract. The current
+configured-route UDP endpoint discards unknown sources; it does not yet
+implement native first contact. Neither a fixture profile nor a fixture
+provider establishes network interoperability or real Groundwire verification.
+
 Module names below are proposed responsibilities, not promises of one crate
 per row. Keep the dependency direction and independently selectable behavior.
 
@@ -114,8 +160,9 @@ per row. Keep the dependency direction and independently selectable behavior.
 |---|---|---|
 | `mesa-bytes`, `mesa-core` | Immutable buffers, named reads, reassembly, integrity, bounded recovery and transfer scheduling | Time, installed peer/credential views, bindings, transport outcomes |
 | `mesa-flow` | Experimental reliable flow state and explicit commit proposals | Host delivery decisions and durable commit completion |
-| `mesa-identity` / PKI types | Names, domains, profiles, typed candidates, accepted points, generations and transition validation | Authenticated authority decisions; never packet-supplied trust |
-| `mesa-jael` | Domain registry, verifier request orchestration, point/key history, subscriptions, source provenance, local activation coordination | Provider availability/readiness, verified results, host persistence completion |
+| `mesa-pki` | Owned candidates, accepted points/history, durable authority transitions, policy provenance and engine credential bridge | Authenticated provider decisions; never packet-supplied trust |
+| `mesa-identity` / profile codecs | Suite-C name/key binding and conversion to owned candidates | Bounded profile input; no authority decisions |
+| `mesa-jael` | Optional provider orchestration, admission budgets, correlated requests, subscriptions, bounded retries and evidence solicitation | Screened candidates from Mesa profiles; provider status/results; embedding-host persistence completion |
 | Key/crypto module | Key import, scoped signing/agreement, historical-key selection and retirement | Authorized activation, secret custody supplied by the host or selected backend |
 | `mesa-urbit` compatibility module | Native packet/profile mapping, proof paths, required identity-control and messaging semantics, bounded Urbit serialization | Typed identities, crypto services and core transfer mechanisms |
 | `mesa-transport` | Optional socket adapters, framing, bounded queues and readiness | Host-owned descriptors/attachments, routes, declared lower-layer properties |
@@ -305,6 +352,9 @@ completion latency. Stop transport expansion here and move to PKI.
 ### Phase 4 — Implement separable Jael and authority lifecycle
 
 Introduce deterministic PKI events/actions and the optional Jael orchestrator.
+Implement Mesa-owned incoming admission behind a profile interface. Emit bounded
+verification requests to the embedding host; never require it to process an
+unverified application message. Keep native wire integration in phase 6.
 Implement domain registration, suspension, revival and removal; accepted-point
 and key history; queries/subscriptions; provider request correlation; and
 policy provenance. Make registry presence, process availability, verification
@@ -335,7 +385,10 @@ An authority module must not clear an independent administrator's block.
 
 **Gate:** deterministic provider fixtures exercise every transition and stale
 completion race, including rejection without poisoning an accepted peer.
-Run the same engine tests with Jael selected and with a host authority manager.
+Provide owned noun-free Rust and C boundaries, batched events/results and
+explicit authority commit proposals. Provision remote public keys atomically
+with credential updates; retain local private-key activation for phase 5.
+Run the same engine tests with Jael selected and with an alternative embedding-host authority manager.
 A fake provider proves orchestration only, not Groundwire verification.
 
 ### Phase 5 — Implement local keys, activation and durable recovery

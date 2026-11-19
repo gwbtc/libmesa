@@ -293,9 +293,12 @@ dependencies = [
  "mesa-core",
  "mesa-crypto",
  "mesa-flow",
+ "mesa-jael",
+ "mesa-pki",
  "mesa-store",
  "mesa-transport",
  "mesa-wire",
+ "serde",
  "serde_json",
 ]
 
@@ -317,7 +320,20 @@ version = "0.0.1"
 dependencies = [
  "mesa-crypto",
  "mesa-noun",
+ "mesa-pki",
  "mesa-wire",
+ "serde_json",
+]
+
+[[package]]
+name = "mesa-jael"
+version = "0.0.1"
+dependencies = [
+ "mesa-bytes",
+ "mesa-core",
+ "mesa-crypto",
+ "mesa-identity",
+ "mesa-pki",
  "serde_json",
 ]
 
@@ -335,6 +351,18 @@ name = "mesa-noun"
 version = "0.0.1"
 dependencies = [
  "mesa-bytes",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "mesa-pki"
+version = "0.0.1"
+dependencies = [
+ "mesa-bytes",
+ "mesa-core",
+ "mesa-crypto",
+ "mesa-wire",
  "serde",
  "serde_json",
 ]

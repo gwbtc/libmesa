@@ -111,3 +111,43 @@ fn genesis_and_domain_data_are_bound_while_live_key_is_not_immutable_identity() 
         assert_eq!(BoundPass::new(parsed).unwrap_err(), Error::InvalidKey);
     }
 }
+
+#[test]
+fn owned_admission_boundary_preserves_pass_without_borrowed_nouns() {
+    use mesa_pki::Buffer;
+    let row = &fixtures()[0];
+    let bytes = hex(&row["pass"]);
+    let name = bound(&bytes).name();
+    let input = Buffer::from(bytes.clone());
+    let candidate = mesa_identity::owned::suite_c_candidate(
+        input.clone(),
+        "gw-btc",
+        name,
+        1,
+        0,
+        Limits::default(),
+    )
+    .unwrap();
+    assert!(candidate.evidence.shares_storage(&input));
+    drop(input);
+    assert_eq!(candidate.evidence.to_vec(), bytes);
+    assert_eq!(candidate.public_key.as_slice(), hex(&row["live"]));
+    assert!(mesa_identity::owned::suite_c_candidate(
+        candidate.evidence.clone(),
+        "gw-btc",
+        PeerId(name.0 ^ 1),
+        1,
+        0,
+        Limits::default()
+    )
+    .is_err());
+    assert!(mesa_identity::owned::suite_c_candidate(
+        candidate.evidence,
+        "other",
+        name,
+        1,
+        0,
+        Limits::default()
+    )
+    .is_err());
+}

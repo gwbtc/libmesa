@@ -4,3 +4,5 @@
 //! correspondence are implemented. Byte-level signing and agreement live in
 //! mesa-crypto. Domain authority, activation, and handshakes are not implemented.
 pub mod suite_c;
+
+pub mod owned;

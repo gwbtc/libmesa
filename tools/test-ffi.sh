@@ -20,3 +20,8 @@ echo 'C ABI smoke test passed'
   -I crates/mesa-ffi/include crates/mesa-ffi/tests/raw_udp.c \
   "$target_dir/debug/libmesa_ffi.a" "${libs[@]}" -o "$target_dir/mesa-ffi-raw-udp"
 "$target_dir/mesa-ffi-raw-udp" 16
+
+"${CC:-cc}" -std=c11 -Wall -Wextra -Werror \
+  -I crates/mesa-ffi/include crates/mesa-ffi/tests/pki.c \
+  "$target_dir/debug/libmesa_ffi.a" "${libs[@]}" -o "$target_dir/mesa-ffi-pki"
+"$target_dir/mesa-ffi-pki"

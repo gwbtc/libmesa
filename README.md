@@ -52,6 +52,13 @@ three raw hosts, then reconstructs a host and reads again. It is a libmesa test,
 not live Shrine acceptance. See [the phase-0 contract](doc/17-raw-udp-phase0.md)
 and [validation evidence](doc/18-raw-udp-validation.md).
 
+The [authority and admission components](spec/16-authority-admission.md) add
+noun-free `mesa-pki`, optional `mesa-jael`, owned suite-C candidates, explicit
+authority commits, and bounded remote-key updates. Rust and C APIs expose
+provider requests, lifecycle changes and retained buffers. Mesa owns incoming
+admission; the embedding host supplies verification and transaction services.
+Native first-contact wiring and real verifier integration remain later phases.
+
 The current [integration roadmap](doc/14-shrine-groundwire-roadmap.md) prioritizes
 Shrine embedding, separable Jael/PKI modules, and native network interoperability
 between suite-C/Groundwire peers. Shrine owns migration of its older bridge to

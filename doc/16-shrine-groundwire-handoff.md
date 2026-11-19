@@ -1,7 +1,9 @@
 # Fresh-context handoff: Shrine, suite-C PKI and native Urbit peers
 
-**Implementation checkpoint, 2026-11-19.** `codex/raw-udp-embedding` contains
-the phases 1–3 raw-host PR. Read the [phase-0 contract](17-raw-udp-phase0.md),
+**Implementation checkpoint, 2026-11-19.** PR #12 merged phases 1–3 at
+`e02a41aff0b46961bb6d77669d7b784189000782`. Branch
+`phase4-authority-admission` implements the authorized phase-4 PR. See
+[the authority contract](../spec/16-authority-admission.md). Read the [phase-0 contract](17-raw-udp-phase0.md),
 [API extension](../spec/15-raw-udp-host.md), and
 [validation record](18-raw-udp-validation.md). Native live captures remain open.
 
@@ -13,9 +15,10 @@ the phases 1–3 raw-host PR. Read the [phase-0 contract](17-raw-udp-phase0.md),
    the phase being implemented. Use older identity docs for invariants, not
    their superseded scheduling or external-Jael assumption.
 
-The user authorized phase 0 and a single phases 1–3 PR, explicitly excluding
-Shrine-side migration and stopping before PKI. Do not start phase 4 without
-a new instruction. This PR does not claim full native phase-0 acceptance.
+The user authorized one phase-4 PR after reviewing the ownership correction.
+Keep Shrine-side migration and native wire integration out of scope. Stop after
+opening the phase-4 PR; local activation is phase 5. Native phase-0 captures
+and live interoperability remain open.
 
 ## Settled direction
 
@@ -111,11 +114,24 @@ prove private access control, durable acceptance or rekey recovery.
 
 ## Validation status
 
+Phase-4 evidence is recorded in [the authority validation report](19-authority-admission-validation.md).
+
 The phase PR ran raw-host, Rust workspace, C ownership/crash and UDP tests;
-see the validation record for commands and limits. No live Shrine, native
-Urbit or PKI integration was executed. Earlier native acceptance records are
+see the validation record for commands and limits. No live Shrine or native
+Urbit integration was executed. Phase-4 provider fixtures prove orchestration,
+not Groundwire evidence verification. Earlier native acceptance records are
 historical evidence only.
 
 Implementation reports must distinguish deterministic simulation, compiled-host
 execution, native codec conformance and live joint integration. Keep exact
 source/pill/runtime/provider provenance with the acceptance evidence.
+
+## Phase-4 ownership clarification
+
+“Embedding host” means the Mesa client, such as Shrine, not the underlying
+Unix OS. Its scheduler drives Mesa; Mesa owns incoming protocol parsing and
+admission. Shrine first receives a bounded attestation-verification request,
+then supplies its verifier's verdict and durable commit completion. A composed
+client receives admitted messages after its wrapper handles those services.
+See roadmap section 3 for the shared terminology and incoming sequence.
+Shrine-side migration and native packet integration remain outside phase 4.

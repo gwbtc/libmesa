@@ -114,7 +114,7 @@ mod tests {
     #[test]
     fn atom_hashing_retains_internal_zeros_and_removes_only_high_zeros() {
         assert_eq!(atom_bytes(&[1, 0, 2, 0, 0]), &[1, 0, 2]);
-        assert_eq!(atom_bytes(&[0; 32]), &[]);
+        assert!(atom_bytes(&[0; 32]).is_empty());
         assert_ne!(fingerprint(&[0; 32]), PeerId(0));
     }
 }
