@@ -15,15 +15,25 @@ impl Authority {
         engine: &mut Engine<SignedPublic>,
         peer: Peer,
     ) -> Result<Vec<Action>, mesa_core::Error> {
-        let Some(p) = self.peer(peer) else {
-            return Err(mesa_core::Error::UnknownPeer);
-        };
-        let policy = self.policy(peer).expect("present");
         let old = engine
             .snapshot()
             .peers
             .into_iter()
             .find(|p| p.peer.id == PeerId(peer));
+        let Some(p) = self.peer(peer) else {
+            // A withdrawal fence or unresolved lookup may have no accepted
+            // point. Taking authority over a preconfigured engine must close
+            // that peer's old service gate, not leave it open on an error.
+            return if old.is_some_and(|p| p.peer.service_allowed) {
+                engine.step(Event::SetService {
+                    peer: PeerId(peer),
+                    allowed: false,
+                })
+            } else {
+                Ok(vec![])
+            };
+        };
+        let policy = self.policy(peer).expect("present");
         // Never provision a candidate before durable acceptance. Close an
         // existing gate immediately while a proposal/revalidation is pending.
         if !policy.committed || !policy.revalidated {

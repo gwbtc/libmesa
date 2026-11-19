@@ -320,3 +320,40 @@ fn dynamic_key_cas_failure_and_same_life_substitution_preserve_key() {
         Err(Error::KeyConflict)
     );
 }
+
+#[test]
+fn unknown_authority_and_withdrawal_fences_close_preconfigured_engine_gates() {
+    let mut engine = Engine::new(
+        Config::default(),
+        view(1, 1),
+        SignedPublic::new(
+            KeyHandle(1),
+            key(1),
+            BTreeMap::from([(KeyHandle(2), key(2).public_key())]),
+        ),
+    )
+    .unwrap();
+    engine.step(Event::InstallPeer(view(2, 1))).unwrap();
+    engine
+        .step(Event::SetAttachment {
+            peer: PeerId(2),
+            attachment: Some(Attachment(7)),
+        })
+        .unwrap();
+    engine
+        .step(Event::Read {
+            id: 1,
+            peer: PeerId(2),
+            path: b"pending".to_vec(),
+        })
+        .unwrap();
+    let mut manager = Manager::new(false);
+    let actions = manager.a().sync_peer(&mut engine, 2).unwrap();
+    assert!(actions.contains(&Action::ReadFinished {
+        id: 1,
+        result: Err(ReadFailure::Blocked)
+    }));
+    manager.withdraw();
+    assert!(manager.a().sync_peer(&mut engine, 2).unwrap().is_empty());
+    assert!(!engine.snapshot().peers[0].peer.service_allowed);
+}

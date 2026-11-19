@@ -181,7 +181,7 @@ peers in that domain. Unsubscribed peers still require synchronization; a
 subscription is notification, not permission to skip gates.
 
 The bridge closes existing service gates while proposals/revalidation are
-pending. After commitment it provisions a remote public key and credential
+pending, or when a peer has no accepted authority point. After commitment it provisions a remote public key and credential
 atomically. `Engine<SignedPublic>::install_public_credential` checks generation,
 coordinates, handle ownership and key validity before accepting the update;
 failure restores the original key table. A handle cannot alias another peer or

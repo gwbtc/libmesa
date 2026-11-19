@@ -7,17 +7,18 @@ keeps Shrine migration and native wire integration outside the change.
 
 ## Executed checks
 
-Local checks ran on 2026-11-19. The full workspace run passed 206 tests. A final
-capacity-failure regression was then added; the targeted PKI/Jael run passed
-all 19 tests, including that case. No production code changed after the full
-workspace run. The final branch therefore contains 207 Rust tests.
+Local checks ran on 2026-11-19. The full workspace run passed 206 tests. Final
+capacity-failure and preconfigured-peer bridge regressions were then added;
+the targeted PKI/Jael run passed all 20 tests, including the bridge correction.
+The final branch therefore contains 208 Rust tests; CI reruns the workspace
+against the final head.
 
 | Command | Result |
 |---|---|
 | `cargo fmt --all -- --check` | Passed |
 | `cargo clippy --workspace --all-targets -- -D warnings` | Passed |
-| `cargo test --workspace` | 206 passed before the final test-only addition |
-| `cargo test -p mesa-pki -p mesa-jael` | 19 passed after the addition |
+| `cargo test --workspace` | 206 passed before the final bridge correction |
+| `cargo test -p mesa-pki -p mesa-jael` | 20 passed after the final bridge correction |
 | `cargo run -p mesa-core --example two-peer` | Passed |
 | `cargo run -p mesa-flow --example two-peer-flows` | Passed |
 | `cargo run -p mesa-transport --example flow-loopback` | Passed |
@@ -52,7 +53,8 @@ The same engine harness runs with Jael and with a direct authority manager.
 Both provision previously unknown public keys, perform real signed reads,
 rotate keys repeatedly at one-peer capacity, reject the retired signer, and
 close the service gate on withdrawal. Failed credential CAS and same-life
-substitution preserve the old key table. The owned codec test uses the existing
+substitution preserve the old key table. Synchronizing an engine peer without
+an accepted PKI point closes its existing preconfigured service gate. The owned codec test uses the existing
 suite-C vectors to check name binding and retain the pass after input release.
 
 The C harness exercises raw Authority and Jael, provider lookup, 128-bit peer
