@@ -1,4 +1,6 @@
-//! Datagram-profile C ABI. See include/mesa.h for ownership and status codes.
+//! Wire codec, raw engine, transport, and persistent inbox C ABIs.
+//! See include/mesa*.h and spec/14-c-embedding.md for contracts.
+pub mod embed;
 use legacy_v1::Checksum;
 use mesa_wire::{legacy_v1, Limits};
 use std::{panic::catch_unwind, ptr, slice};

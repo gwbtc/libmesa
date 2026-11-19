@@ -351,12 +351,12 @@ fn seeded_faults_and_restarts_replay_actions_and_commit_each_effect_once() {
                     let (_, f) = delayed.swap_remove(index);
                     h.deliver(f);
                 }
-                for i in 0..2 {
-                    assert!(h.nodes[i].usage().buffered_messages <= 4);
-                    assert!(h.nodes[i].usage().buffered_message_bytes <= 4 * 65536);
-                    assert!(h.nodes[i].usage().outbox_messages <= 4);
-                    assert!(h.nodes[i].core_usage().reads <= 8);
-                    assert!(h.nodes[i].core_usage().pending_interests <= 32);
+                for node in &h.nodes {
+                    assert!(node.usage().buffered_messages <= 4);
+                    assert!(node.usage().buffered_message_bytes <= 4 * 65536);
+                    assert!(node.usage().outbox_messages <= 4);
+                    assert!(node.core_usage().reads <= 8);
+                    assert!(node.core_usage().pending_interests <= 32);
                 }
                 if h.stores
                     .iter()
@@ -425,10 +425,10 @@ fn checkpoint_validation_and_epoch_invalidation_preserve_durable_evidence() {
     bad.flows[0].settled.insert(0, Outcome::Accepted);
     invalid.push(bad);
     let mut bad = checkpoint.clone();
-    bad.flows[0].outbox.insert(9, vec![]);
+    bad.flows[0].outbox.insert(9, vec![].into());
     invalid.push(bad);
     let mut bad = checkpoint.clone();
-    bad.flows[0].outbox.insert(0, vec![0; 65537]);
+    bad.flows[0].outbox.insert(0, vec![0; 65537].into());
     invalid.push(bad);
     let mut bad = checkpoint.clone();
     bad.revision = u64::MAX;
@@ -748,15 +748,15 @@ fn multiple_flows_share_atomic_revision_without_colliding_delivery_ids() {
         }
     }
     h.run(200);
-    for i in 0..2 {
+    for store in &h.stores {
         for flow in [7, 8] {
-            let checkpoint = h.stores[i].checkpoint();
+            let checkpoint = store.checkpoint();
             let state = checkpoint.flow(flow).unwrap();
             assert_eq!(state.settled.len(), 2);
             assert!(state.outbox.is_empty());
             assert_eq!(state.received.len(), 2);
             assert_eq!(
-                h.stores[i]
+                store
                     .order
                     .iter()
                     .filter(|id| id.flow == flow)
@@ -765,7 +765,7 @@ fn multiple_flows_share_atomic_revision_without_colliding_delivery_ids() {
                 vec![0, 1]
             );
         }
-        assert_eq!(h.stores[i].effects.len(), 4);
+        assert_eq!(store.effects.len(), 4);
     }
 }
 

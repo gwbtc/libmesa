@@ -14,7 +14,7 @@ fn enqueue(store: &Store, bytes: Vec<u8>) -> CommitRequest {
         flow: 7,
         sequence,
     };
-    checkpoint.flows[0].outbox.insert(sequence, bytes);
+    checkpoint.flows[0].outbox.insert(sequence, bytes.into());
     checkpoint.flows[0].next_send += 1;
     checkpoint.revision += 1;
     CommitRequest {
@@ -51,7 +51,11 @@ fn deliver(store: &Store, bytes: Vec<u8>, outcome: Outcome) -> CommitRequest {
         },
         base_revision,
         checkpoint,
-        change: Change::Deliver { id, bytes, outcome },
+        change: Change::Deliver {
+            id,
+            bytes: bytes.into(),
+            outcome,
+        },
     }
 }
 #[test]
@@ -297,7 +301,7 @@ fn full_width_endpoint_and_flow_ids_roundtrip_without_sql_integer_truncation() {
         checkpoint: next.clone(),
         change: Change::Deliver {
             id: id.clone(),
-            bytes: vec![7],
+            bytes: vec![7].into(),
             outcome: Outcome::Accepted,
         },
     };
@@ -502,4 +506,40 @@ fn legacy_profile_and_format_fail_closed_without_claiming_writer() {
     assert!(Store::open(&path, &initial(0), Limits::default()).is_err());
     sql.execute("UPDATE state SET format=2", []).unwrap();
     store.commit(&enqueue(&store, vec![])).unwrap();
+}
+
+#[test]
+fn inbox_consumption_is_atomic_idempotent_fenced_and_preserves_history() {
+    let tmp = Temp::new();
+    let path = tmp.0.join("inbox.sqlite");
+    let mut store = Store::create(&path, &initial(0), Limits::default()).unwrap();
+    for outcome in [Outcome::Accepted, Outcome::Rejected(9), Outcome::Accepted] {
+        store
+            .commit(&deliver(&store, vec![1, 0, 0], outcome))
+            .unwrap();
+    }
+    let rows = store.scan_inbox(0, 64).unwrap();
+    assert_eq!(rows.len(), 2);
+    assert_eq!(rows[0].bytes, [1, 0, 0]);
+    assert_eq!(store.scan_inbox(rows[0].revision, 1).unwrap(), rows[1..]);
+    let mut absent = rows[0].id.clone();
+    absent.sequence = 999;
+    assert!(store.mark_consumed(&[rows[0].id.clone(), absent]).is_err());
+    assert_eq!(store.scan_inbox(0, 64).unwrap(), rows);
+    store.mark_consumed(&[rows[0].id.clone()]).unwrap();
+    store.mark_consumed(&[rows[0].id.clone()]).unwrap();
+    let mut restored = Store::open(&path, &initial(0), Limits::default()).unwrap();
+    assert_eq!(restored.scan_inbox(0, 64).unwrap(), rows[1..]);
+    assert!(matches!(
+        store.mark_consumed(&[rows[1].id.clone()]),
+        Err(Error::Fenced)
+    ));
+    assert!(matches!(store.scan_inbox(0, 64), Err(Error::Fenced)));
+    assert_eq!(
+        Store::inspect(&path, Limits::default())
+            .unwrap()
+            .deliveries
+            .len(),
+        3
+    );
 }

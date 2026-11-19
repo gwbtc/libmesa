@@ -58,28 +58,44 @@ pub struct Tree {
 }
 impl Tree {
     pub fn build(bytes: &[u8]) -> Result<Self, Error> {
-        let n = count(bytes.len())?;
+        Self::build_from(bytes.len(), &|offset, out: &mut [u8]| {
+            out.copy_from_slice(&bytes[offset..offset + out.len()])
+        })
+    }
+    pub fn build_buffer(bytes: &mesa_bytes::Buffer) -> Result<Self, Error> {
+        Self::build_from(bytes.len(), &|offset, out: &mut [u8]| {
+            bytes.copy_range(offset, out).expect("bounded leaf")
+        })
+    }
+    fn build_from(len: usize, copy: &impl Fn(usize, &mut [u8])) -> Result<Self, Error> {
+        let n = count(len)?;
         let mut tree = Self {
-            proof: vec![[0; 32]; proof_hashes(bytes.len())?],
+            proof: vec![[0; 32]; proof_hashes(len)?],
             pairs: vec![None; n],
         };
-        tree.subtree(bytes, 0, n);
+        tree.subtree(len, copy, 0, n);
         Ok(tree)
     }
-    fn subtree(&mut self, bytes: &[u8], start: usize, n: usize) -> Hash {
+    fn subtree(
+        &mut self,
+        len: usize,
+        copy: &impl Fn(usize, &mut [u8]),
+        start: usize,
+        n: usize,
+    ) -> Hash {
         if n == 1 {
-            let hash = leaf(
-                &bytes[start * LEAF_BYTES..bytes.len().min((start + 1) * LEAF_BYTES)],
-                start,
-            );
+            let mut fragment = [0; LEAF_BYTES];
+            let len = (len - start * LEAF_BYTES).min(LEAF_BYTES);
+            copy(start * LEAF_BYTES, &mut fragment[..len]);
+            let hash = leaf(&fragment[..len], start);
             if start == 0 {
                 self.proof[0] = hash;
             }
             return hash;
         }
         let width = split(n);
-        let left = self.subtree(bytes, start, width);
-        let right = self.subtree(bytes, start + width, n - width);
+        let left = self.subtree(len, copy, start, width);
+        let right = self.subtree(len, copy, start + width, n - width);
         if start == 0 {
             self.proof[width.trailing_zeros() as usize + 1] = right;
         } else {

@@ -76,3 +76,17 @@ fn empty_extension_and_strict_bounds() {
         assert!(Verifier::new(n, &extra).is_err());
     }
 }
+
+#[test]
+fn sparse_buffer_width_has_the_same_tree_as_explicit_zero_extension() {
+    for width in [0, 1, 1024, 1025, 17425] {
+        let mut bytes = vec![0; width];
+        if width > 0 {
+            bytes[0] = 7;
+        }
+        let buffer = mesa_bytes::Buffer::from(bytes.clone());
+        let sparse = mesa_lss::Tree::build_buffer(&buffer).unwrap();
+        let explicit = mesa_lss::Tree::build(&bytes).unwrap();
+        assert_eq!(sparse.root(), explicit.root());
+    }
+}

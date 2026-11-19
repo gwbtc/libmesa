@@ -147,6 +147,7 @@ impl Store {
             revision INTEGER UNIQUE NOT NULL CHECK(revision>0),
             bytes BLOB NOT NULL,
             outcome INTEGER NOT NULL CHECK(outcome BETWEEN -1 AND 65535));
+            CREATE TABLE consumed (id BLOB PRIMARY KEY NOT NULL REFERENCES deliveries(id));
             CREATE TABLE settlements (
             id BLOB PRIMARY KEY NOT NULL,
             revision INTEGER UNIQUE NOT NULL CHECK(revision>0),
@@ -176,6 +177,7 @@ impl Store {
         let mut connection = connect(path.as_ref(), false, limits)?;
         let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
         let snapshot = read_snapshot(&tx, limits)?;
+        tx.execute_batch("CREATE TABLE IF NOT EXISTS consumed (id BLOB PRIMARY KEY NOT NULL REFERENCES deliveries(id))")?;
         validation::scope(expected, &snapshot.checkpoint)?;
         if tx.execute("UPDATE state SET generation=generation+1 WHERE singleton=1 AND generation<9223372036854775807",[])? != 1 {
             return Err(Error::Limit);
@@ -190,6 +192,79 @@ impl Store {
     }
     pub fn incarnation(&self) -> u128 {
         self.incarnation
+    }
+    /// Stable revision cursor over accepted, unconsumed deliveries. Reading does
+    /// not acknowledge consumption. Retained history remains available to validation.
+    pub fn scan_inbox(&mut self, after: u64, limit: usize) -> Result<Vec<Delivery>, Error> {
+        if limit == 0 || limit > 64 {
+            return Err(Error::Limit);
+        }
+        let tx = self.connection.transaction()?;
+        if read_incarnation(&tx)? != self.incarnation {
+            return Err(Error::Fenced);
+        }
+        let mut query = tx.prepare("SELECT d.id,d.revision,d.bytes FROM deliveries d LEFT JOIN consumed c ON d.id=c.id WHERE d.outcome=-1 AND c.id IS NULL AND d.revision>?1 ORDER BY d.revision LIMIT ?2")?;
+        let mut rows = query.query(params![revision(after)?, limit as i64])?;
+        let mut out = Vec::new();
+        while let Some(row) = rows.next()? {
+            let id: Vec<u8> = row.get(0)?;
+            out.push(Delivery {
+                id: serde_json::from_slice(&id)?,
+                revision: row.get::<_, i64>(1)? as u64,
+                bytes: row.get(2)?,
+                outcome: Outcome::Accepted,
+            });
+        }
+        Ok(out)
+    }
+    /// Durable sender outcomes, including notifications lost before restart.
+    pub fn scan_settlements(&mut self, after: u64, limit: usize) -> Result<Vec<Settlement>, Error> {
+        if limit == 0 || limit > 64 {
+            return Err(Error::Limit);
+        }
+        let tx = self.connection.transaction()?;
+        if read_incarnation(&tx)? != self.incarnation {
+            return Err(Error::Fenced);
+        }
+        let mut query = tx.prepare("SELECT id,revision,outcome FROM settlements WHERE revision>?1 ORDER BY revision LIMIT ?2")?;
+        let mut rows = query.query(params![revision(after)?, limit as i64])?;
+        let mut out = Vec::new();
+        while let Some(row) = rows.next()? {
+            let id: Vec<u8> = row.get(0)?;
+            out.push(Settlement {
+                id: serde_json::from_slice(&id)?,
+                revision: row.get::<_, i64>(1)? as u64,
+                outcome: outcome(row.get(2)?)?,
+            });
+        }
+        Ok(out)
+    }
+    /// Atomic, idempotent consumption markers. This does not atomically apply an
+    /// effect in another database; use the explicit host transaction integration.
+    pub fn mark_consumed(&mut self, ids: &[MessageId]) -> Result<(), Error> {
+        if ids.len() > 16 {
+            return Err(Error::Limit);
+        }
+        let tx = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        if read_incarnation(&tx)? != self.incarnation {
+            return Err(Error::Fenced);
+        }
+        for id in ids {
+            let id = serde_json::to_vec(id)?;
+            let count: i64 = tx.query_row(
+                "SELECT count(*) FROM deliveries WHERE id=?1 AND outcome=-1",
+                [&id],
+                |r| r.get(0),
+            )?;
+            if count != 1 {
+                return Err(Error::InvalidState);
+            }
+            tx.execute("INSERT OR IGNORE INTO consumed(id) VALUES(?1)", [&id])?;
+        }
+        tx.commit()?;
+        Ok(())
     }
     pub fn checkpoint(&self) -> Result<Checkpoint, Error> {
         read_checkpoint(&self.connection, self.limits)
@@ -236,7 +311,7 @@ impl Store {
                 params![
                     serde_json::to_vec(id)?,
                     revision(request.checkpoint.revision)?,
-                    bytes,
+                    bytes.to_vec(),
                     code
                 ],
             )?;

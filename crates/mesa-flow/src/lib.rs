@@ -4,6 +4,7 @@
 mod hints;
 mod retirement;
 mod state;
+pub use mesa_bytes::Buffer;
 use mesa_core::{
     policy::TransferPolicy, protection::SignedPublic, Access, Action as CoreAction, Attachment,
     Engine, Event as CoreEvent, PeerId, PreconfiguredPeer, ReadFailure, Tick,
@@ -77,6 +78,11 @@ impl std::error::Error for Error {}
 
 #[derive(Debug)]
 pub enum Event<'a> {
+    EnqueueBuffer {
+        flow: FlowId,
+        sequence: Sequence,
+        bytes: Buffer,
+    },
     /// Explicit sequence makes a retried enqueue unambiguous after restart.
     Enqueue {
         flow: FlowId,
@@ -135,7 +141,7 @@ pub enum Action {
     /// forfeits crash-safe deduplication.
     Deliver {
         id: MessageId,
-        bytes: Vec<u8>,
+        bytes: Buffer,
     },
     Enqueued {
         id: MessageId,
@@ -195,7 +201,7 @@ pub struct Node {
     incarnation: u128,
     pending: Option<CommitRequest>,
     delivery: Option<MessageId>,
-    messages: BTreeMap<(FlowId, Sequence), Vec<u8>>,
+    messages: BTreeMap<(FlowId, Sequence), Buffer>,
     receipts: BTreeMap<(FlowId, Sequence), Outcome>,
     jobs: BTreeMap<u64, Work>,
     stalled: BTreeSet<Work>,
@@ -276,12 +282,12 @@ impl Node {
                     node.checkpoint
                         .message_id(flow.flow, flow.receive_floor + seq as u64, true)
                         .path(ReadKind::Receipt),
-                    receipt.encode(),
+                    receipt.encode().into(),
                 ));
             }
         }
         for (path, bytes) in bindings {
-            node.core.step(CoreEvent::Bind {
+            node.core.step(CoreEvent::BindBuffer {
                 path,
                 bytes,
                 access: Access::Public,
@@ -403,14 +409,14 @@ impl Node {
             s.flows
                 .iter()
                 .flat_map(|f| f.outbox.values())
-                .map(Vec::len)
+                .map(Buffer::len)
                 .sum::<usize>()
         };
         Usage {
             outbox_messages: self.checkpoint.flows.iter().map(|f| f.outbox.len()).sum(),
             outbox_bytes: outbox_bytes(&self.checkpoint),
             buffered_messages: self.messages.len(),
-            buffered_message_bytes: self.messages.values().map(Vec::len).sum(),
+            buffered_message_bytes: self.messages.values().map(Buffer::len).sum(),
             pending_commit_bytes: self.pending.as_ref().map_or(0, |p| {
                 outbox_bytes(&p.checkpoint)
                     + match &p.change {
@@ -454,37 +460,12 @@ impl Node {
                 flow,
                 sequence,
                 bytes,
-            } => {
-                let state = self.checkpoint.flow(flow).ok_or(Error::UnknownFlow)?;
-                if self.pending.is_some() {
-                    return Err(Error::Busy);
-                }
-                if sequence != state.next_send {
-                    return Err(Error::Sequence);
-                }
-                if sequence == u64::MAX || bytes.len() > self.config.max_message_bytes {
-                    return Err(Error::Limit);
-                }
-                let total: usize = self
-                    .checkpoint
-                    .flows
-                    .iter()
-                    .flat_map(|f| f.outbox.values())
-                    .map(Vec::len)
-                    .sum();
-                if sequence - state.send_floor >= self.config.max_messages
-                    || state.outbox.len() >= self.config.window
-                    || bytes.len() > self.config.max_outbox_bytes.saturating_sub(total)
-                {
-                    return Err(Error::Backpressure);
-                }
-                let id = self.checkpoint.message_id(flow, sequence, false);
-                let mut next = self.checkpoint.clone();
-                let state = next.flow_mut(flow);
-                state.next_send += 1;
-                state.outbox.insert(sequence, bytes);
-                self.propose(next, Change::Enqueue { id }, &mut out)?;
-            }
+            } => self.enqueue(flow, sequence, bytes.into(), &mut out)?,
+            Event::EnqueueBuffer {
+                flow,
+                sequence,
+                bytes,
+            } => self.enqueue(flow, sequence, bytes, &mut out)?,
             Event::Decide { id, outcome } => {
                 if self.pending.is_some() {
                     return Err(Error::Busy);
@@ -495,7 +476,7 @@ impl Node {
                 let bytes = self.messages[&(id.flow, id.sequence)].clone();
                 let mut next = self.checkpoint.clone();
                 next.flow_mut(id.flow).received.push(Receipt {
-                    digest: mesa_crypto::sha256(&bytes),
+                    digest: bytes.with_bytes(mesa_crypto::sha256),
                     outcome,
                 });
                 self.propose(next, Change::Deliver { id, bytes, outcome }, &mut out)?;
@@ -596,6 +577,44 @@ impl Node {
         Ok(out)
     }
 
+    fn enqueue(
+        &mut self,
+        flow: FlowId,
+        sequence: Sequence,
+        bytes: Buffer,
+        out: &mut Vec<Action>,
+    ) -> Result<(), Error> {
+        let state = self.checkpoint.flow(flow).ok_or(Error::UnknownFlow)?;
+        if self.pending.is_some() {
+            return Err(Error::Busy);
+        }
+        if sequence != state.next_send {
+            return Err(Error::Sequence);
+        }
+        if sequence == u64::MAX || bytes.len() > self.config.max_message_bytes {
+            return Err(Error::Limit);
+        }
+        let total: usize = self
+            .checkpoint
+            .flows
+            .iter()
+            .flat_map(|f| f.outbox.values())
+            .map(Buffer::len)
+            .sum();
+        if sequence - state.send_floor >= self.config.max_messages
+            || state.outbox.len() >= self.config.window
+            || bytes.len() > self.config.max_outbox_bytes.saturating_sub(total)
+        {
+            return Err(Error::Backpressure);
+        }
+        let id = self.checkpoint.message_id(flow, sequence, false);
+        let mut next = self.checkpoint.clone();
+        let state = next.flow_mut(flow);
+        state.next_send += 1;
+        state.outbox.insert(sequence, bytes);
+        self.propose(next, Change::Enqueue { id }, out)?;
+        Ok(())
+    }
     fn resume_peer(&mut self, peer: PeerId) {
         self.stalled
             .retain(|w| self.checkpoint.peer(w.flow) != peer);
@@ -641,7 +660,7 @@ impl Node {
             Change::Enqueue { id } => {
                 let bytes = self.checkpoint.flow(id.flow).unwrap().outbox[&id.sequence].clone();
                 self.core_step(
-                    CoreEvent::Bind {
+                    CoreEvent::BindBuffer {
                         path: id.path(ReadKind::Message),
                         bytes,
                         access: Access::Public,
@@ -730,7 +749,8 @@ impl Node {
                                 if bytes.len() > self.config.max_message_bytes {
                                     self.stall(work, Failure::MessageTooLarge, out);
                                 } else {
-                                    self.messages.insert((work.flow, work.sequence), bytes);
+                                    self.messages
+                                        .insert((work.flow, work.sequence), bytes.into());
                                 }
                             }
                             ReadKind::Release | ReadKind::Released => {
@@ -741,10 +761,9 @@ impl Node {
                                 }
                             }
                             ReadKind::Receipt => {
-                                let expected = mesa_crypto::sha256(
-                                    &self.checkpoint.flow(work.flow).unwrap().outbox
-                                        [&work.sequence],
-                                );
+                                let expected = self.checkpoint.flow(work.flow).unwrap().outbox
+                                    [&work.sequence]
+                                    .with_bytes(mesa_crypto::sha256);
                                 match Receipt::decode(&bytes).filter(|r| r.digest == expected) {
                                     Some(receipt) => {
                                         self.receipts

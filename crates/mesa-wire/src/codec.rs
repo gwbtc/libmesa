@@ -2,7 +2,7 @@
 //! Parsing checks integrity and structure, not signatures or LSS proofs.
 
 use crate::{sift_head, DomainTag, PactType, PeerId, COOKIE, HEADER_LEN, VERSION};
-use mesa_noun::mug::mug_bytes;
+use mesa_bytes::mug::mug_bytes;
 
 #[derive(Clone, Copy, Debug)]
 pub struct Limits {

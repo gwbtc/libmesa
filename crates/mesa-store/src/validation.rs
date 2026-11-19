@@ -129,7 +129,7 @@ pub(super) fn transition(old: &Checkpoint, r: &CommitRequest, limits: Limits) ->
                 return Err(Error::Transition);
             }
             flow.received.push(Receipt {
-                digest: mesa_crypto::sha256(bytes),
+                digest: bytes.with_bytes(mesa_crypto::sha256),
                 outcome: *outcome,
             });
         }

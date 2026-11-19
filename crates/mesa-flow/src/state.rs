@@ -1,3 +1,4 @@
+use mesa_bytes::Buffer;
 use mesa_core::{PeerId, PreconfiguredPeer};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -123,7 +124,7 @@ pub struct FlowState {
     pub next_send: Sequence,
     pub send_floor: Sequence,
     pub receive_floor: Sequence,
-    pub outbox: BTreeMap<Sequence, Vec<u8>>,
+    pub outbox: BTreeMap<Sequence, Buffer>,
     pub settled: BTreeMap<Sequence, Outcome>,
     /// Receipts for [receive_floor, next_receive()). The floor permanently
     /// rejects earlier deliveries even after their receipts are reclaimed.
@@ -266,7 +267,7 @@ pub enum Change {
     /// host transaction as the checkpoint and stable delivery identifier.
     Deliver {
         id: MessageId,
-        bytes: Vec<u8>,
+        bytes: Buffer,
         outcome: Outcome,
     },
     Settle {

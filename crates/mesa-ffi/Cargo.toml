@@ -1,6 +1,6 @@
 [package]
 name = "mesa-ffi"
-description = "C ABI for the bounded Mesa wire codec"
+description = "C ABI for immutable buffers, deterministic peers, durable flows and wire codecs"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -10,6 +10,13 @@ repository.workspace = true
 crate-type = ["staticlib", "rlib"]
 
 [dependencies]
+mesa-bytes = { path = "../mesa-bytes" }
+mesa-core = { path = "../mesa-core" }
+mesa-store = { path = "../mesa-store" }
+mesa-transport = { path = "../mesa-transport" }
+mesa-flow = { path = "../mesa-flow" }
+mesa-crypto = { path = "../mesa-crypto" }
+serde_json = "1"
 mesa-wire = { path = "../mesa-wire" }
 
 # Raw pointers are confined to this ABI crate. The codec remains unsafe-free.

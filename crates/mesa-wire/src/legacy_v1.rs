@@ -10,7 +10,7 @@ pub const VERSION: u8 = 1;
 pub fn sift_head(bytes: &[u8]) -> Option<Head> {
     crate::sift_head_version(bytes, VERSION)
 }
-use mesa_noun::mug::mug_bytes;
+use mesa_bytes::mug::mug_bytes;
 
 /// The upstream codecs disagree on terminal zero bytes in the whole body.
 /// Select explicitly; decoding never retries under another convention.
