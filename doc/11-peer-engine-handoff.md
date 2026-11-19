@@ -1,5 +1,11 @@
 # Peer-engine milestone and fresh-task handoff
 
+**Historical handoff, superseded 2026-11-19.** Start with the
+[current continuation guide](16-shrine-groundwire-handoff.md) and
+[Shrine/Groundwire roadmap](14-shrine-groundwire-roadmap.md). The core milestones
+below have since advanced; the old external-Jael scope and next-work ordering
+are no longer the project plan.
+
 **Priority reset, 2026-10-22:** build `mesa-core` with explicitly preconfigured
 peers. Completing generalized identity, Jael replacement, or a live Groundwire
 verifier is not a prerequisite. This supersedes the next-work ordering in

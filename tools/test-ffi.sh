@@ -15,3 +15,8 @@ echo 'C ABI smoke test passed'
   -I crates/mesa-ffi/include crates/mesa-ffi/tests/embedding.c \
   "$target_dir/debug/libmesa_ffi.a" "${libs[@]}" -o "$target_dir/mesa-ffi-embedding"
 "$target_dir/mesa-ffi-embedding"
+
+"${CC:-cc}" -std=c11 -Wall -Wextra -Werror \
+  -I crates/mesa-ffi/include crates/mesa-ffi/tests/raw_udp.c \
+  "$target_dir/debug/libmesa_ffi.a" "${libs[@]}" -o "$target_dir/mesa-ffi-raw-udp"
+"$target_dir/mesa-ffi-raw-udp" 16

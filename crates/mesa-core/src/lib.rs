@@ -8,6 +8,7 @@
 pub use mesa_bytes::Buffer;
 use std::collections::BTreeMap;
 
+pub mod host;
 pub mod policy;
 mod protected_read;
 pub mod protection;
@@ -193,9 +194,13 @@ pub enum Access {
     Peer(PeerId),
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum Event<'a> {
     InstallPeer(PreconfiguredPeer),
+    /// Trusted host CAS, not verification or PKI. Fences old read state.
+    InstallCredential(host::CredentialUpdate),
+    /// Monotonic attachment generation; prevents reuse of retired routes.
+    ReplaceAttachment(host::AttachmentUpdate),
     /// Only this event may advance an existing peer's rift.
     RemoteBreach(PreconfiguredPeer),
     SetService {
@@ -310,6 +315,8 @@ pub enum Error {
     UnknownRead,
     ClockRegression,
     ClockOverflow,
+    StaleGeneration,
+    GenerationOverflow,
 }
 
 impl std::fmt::Display for Error {
@@ -339,6 +346,10 @@ struct PeerState {
     view: PreconfiguredPeer,
     attachment: Option<Attachment>,
     controller: Controller,
+    credential_generation: u64,
+    attachment_generation: u64,
+    fenced_credentials: bool,
+    fenced_attachment: bool,
 }
 struct Binding {
     bytes: Buffer,
@@ -387,6 +398,8 @@ pub struct Engine<P> {
     bindings: BTreeMap<Vec<u8>, Option<Binding>>,
     retired: BTreeMap<Vec<u8>, Vec<u8>>,
     reads: BTreeMap<ReadId, Read>,
+    revision: u64,
+    counters: host::Counters,
 }
 
 impl<P: Protection> Engine<P> {
@@ -426,6 +439,8 @@ impl<P: Protection> Engine<P> {
             bindings: BTreeMap::new(),
             retired: BTreeMap::new(),
             reads: BTreeMap::new(),
+            revision: 0,
+            counters: host::Counters::default(),
         })
     }
 
@@ -487,10 +502,26 @@ impl<P: Protection> Engine<P> {
     }
 
     pub fn step(&mut self, event: Event<'_>) -> Result<Vec<Action>, Error> {
+        let revision = self
+            .revision
+            .checked_add(1)
+            .ok_or(Error::GenerationOverflow)?;
+        let received = match &event {
+            Event::Receive { bytes, .. } => Some(bytes.len()),
+            _ => None,
+        };
         let mut actions = Vec::new();
         match event {
-            Event::InstallPeer(view) => self.install(view, false, &mut actions)?,
-            Event::RemoteBreach(view) => self.install(view, true, &mut actions)?,
+            Event::InstallPeer(view) => {
+                self.require_unfenced_credentials(view.id)?;
+                self.install(view, false, &mut actions)?;
+            }
+            Event::InstallCredential(update) => self.install_credential(update, &mut actions)?,
+            Event::ReplaceAttachment(update) => self.replace_attachment(update)?,
+            Event::RemoteBreach(view) => {
+                self.require_unfenced_credentials(view.id)?;
+                self.install(view, true, &mut actions)?;
+            }
             Event::SetService { peer, allowed } => {
                 self.peers
                     .get_mut(&peer)
@@ -502,6 +533,9 @@ impl<P: Protection> Engine<P> {
                 }
             }
             Event::SetAttachment { peer, attachment } => {
+                if self.peers.get(&peer).is_some_and(|p| p.fenced_attachment) {
+                    return Err(Error::StaleGeneration);
+                }
                 self.peers
                     .get_mut(&peer)
                     .ok_or(Error::UnknownPeer)?
@@ -573,6 +607,8 @@ impl<P: Protection> Engine<P> {
         }
         self.schedule(&mut actions);
         actions.push(Action::SetTimer(self.next_timer()));
+        self.revision = revision;
+        self.counters.observe(received, &actions);
         Ok(actions)
     }
 
@@ -685,6 +721,18 @@ impl<P: Protection> Engine<P> {
             }
         }
         let id = view.id;
+        let generations = self
+            .peers
+            .get(&id)
+            .map(|p| {
+                (
+                    p.credential_generation,
+                    p.attachment_generation,
+                    p.fenced_credentials,
+                    p.fenced_attachment,
+                )
+            })
+            .unwrap_or((0, 0, false, false));
         let allowed = view.service_allowed;
         let attachment = self.peers.get(&id).and_then(|p| p.attachment);
         let controller = match self.peers.remove(&id) {
@@ -697,6 +745,10 @@ impl<P: Protection> Engine<P> {
                 view,
                 attachment,
                 controller,
+                credential_generation: generations.0,
+                attachment_generation: generations.1,
+                fenced_credentials: generations.2,
+                fenced_attachment: generations.3,
             },
         );
         if breach {
@@ -1043,6 +1095,9 @@ impl<P: Protection> Engine<P> {
                     .interests
                     .get_mut(&index)
                     .unwrap();
+                if attempt.count > 0 {
+                    self.counters.retransmissions = self.counters.retransmissions.saturating_add(1);
+                }
                 attempt.count += 1;
                 attempt.active = true;
                 attempt.retry_at = self
@@ -1107,7 +1162,7 @@ impl<P: Protection> Engine<P> {
         }
     }
 
-    fn next_timer(&self) -> Option<Tick> {
+    pub fn next_timer(&self) -> Option<Tick> {
         self.reads
             .values()
             .flat_map(|r| {

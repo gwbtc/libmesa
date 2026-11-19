@@ -1,5 +1,9 @@
 # libmesa architecture
 
+**Current sequencing:** the [Shrine/Groundwire roadmap](14-shrine-groundwire-roadmap.md)
+prioritizes raw embedding and modular kernel-side PKI for suite-C peers. It
+supersedes older scheduling and external-Jael assumptions in this draft.
+
 **Status:** discussion draft. Records the proposed decomposition and the
 kernel/runtime contract it must honor. See `02-rina.md` for the architectural
 rationale, `03-azimuth.md` and `04-crypto.md` for the two big policy

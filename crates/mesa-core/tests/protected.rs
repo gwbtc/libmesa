@@ -6,6 +6,35 @@ use mesa_crypto::KeyPair;
 use mesa_wire::{decode, encode, Auth, Body, Data, Fragment, Name, Packet};
 use std::collections::{BTreeMap, VecDeque};
 
+#[test]
+fn credential_generation_retires_cached_root_before_accepting_delayed_old_pages() {
+    let mut h = Harness::new(Config::default());
+    let proof = h.proof(&bytes(8192));
+    h.deliver(proof);
+    assert_eq!(h.engines[0].usage().reassembly_bytes, 8192);
+    let mut current = view(1);
+    current.life = 2;
+    current.key = KeyHandle(9);
+    h.step(
+        0,
+        Event::InstallCredential(host::CredentialUpdate {
+            peer: current,
+            expected_generation: 0,
+            generation: 1,
+            breach: false,
+        }),
+    );
+    assert_eq!(h.engines[0].usage().reassembly_bytes, 0);
+    h.pump();
+    assert_eq!(h.results, vec![(0, 1, Err(ReadFailure::PeerReset))]);
+    h.read(0, 2, b"value");
+    h.pump();
+    assert!(h.drops.contains(&DropReason::Protection));
+    h.tick(2000);
+    assert_eq!(h.results.last(), Some(&(0, 2, Err(ReadFailure::Timeout))));
+    h.idle();
+}
+
 fn view(i: usize) -> PreconfiguredPeer {
     PreconfiguredPeer::new(
         PeerId(i as u128 + 1),

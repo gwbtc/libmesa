@@ -1,5 +1,10 @@
 # C embedding: engine, transport, and persistent inbox
 
+The additive [raw UDP host extension](15-raw-udp-host.md) supplies configurable
+CORE limits, mutable-state snapshots, generation-checked host updates and a
+shared-socket UDP endpoint. The original ABI-1 layouts and constructors below
+retain their defaults. Configured handles advertise their own event envelope.
+
 ABI 1 exposes three independently owned components. `mesa_embed.h` contains
 immutable buffers, owned result batches, and the raw deterministic engine.
 `mesa_transport.h` contains POSIX UDP and framed TCP adapters. `mesa_inbox.h`

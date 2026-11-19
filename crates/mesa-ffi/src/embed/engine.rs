@@ -1,4 +1,5 @@
 use super::*;
+mod host;
 pub(super) enum Backend {
     Core(Box<core::Engine<SignedPublic>>),
     Flow(Box<flow::Node>),
@@ -11,6 +12,9 @@ pub struct Engine {
     pub(super) poisoned: bool,
     pub(super) max_events: usize,
     reads: BTreeSet<u64>,
+    step_records: usize,
+    step_bytes: usize,
+    object_bytes: usize,
 }
 fn peer(p: Peer) -> Result<PreconfiguredPeer, i32> {
     let end = p.domain.iter().position(|b| *b == 0).ok_or(ARG)?;
@@ -92,7 +96,7 @@ pub(super) fn setup(
     i32,
 > {
     let _ = config(o)?;
-    if keys.len() > 16 || flows.len() > 4 {
+    if keys.len() > 256 || flows.len() > 4 {
         return Err(LIMIT);
     }
     let local = peer(o.local)?;
@@ -144,8 +148,43 @@ pub(super) fn build(
     flows: &[Flow],
     checkpoint: Option<flow::Checkpoint>,
 ) -> Result<Engine, i32> {
+    build_inner(o, keys, flows, checkpoint, None)
+}
+fn build_inner(
+    o: &Options,
+    keys: &[Key],
+    flows: &[Flow],
+    checkpoint: Option<flow::Checkpoint>,
+    resources: Option<core::Config>,
+) -> Result<Engine, i32> {
+    let custom = resources.is_some();
     let (c, p) = config(o)?;
-    let (local, protection, fs, empty, descriptor) = setup(o, keys, flows)?;
+    let c = resources.unwrap_or(c);
+    let (local, protection, fs, empty, mut descriptor) = setup(o, keys, flows)?;
+    let (step_records, step_bytes) = if custom {
+        let envelope = c.event_envelope().map_err(|_| INVALID)?;
+        (envelope.records + 1, envelope.bytes.max(256))
+    } else {
+        (STEP_RECORDS, STEP_BYTES)
+    };
+    let object_bytes = c.max_read_bytes;
+    if custom {
+        let mut d: serde_json::Value =
+            serde_json::from_slice(&descriptor.to_vec()).map_err(|_| INVALID)?;
+        d["limits"]["object_bytes"] = c.max_read_bytes.into();
+        d["limits"]["reads"] = c.max_reads.into();
+        d["limits"]["peers"] = c.max_peers.into();
+        d["limits"]["bindings"] = c.max_bindings.into();
+        d["limits"]["binding_bytes"] = c.max_binding_bytes.into();
+        d["limits"]["reassembly_bytes"] = c.max_reassembly_bytes.into();
+        d["limits"]["unverified_bytes"] = c.max_unverified_bytes.into();
+        d["limits"]["per_read_window"] = c.window.into();
+        d["limits"]["step_records"] = step_records.into();
+        d["limits"]["step_bytes"] = step_bytes.into();
+        d["limits"]["keys"] = 256.into();
+        d["configuration_version"] = 1.into();
+        descriptor = serde_json::to_vec(&d).map_err(|_| INVALID)?.into();
+    }
     let backend = if o.kind == 1 {
         if !fs.is_empty() || checkpoint.is_some() {
             return Err(ARG);
@@ -180,6 +219,9 @@ pub(super) fn build(
         poisoned: false,
         max_events: o.max_batch_events as usize,
         reads: BTreeSet::new(),
+        step_records,
+        step_bytes,
+        object_bytes,
     })
 }
 impl Engine {
@@ -225,7 +267,7 @@ impl Engine {
                         match e.tag {
                             5..=8 => 256,
                             11 => 1472,
-                            _ => 65536,
+                            _ => self.object_bytes,
                         },
                     )?)
                 }
@@ -234,7 +276,10 @@ impl Engine {
                 if e.aux.is_null() {
                     None
                 } else {
-                    Some(buffer(e.aux, if e.tag == 7 { 256 } else { 65536 })?)
+                    Some(buffer(
+                        e.aux,
+                        if e.tag == 7 { 256 } else { self.object_bytes },
+                    )?)
                 }
             };
             let bytes = if matches!(e.tag, 5..=8 | 11) {
@@ -253,6 +298,18 @@ impl Engine {
                 Backend::Core(n) => {
                     let event = match e.tag {
                         1 => core::Event::InstallPeer(peer(e.peer)?),
+                        18 => core::Event::InstallCredential(core::host::CredentialUpdate {
+                            peer: peer(e.peer)?,
+                            expected_generation: e.sequence,
+                            generation: e.id,
+                            breach: e.flag == 1,
+                        }),
+                        19 => core::Event::ReplaceAttachment(core::host::AttachmentUpdate {
+                            peer: id,
+                            expected_generation: e.sequence,
+                            generation: e.id,
+                            attached: e.flag == 1,
+                        }),
                         2 => core::Event::RemoteBreach(peer(e.peer)?),
                         3 if e.value <= 1 => core::Event::SetService {
                             peer: id,
@@ -291,7 +348,11 @@ impl Engine {
                     };
                     let actions = n.step(event).map_err(|e| {
                         diagnostic = Some(format!("{e:?}"));
-                        EVENT_ERROR
+                        if e == core::Error::StaleGeneration {
+                            STALE
+                        } else {
+                            EVENT_ERROR
+                        }
                     })?;
                     if e.tag == 8 {
                         self.reads.insert(e.id);
@@ -684,14 +745,14 @@ pub unsafe extern "C" fn mesa_engine_submit(
             let mut b = Batch::default();
             if !budget.fits(
                 &b,
-                if count == 0 { 1 } else { STEP_RECORDS + 1 },
-                if count == 0 { 0 } else { STEP_BYTES },
+                if count == 0 { 1 } else { h.step_records + 1 },
+                if count == 0 { 0 } else { h.step_bytes },
             ) {
                 return CAPACITY;
             }
             h.poisoned = true;
             for (i, e) in events.iter().take(budget.max_steps).enumerate() {
-                if !budget.fits(&b, STEP_RECORDS + 1, STEP_BYTES) {
+                if !budget.fits(&b, h.step_records + 1, h.step_bytes) {
                     break;
                 }
                 let start = b.records.len();
@@ -714,7 +775,7 @@ pub unsafe extern "C" fn mesa_engine_submit(
                     r.c.cookie = e.cookie;
                 }
                 assert!(
-                    b.records.len() - start <= STEP_RECORDS && b.bytes - before <= STEP_BYTES,
+                    b.records.len() - start <= h.step_records && b.bytes - before <= h.step_bytes,
                     "step envelope"
                 );
                 b.processed += 1;
