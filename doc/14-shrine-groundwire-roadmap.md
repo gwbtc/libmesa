@@ -1,6 +1,10 @@
 # Shrine integration, modular PKI, and native Groundwire interoperability
 
-**Plan, 2026-11-19. No implementation is included in this branch.**
+**Roadmap, 2026-11-19.** The `codex/raw-udp-embedding` phase PR implements the
+raw-host work in phases 1–3. See the [phase-0 contract](17-raw-udp-phase0.md),
+[API extension](../spec/15-raw-udp-host.md) and
+[validation record](18-raw-udp-validation.md). Native live-capture evidence
+in phase 0 remains open. PKI implementation has not started.
 
 Build the modules an operating system needs to use Mesa and Groundwire ID.
 Shrine is the first integrator. Existing Urbit ships are network peers; they
@@ -34,6 +38,11 @@ data with a pinned Groundwire-enabled Urbit ship through its native network
 stack. Both directions must survive restart, key rotation, withdrawal and
 readmission. No `%mesa-v2` agent or protocol translation service stands in for
 the ship's native Ames/Mesa implementation.
+
+Shrine uses the UDP adapter. Its historical TCP bridge is not the target.
+Live Shrine-to-Shrine communication is a required acceptance gate before
+Shrine-to-Urbit communication; a libmesa host harness does not satisfy it.
+These refinements keep the phase boundaries below unchanged.
 
 The priorities are:
 
@@ -263,10 +272,11 @@ detach, replacement and route changes. Fence delayed input and output by
 attachment generation. A source address or claimed sender header is a routing
 hint, not authentication.
 
-Exercise Shrine-style framed TCP separately from the UDP mapping used by
-Urbit. Specify whether existing Shrine framing is retained by its driver or
-translated at its bridge; the inspected framing is not the libmesa transport
-adapter's interoperability contract. Do not ask Urbit to implement it.
+Use the UDP adapter for Shrine, including multiple peers on one socket.
+Exercise source-route lookup, bounded receive batches, route replacement,
+local datagram loss and stale attachment generations. Keep framed TCP as an
+optional adapter with regression coverage; Shrine TCP migration is not work
+for this phase.
 
 **Gate:** several peers make progress under loss and a saturated peer; a closed
 or replaced connection cannot leak partial frames into its successor; driver
@@ -280,7 +290,8 @@ scheduling. Specify monotonic clock advancement, overdue timers, coalescing,
 large time jumps, cancellation, pending output and zero-work polls. Bound work
 per call so a network burst cannot monopolize Shrine's actor scheduler.
 
-Measure fairness and retry load over UDP loss and over TCP backpressure. Add
+Measure fairness and retry load over UDP loss and bounded driver pressure.
+Retain TCP backpressure regression tests for the optional adapter. Add
 RTT estimation or pacing where those results show a need; freeze the selected
 policy and its limits. Transfer control stays in the engine; the host owns
 time and I/O. Lower-layer reliability informs policy but cannot replace
@@ -401,8 +412,13 @@ application payload codec. Shrine publications and Urbit applications have
 different semantics; specify the mapping instead of assuming that byte exchange
 creates namespace interoperability. Let Shrine own that mapping and landing.
 
-Run a Groundwire-identified Shrine world and an existing suite-C Urbit ship
-over actual UDP/network attachments. Verify first contact in both directions, private and
+First require two Groundwire-identified Shrine worlds to exchange data over
+the UDP adapter, with publication/landing, retained buffers, restart, and
+identity lifecycle outcomes checked by the host. Record this as a separate
+passing gate. A preconfigured Shrine-to-Shrine run may happen as soon as the
+Shrine migration is ready; the full gate also requires phase-4/5 PKI behavior.
+Only after the Shrine-to-Shrine gate passes, run a Groundwire-identified Shrine
+world and an existing suite-C Urbit ship over UDP/network attachments. Verify first contact in both directions, private and
 public operations, application acceptance, same-rift rotation, evidence-only
 refresh, withdrawal/readmission, remote breach and restart. Cover simultaneous
 rotation and lost announcements. Exercise provider outage, restart, stale

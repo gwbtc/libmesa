@@ -1,6 +1,8 @@
 //! Bounded attachments for a preconfigured flow peer. Transport never commits
 //! storage or changes endpoint recovery policy. See spec/11-flow-transports.md.
+mod endpoint;
 mod host;
+pub use endpoint::{Datagram, EndpointCounters, EndpointError, Route, UdpEndpoint};
 pub mod relay;
 mod stream;
 mod udp;

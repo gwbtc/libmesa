@@ -79,9 +79,17 @@ enum {
   MESA_COMMITTED = 14,
   MESA_RESUME = 15,
   MESA_INVALIDATE_EPOCH = 16,
-  MESA_CLOSE = 17
+  MESA_CLOSE = 17,
+  MESA_INSTALL_CREDENTIAL = 18,
+  MESA_REPLACE_ATTACHMENT = 19
 };
 /* Field usage:
+ * INSTALL_CREDENTIAL (CORE): peer,sequence=expected generation,id=new generation,
+ * flag=breach (0/1). Invalidates old reads; does not verify authority. Keys must
+ * already exist. Once used, legacy INSTALL/REMOTE_BREACH are rejected for peer.
+ * REPLACE_ATTACHMENT (CORE): peer.id,sequence=expected generation,id=new
+ * generation,flag=attached (0/1). New generation is also attachment ID. Once
+ * used, legacy SET_ATTACHMENT is rejected. Generations strictly increase.
  * INSTALL/REMOTE_BREACH: peer. SERVICE: peer.id,value=0/1.
  * ATTACHMENT: peer.id,value=attachment,flag=present (0/1).
  * BIND: data=path,aux=payload (public only). UNBIND: data=path.
@@ -182,6 +190,26 @@ int32_t mesa_buffer_dat(const mesa_buffer *buffer, const uint8_t **dat,
                         size_t *dat_len, size_t *wid);
 int32_t mesa_buffer_copy(const mesa_buffer *buffer, size_t offset, uint8_t *out,
                          size_t len);
+
+/* Additive CORE configuration, version 1. No change to mesa_options layout.
+ * Bounds: peers 1..256, reads 1..1024, bindings 1..65536, window 1..16,
+ * reads*window <=4096; object 1..1MiB, binding/reassembly object..64MiB,
+ * unverified 1KiB..8MiB. Wire remains v2 public, 1472-byte packets, bloq 13.
+ * describe reports the per-event reservation; do not assume MESA_STEP_* for
+ * configured engines. These capacities bound work as well as memory. */
+typedef struct {
+  uint32_t version, max_peers, max_reads, max_bindings, window;
+  size_t max_object_bytes, max_binding_bytes, max_reassembly_bytes,
+      max_unverified_bytes;
+} mesa_resources;
+int32_t mesa_resources_default(mesa_resources *out);
+/* CORE only, <=256 fixed public keys. No checkpoint or flow parameters. */
+int32_t mesa_engine_create_configured(const mesa_options *, const mesa_resources *,
+    const mesa_key *, size_t key_count, mesa_engine **out);
+/* Owned immutable version-1 JSON view of mutable CORE state. Contains revision,
+ * timer, resource use, counters and peer/credential/attachment generations.
+ * Does not mutate the engine or configuration descriptor; no seeds. */
+int32_t mesa_engine_snapshot(const mesa_engine *, const mesa_buffer **out);
 
 int32_t mesa_options_default(mesa_options *out);
 int32_t mesa_key_from_seed(const uint8_t seed[32], uint8_t public_key[32]);

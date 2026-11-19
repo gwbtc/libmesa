@@ -1,4 +1,5 @@
 use super::*;
+mod endpoint;
 use mesa_transport::{PacketIo, Received, Stream, Udp};
 use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, TcpStream, UdpSocket},

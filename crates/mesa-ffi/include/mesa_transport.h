@@ -59,6 +59,48 @@ int32_t mesa_transport_submit(mesa_transport *, const mesa_transport_command *,
                               size_t count, const mesa_budget *,
                               const mesa_batch **out);
 void mesa_transport_release(mesa_transport *);
+
+/* Multi-peer UDP: one endpoint exclusively receives from one shared socket.
+ * fd is duplicated, with shared nonblocking status. Do not also receive on the
+ * original fd or wrap it in per-peer transports. Routes are host assertions,
+ * never authentication. Removed routes retain bounded generation fence slots.
+ * All handles require one serialized caller. Buffers/results follow mesa_embed.h.
+ */
+typedef struct mesa_udp_endpoint mesa_udp_endpoint;
+typedef struct {
+  uint32_t version, max_routes; /* version=1, routes=1..256 */
+  size_t max_packet_bytes;      /* 8..1472 */
+} mesa_udp_options;
+enum { MESA_UDP_SET_ROUTE = 1, MESA_UDP_SEND = 2, MESA_UDP_RECEIVE = 3 };
+typedef struct {
+  uint32_t tag, flag;
+  uint64_t cookie, expected_generation, generation;
+  uint8_t peer[16];
+  mesa_address address;
+  const mesa_buffer *packet;
+} mesa_udp_command;
+/* SET_ROUTE: peer,expected_generation,generation,flag=present; address if present.
+ * generation strictly increases; absent peer expects 0. One next hop per peer,
+ * one peer per address. SEND: peer,generation,packet. RECEIVE: no other fields.
+ * Endpoint and engine attachment IDs must use the same generation. Queued host
+ * SEND records from old generations return STALE without a syscall.
+ * Every command emits TRANSPORT_RESULT; receives may also emit PACKET.
+ * RECEIVE stops the batch on idle (detail=2), counting that command processed.
+ * Oversize/unknown-source packets report detail=1, consuming one attempt.
+ * Count <=64; reserve 2 records and max_packet_bytes per command plus final
+ * READINESS. At most one socket syscall per SEND/RECEIVE; SET_ROUTE has none.
+ * Local pressure is CAPACITY; I/O errors stop the batch with IO but do not
+ * destroy other peers' routes. No hidden queue, worker, timer, or persistence.
+ * PANIC poisons the endpoint; only describe/release remain valid.
+ */
+int32_t mesa_udp_endpoint_new(int32_t fd, const mesa_udp_options *, mesa_udp_endpoint **out);
+int32_t mesa_udp_endpoint_capabilities(const mesa_udp_endpoint *, mesa_transport_caps *out);
+int32_t mesa_udp_endpoint_describe(const mesa_udp_endpoint *, const mesa_buffer **out);
+int32_t mesa_udp_endpoint_snapshot(const mesa_udp_endpoint *, const mesa_buffer **out);
+int32_t mesa_udp_endpoint_submit(mesa_udp_endpoint *, const mesa_udp_command *,
+    size_t count, const mesa_budget *, const mesa_batch **out);
+void mesa_udp_endpoint_release(mesa_udp_endpoint *);
+
 #ifdef __cplusplus
 }
 #endif

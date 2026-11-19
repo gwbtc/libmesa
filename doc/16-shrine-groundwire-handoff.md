@@ -1,6 +1,9 @@
 # Fresh-context handoff: Shrine, suite-C PKI and native Urbit peers
 
-**Planning checkpoint, 2026-11-19. This branch contains documentation only.**
+**Implementation checkpoint, 2026-11-19.** `codex/raw-udp-embedding` contains
+the phases 1–3 raw-host PR. Read the [phase-0 contract](17-raw-udp-phase0.md),
+[API extension](../spec/15-raw-udp-host.md), and
+[validation record](18-raw-udp-validation.md). Native live captures remain open.
 
 ## Read first
 
@@ -10,12 +13,14 @@
    the phase being implemented. Use older identity docs for invariants, not
    their superseded scheduling or external-Jael assumption.
 
-The request that produced this branch authorized planning and saving the plan.
-Do not treat it as authorization to implement every phase. Resume implementation
-under the user's next instruction and its stated scope.
+The user authorized phase 0 and a single phases 1–3 PR, explicitly excluding
+Shrine-side migration and stopping before PKI. Do not start phase 4 without
+a new instruction. This PR does not claim full native phase-0 acceptance.
 
 ## Settled direction
 
+- Shrine uses the UDP adapter. Live Shrine-to-Shrine acceptance precedes
+  Shrine-to-Urbit; host-harness tests do not substitute for that joint gate.
 - Shrine integration is first. Native communication with existing Urbit nodes
   is second. Replacing Ames in Vere is a separate future project.
 - Primary peers use suite-C/Groundwire identities on either runtime.
@@ -46,7 +51,8 @@ does not put Azimuth-ID peers back on the critical path.
 ## Baseline and workspace care
 
 Plan base: libmesa main `041f2148379bf9232063a9f7d6f6e4e45e4c6b0c`, merged PR #11.
-Plan branch: `codex/shrine-pki-roadmap`.
+Plan branch: `codex/shrine-pki-roadmap`; implementation branch:
+`codex/raw-udp-embedding`.
 
 Local repositories used for source reading:
 
@@ -67,13 +73,15 @@ The Enki revision was obtained from Shrine's lockfile; the bridge's underlying
 Mesa dependency has not been independently verified. Capture that dependency
 when the Shrine migration is ready for joint testing.
 
-## First implementation scope to propose
+## Implemented raw-host scope and next boundary
 
-Use phase 0 to agree the target profile, requirements and provider boundary.
-Then take phase 1 as a bounded libmesa PR: validated resource configuration,
-stable/mutable view separation, publication capacity/retirement semantics,
-batched raw-host conformance and the typed credential-update seam. First check
-which requirements the post-PR-11 Shrine migration already satisfies.
+The raw-host PR adds validated configuration, stable descriptions and owned
+state views, batched Rust/C results, trusted credential/attachment generation
+checks, and shared UDP routing. Publication retirement uses the existing
+monotonic prefix fence, tested through 1,000 cycles and host reconstruction.
+The C UDP harness transfers among three peers under faults, then reconstructs
+one raw host and verifies another read. These are not actual Shrine worlds.
+Shrine's authors still own migration and joint live acceptance.
 
 Carry forward the native-profile investigation alongside those changes. The
 existing v2 Hoon endpoint is not native Ames/Mesa interop, and `flow/2/...` is
@@ -103,9 +111,10 @@ prove private access control, durable acceptance or rekey recovery.
 
 ## Validation status
 
-This planning work read source and refreshed the listed remote refs. It ran no
-new runtime, Shrine, Urbit or PKI integration tests. The earlier PR's tests are
-historical baseline evidence, not validation of these proposed modules.
+The phase PR ran raw-host, Rust workspace, C ownership/crash and UDP tests;
+see the validation record for commands and limits. No live Shrine, native
+Urbit or PKI integration was executed. Earlier native acceptance records are
+historical evidence only.
 
 Implementation reports must distinguish deterministic simulation, compiled-host
 execution, native codec conformance and live joint integration. Keep exact
