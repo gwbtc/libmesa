@@ -151,3 +151,39 @@ fn owned_admission_boundary_preserves_pass_without_borrowed_nouns() {
     )
     .is_err());
 }
+#[test]
+fn owned_ring_import_reconstructs_exact_authorized_pass() {
+    for row in fixtures() {
+        let pass = hex(&row["pass"]);
+        let peer = bound(&pass).name();
+        let ring = hex(&row["ring"]);
+        let material = mesa_identity::owned::suite_c_material(
+            ring.clone().into(),
+            "gw-btc",
+            peer,
+            1,
+            0,
+            Limits::default(),
+        )
+        .unwrap();
+        assert_eq!(material.binding().evidence.to_vec(), pass);
+        assert!(mesa_identity::owned::suite_c_material(
+            ring.clone().into(),
+            "other",
+            peer,
+            1,
+            0,
+            Limits::default()
+        )
+        .is_err());
+        assert!(mesa_identity::owned::suite_c_material(
+            ring.into(),
+            "gw-btc",
+            PeerId(peer.0 ^ 1),
+            1,
+            0,
+            Limits::default()
+        )
+        .is_err());
+    }
+}

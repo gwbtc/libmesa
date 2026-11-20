@@ -59,6 +59,13 @@ provider requests, lifecycle changes and retained buffers. Mesa owns incoming
 admission; the embedding host supplies verification and transaction services.
 Native first-contact wiring and real verifier integration remain later phases.
 
+The [local activation component](spec/17-local-activation.md) adds `mesa-keys`,
+software custody, exact pass/ring matching, host-confirmed activation and
+historical-key retirement. CORE retains publications across same-rift rotation;
+FLOW preserves its committed ledger. Retained packet capabilities fence old
+UDP sends. The C harness tests bootstrap and rotation at 14 SIGKILL boundaries.
+Optional suite-C ring import uses `MESA_SUITE_C=1 bash tools/test-ffi.sh`.
+
 The current [integration roadmap](doc/14-shrine-groundwire-roadmap.md) prioritizes
 Shrine embedding, separable Jael/PKI modules, and native network interoperability
 between suite-C/Groundwire peers. Shrine owns migration of its older bridge to
@@ -257,7 +264,9 @@ and enforces canonical jam output. Suite-C parsers bind the committed domain
 to the expected selector and preserve exact data/evidence boundaries. These
 parsers return unverified claims. Curve checks, name derivation, exact ring/pass correspondence, signing, and
 agreement now have [executed Hoon fixtures](vectors/crypto/README.md).
-Domain-specific evidence decoding, authority, and activation remain to be built.
+Domain-specific evidence verification remains external. The modular authority
+and software-key activation mechanisms are implemented; native wire integration
+remains a separate phase.
 See [the implementation and RINA review](doc/10-implementation-review.md) for
 progress against the original plan and the next acceptance gates.
 

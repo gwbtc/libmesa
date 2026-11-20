@@ -293,7 +293,9 @@ dependencies = [
  "mesa-core",
  "mesa-crypto",
  "mesa-flow",
+ "mesa-identity",
  "mesa-jael",
+ "mesa-keys",
  "mesa-pki",
  "mesa-store",
  "mesa-transport",
@@ -319,6 +321,7 @@ name = "mesa-identity"
 version = "0.0.1"
 dependencies = [
  "mesa-crypto",
+ "mesa-keys",
  "mesa-noun",
  "mesa-pki",
  "mesa-wire",
@@ -334,6 +337,19 @@ dependencies = [
  "mesa-crypto",
  "mesa-identity",
  "mesa-pki",
+ "serde_json",
+]
+
+[[package]]
+name = "mesa-keys"
+version = "0.0.1"
+dependencies = [
+ "mesa-bytes",
+ "mesa-core",
+ "mesa-crypto",
+ "mesa-flow",
+ "mesa-pki",
+ "serde",
  "serde_json",
 ]
 

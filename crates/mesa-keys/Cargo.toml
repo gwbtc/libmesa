@@ -1,0 +1,17 @@
+[package]
+name = "mesa-keys"
+description = "Scoped key custody, durable credential activation and recovery"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+[dependencies]
+mesa-bytes = { path = "../mesa-bytes", features = ["serde"] }
+mesa-crypto = { path = "../mesa-crypto" }
+mesa-core = { path = "../mesa-core" }
+mesa-flow = { path = "../mesa-flow" }
+mesa-pki = { path = "../mesa-pki" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+[lints]
+workspace = true

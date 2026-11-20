@@ -9,7 +9,12 @@ repository.workspace = true
 [lib]
 crate-type = ["staticlib", "rlib"]
 
+[features]
+suite-c = ["dep:mesa-identity"]
+
 [dependencies]
+mesa-keys = { path = "../mesa-keys" }
+mesa-identity = { path = "../mesa-identity", optional = true }
 mesa-pki = { path = "../mesa-pki" }
 mesa-jael = { path = "../mesa-jael" }
 mesa-bytes = { path = "../mesa-bytes" }

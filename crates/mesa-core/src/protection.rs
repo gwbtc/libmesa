@@ -3,19 +3,30 @@
 use crate::{KeyHandle, PreconfiguredPeer, Protection};
 use mesa_crypto::{KeyPair, PublicKey};
 use mesa_wire::Name;
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, sync::Arc};
 
 /// Trusted public-key table. Key handles are local and never transmitted.
 /// Engine::install_public_credential supports bounded, atomic remote rotation.
 pub struct SignedPublic {
     local_handle: KeyHandle,
-    local: KeyPair,
+    local: Arc<KeyPair>,
     peers: BTreeMap<KeyHandle, PublicKey>,
 }
 impl SignedPublic {
     pub fn new(
         local_handle: KeyHandle,
         local: KeyPair,
+        peers: BTreeMap<KeyHandle, PublicKey>,
+    ) -> Self {
+        Self {
+            local_handle,
+            local: Arc::new(local),
+            peers,
+        }
+    }
+    pub fn with_key(
+        local_handle: KeyHandle,
+        local: Arc<KeyPair>,
         peers: BTreeMap<KeyHandle, PublicKey>,
     ) -> Self {
         Self {
@@ -158,4 +169,82 @@ impl crate::Engine<SignedPublic> {
             .find(|h| *h != self.protection.local_handle && !self.protection.peers.contains_key(h))
             .ok_or(crate::Error::ResourceLimit)
     }
+}
+
+impl crate::Engine<SignedPublic> {
+    /// Requires prior quiescence. The trusted activation coordinator validates
+    /// durable authority and key custody before calling this low-level seam.
+    pub fn activate_local(
+        &mut self,
+        view: PreconfiguredPeer,
+        key: Arc<KeyPair>,
+        expected: u64,
+        generation: u64,
+    ) -> Result<(), crate::Error> {
+        use crate::Error;
+        if !self.quiescent {
+            return Err(Error::Blocked);
+        }
+        if self.local_generation != expected || generation <= expected {
+            return Err(Error::StaleGeneration);
+        }
+        if view.id != self.local.id || view.domain() != self.local.domain() {
+            return Err(Error::DomainConflict);
+        }
+        if view.life == 0 || view.life < self.local.life || view.rift < self.local.rift {
+            return Err(Error::CoordinateRegression);
+        }
+        if expected > 0
+            && view.life == self.local.life
+            && key.public_key().as_bytes() != self.protection.local.public_key().as_bytes()
+        {
+            return Err(Error::KeyConflict);
+        }
+        if self.protection.peers.contains_key(&view.key) {
+            return Err(Error::KeyConflict);
+        }
+        let revision = self
+            .revision
+            .checked_add(1)
+            .ok_or(Error::GenerationOverflow)?;
+        if view.rift > self.local.rift {
+            self.bindings.clear();
+            self.retired.clear();
+        }
+        if key.public_key().as_bytes() != self.protection.local.public_key().as_bytes() {
+            for binding in self.bindings.values_mut().flatten() {
+                binding.signature_life = 0;
+                binding.signature = None;
+            }
+        }
+        self.send_gate.change(true)?;
+        self.protection.local = key;
+        self.protection.local_handle = view.key;
+        self.local = view;
+        self.local_generation = generation;
+        self.revision = revision;
+        self.quiescent = false;
+        Ok(())
+    }
+}
+
+pub fn root_context_owned(
+    peer: &PreconfiguredPeer,
+    path: &[u8],
+    total: u64,
+    root: &[u8; 32],
+) -> Vec<u8> {
+    root_context(
+        peer,
+        Name {
+            publisher: peer.id,
+            domain: peer.domain(),
+            rift: peer.rift,
+            bloq: 13,
+            fragment: mesa_wire::Fragment::Auth(0),
+            path,
+        },
+        total,
+        root,
+    )
 }

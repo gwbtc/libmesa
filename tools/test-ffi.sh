@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
-cargo build -p mesa-ffi
+key_flags=()
+if [[ "${MESA_SUITE_C:-0}" == 1 ]]; then
+  cargo build -p mesa-ffi --features suite-c
+  key_flags+=(-DMESA_TEST_SUITE_C)
+else
+  cargo build -p mesa-ffi
+fi
 target_dir="${CARGO_TARGET_DIR:-target}"
 libs=(-lpthread -ldl -lm)
 if [[ $(uname -s) == Darwin ]]; then libs+=(-framework Security -framework CoreFoundation -liconv); fi
@@ -25,3 +31,8 @@ echo 'C ABI smoke test passed'
   -I crates/mesa-ffi/include crates/mesa-ffi/tests/pki.c \
   "$target_dir/debug/libmesa_ffi.a" "${libs[@]}" -o "$target_dir/mesa-ffi-pki"
 "$target_dir/mesa-ffi-pki"
+
+"${CC:-cc}" -std=c11 -Wall -Wextra -Werror \
+  "${key_flags[@]}" -I crates/mesa-ffi/include crates/mesa-ffi/tests/keys.c \
+  "$target_dir/debug/libmesa_ffi.a" "${libs[@]}" -o "$target_dir/mesa-ffi-keys"
+"$target_dir/mesa-ffi-keys"

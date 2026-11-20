@@ -1,11 +1,11 @@
 # Fresh-context handoff: Shrine, suite-C PKI and native Urbit peers
 
-**Implementation checkpoint, 2026-11-19.** PR #12 merged phases 1–3 at
-`e02a41aff0b46961bb6d77669d7b784189000782`. Branch
-`phase4-authority-admission` implements the authorized phase-4 PR. See
-[the authority contract](../spec/16-authority-admission.md). Read the [phase-0 contract](17-raw-udp-phase0.md),
-[API extension](../spec/15-raw-udp-host.md), and
-[validation record](18-raw-udp-validation.md). Native live captures remain open.
+**Implementation checkpoint, 2026-11-19.** PR #13 merged phase 4 at
+`05c137015836a4bb28b4d35cccfeeb3aaa182df3`. Branch
+`phase5-local-activation` implements the authorized phase-5 PR. Read
+[the activation contract](../spec/17-local-activation.md) and
+[phase-5 validation](20-local-activation-validation.md). Phase 0 native captures
+remain open; no Shrine files or native packet integrations change in phase 5.
 
 ## Read first
 
@@ -15,10 +15,12 @@
    the phase being implemented. Use older identity docs for invariants, not
    their superseded scheduling or external-Jael assumption.
 
-The user authorized one phase-4 PR after reviewing the ownership correction.
-Keep Shrine-side migration and native wire integration out of scope. Stop after
-opening the phase-4 PR; local activation is phase 5. Native phase-0 captures
-and live interoperability remain open.
+The user authorized one phase-5 PR with tests. Stop after opening it; do not
+merge it or begin phase 6 without further instruction. The next implementation
+phase maps native Groundwire traffic onto the existing authority, activation
+and transport boundaries. Preserve the live Shrine-to-Shrine gate before
+Shrine-to-Urbit. Hardware-only backends, managed-wrapper packaging and verifier
+plugins do not belong to this PR.
 
 ## Settled direction
 
@@ -114,7 +116,8 @@ prove private access control, durable acceptance or rekey recovery.
 
 ## Validation status
 
-Phase-4 evidence is recorded in [the authority validation report](19-authority-admission-validation.md).
+Phase-5 evidence is recorded in [the activation validation report](20-local-activation-validation.md).
+Phase-4 evidence remains in [the authority validation report](19-authority-admission-validation.md).
 
 The phase PR ran raw-host, Rust workspace, C ownership/crash and UDP tests;
 see the validation record for commands and limits. No live Shrine or native

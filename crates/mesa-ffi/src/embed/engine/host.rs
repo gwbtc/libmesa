@@ -115,6 +115,7 @@ pub unsafe extern "C" fn mesa_engine_snapshot(h: *const Engine, out: *mut *const
             let n = match &h.backend { Some(Backend::Core(n)) => n, Some(_) => return ARG, None => return CLOSED };
             let s = n.snapshot(); let u = s.usage; let c = s.counters;
             let value = serde_json::json!({
+                "local":{"id":format!("{:032x}",s.local.id.0),"domain":s.local.domain().as_str(),"life":s.local.life,"rift":s.local.rift,"generation":s.local_generation,"quiescent":s.quiescent},
                 "version":1,"incarnation":h.incarnation,"revision":s.revision,"now":s.now,"deadline":s.deadline,
                 "usage":{"peers":u.peers,"namespace_slots":u.namespace_slots,"bindings":u.bindings,
                     "binding_bytes":u.binding_bytes,"binding_proof_bytes":u.binding_proof_bytes,

@@ -11,7 +11,7 @@ jobs:
         with:
           components: clippy, rustfmt
       - run: cargo fmt --all -- --check
-      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - run: cargo clippy --workspace --all-targets --all-features -- -D warnings
       - run: cargo test --workspace
       - run: cargo run -p mesa-core --example two-peer
       - run: cargo run -p mesa-flow --example two-peer-flows
@@ -19,6 +19,7 @@ jobs:
       - run: python3 tools/protection-vector.py --check
       - run: python3 tools/test-protected-udp.py
       - run: bash tools/test-ffi.sh
+      - run: MESA_SUITE_C=1 bash tools/test-ffi.sh
       - run: python3 tools/check-embedding-deps.py
       - run: python3 tools/conformance-v2.py
       - run: python3 tools/conformance-noun.py

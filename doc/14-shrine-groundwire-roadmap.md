@@ -1,14 +1,15 @@
 # Shrine integration, modular PKI, and native Groundwire interoperability
 
-**Roadmap, 2026-11-19.** PR #12 merged the raw-host work in phases 1–3.
-The `phase4-authority-admission` branch implements phase 4; its
-[authority contract](../spec/16-authority-admission.md) defines the component API.
-See [phase-4 validation](19-authority-admission-validation.md) for executed tests
-and remaining integration risks. See the [phase-0 contract](17-raw-udp-phase0.md),
-[API extension](../spec/15-raw-udp-host.md) and
-[validation record](18-raw-udp-validation.md). Native live-capture evidence
-in phase 0 remains open. Phase 5 local activation and phase 6 native wire
-integration remain separate work.
+**Roadmap, 2026-11-19.** PR #12 merged phases 1–3. PR #13 merged phase 4
+at `05c137015836a4bb28b4d35cccfeeb3aaa182df3`. Branch
+`phase5-local-activation` implements phase 5's software custody, durable
+activation and CORE/FLOW credential transitions. Read the
+[activation contract](../spec/17-local-activation.md) and
+[phase-5 validation](20-local-activation-validation.md), alongside the
+[authority contract](../spec/16-authority-admission.md) and
+[phase-4 validation](19-authority-admission-validation.md).
+Native live-capture evidence in [phase 0](17-raw-udp-phase0.md) remains open.
+Phase 6 native wire integration remains separate work.
 
 Build the modules an operating system needs to use Mesa and Groundwire ID.
 Shrine is the first integrator. Existing Urbit ships are network peers; they
@@ -392,6 +393,12 @@ Run the same engine tests with Jael selected and with an alternative embedding-h
 A fake provider proves orchestration only, not Groundwire verification.
 
 ### Phase 5 — Implement local keys, activation and durable recovery
+
+The phase-5 branch implements this gate through `mesa-keys`, optional suite-C
+ring import, batched C activation and fenced UDP sends. FLOW quiescence emits
+cancellation outcomes before prepare; same-rift cutover preserves its ledger.
+The current engine signer uses software custody. Native session crypto and
+hardware-only signer integration remain separate extensions.
 
 Separate staged secret material, authorized point, active credentials and
 retained historical keys. Support point-first and ring-first arrival. Activate

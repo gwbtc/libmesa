@@ -600,3 +600,117 @@ fn independent_python_context_and_openssl_signature_match() {
         unhex(v["signature"].as_str().unwrap())
     );
 }
+
+#[test]
+fn local_cutover_resigns_retained_bindings_and_rift_retires_namespace() {
+    let mut h = Harness::new(Config::default());
+    let data = bytes(16000);
+    h.bind(1, b"kept", &data);
+    h.read(0, 1, b"kept");
+    h.pump();
+    assert_eq!(h.results.last().unwrap().2, Ok(data.clone()));
+    let before = h.engines[1].usage().binding_bytes;
+    h.engines[1].quiesce().unwrap();
+    let mut new = view(1);
+    new.life = 2;
+    h.engines[1]
+        .activate_local(new.clone(), std::sync::Arc::new(key(9)), 0, 1)
+        .unwrap();
+    h.engines[0]
+        .install_public_credential(
+            host::CredentialUpdate {
+                peer: new.clone(),
+                expected_generation: 0,
+                generation: 1,
+                breach: false,
+            },
+            key(9).public_key(),
+        )
+        .unwrap();
+    h.read(0, 2, b"kept");
+    h.pump();
+    assert_eq!(h.results.last().unwrap().2, Ok(data));
+    assert_eq!(h.engines[1].usage().binding_bytes, before);
+    h.engines[1].quiesce().unwrap();
+    new.rift = 1;
+    h.engines[1]
+        .activate_local(new, std::sync::Arc::new(key(9)), 1, 2)
+        .unwrap();
+    assert_eq!(h.engines[1].usage().binding_bytes, 0);
+    h.bind(1, b"kept", b"new epoch");
+}
+#[test]
+fn gate_close_blocks_receive_and_cancels_reads_with_explicit_outcome() {
+    let mut h = Harness::new(Config::default());
+    h.read(0, 1, b"pending");
+    let out = h.engines[0].quiesce().unwrap();
+    assert!(out.iter().any(|a| matches!(
+        a,
+        Action::ReadFinished {
+            id: 1,
+            result: Err(ReadFailure::PeerReset)
+        }
+    )));
+    assert!(h.engines[0]
+        .step(Event::Receive {
+            claimed_peer: view(1).id,
+            attachment: Attachment(7),
+            bytes: &[]
+        })
+        .is_err());
+    assert_eq!(h.engines[0].usage().reassembly_bytes, 0);
+}
+
+#[test]
+fn remote_credentials_policy_and_attachments_revoke_retained_outputs() {
+    for change in 0..4 {
+        let mut h = Harness::new(Config::default());
+        h.read(0, 1, b"pending");
+        let frame = h.queue.back().unwrap().bytes.clone();
+        let packet = h.engines[0]
+            .send_gate()
+            .packet(view(1).id, Attachment(7), frame.into());
+        let actions = match change {
+            0 | 1 => {
+                let mut peer = view(1);
+                peer.life = 2;
+                peer.rift = u32::from(change == 1);
+                h.engines[0]
+                    .install_public_credential(
+                        host::CredentialUpdate {
+                            peer,
+                            expected_generation: 0,
+                            generation: 1,
+                            breach: change == 1,
+                        },
+                        key(9).public_key(),
+                    )
+                    .unwrap()
+            }
+            2 => h.engines[0]
+                .step(Event::SetService {
+                    peer: view(1).id,
+                    allowed: false,
+                })
+                .unwrap(),
+            _ => h.engines[0]
+                .step(Event::ReplaceAttachment(host::AttachmentUpdate {
+                    peer: view(1).id,
+                    expected_generation: 0,
+                    generation: 8,
+                    attached: true,
+                }))
+                .unwrap(),
+        };
+        assert!(packet.submit(|_, _, _| panic!("stale send")).is_err());
+        if change < 3 {
+            assert!(actions.iter().any(|a| matches!(
+                a,
+                Action::ReadFinished {
+                    id: 1,
+                    result: Err(_)
+                }
+            )));
+        }
+    }
+}
