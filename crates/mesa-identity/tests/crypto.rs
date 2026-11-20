@@ -151,3 +151,78 @@ fn owned_admission_boundary_preserves_pass_without_borrowed_nouns() {
     )
     .is_err());
 }
+#[test]
+fn owned_ring_import_reconstructs_exact_authorized_pass() {
+    for row in fixtures() {
+        let pass = hex(&row["pass"]);
+        let peer = bound(&pass).name();
+        let ring = hex(&row["ring"]);
+        let material = mesa_identity::owned::suite_c_material(
+            ring.clone().into(),
+            "gw-btc",
+            peer,
+            1,
+            0,
+            Limits::default(),
+        )
+        .unwrap();
+        assert_eq!(material.binding().evidence.to_vec(), pass);
+        assert!(mesa_identity::owned::suite_c_material(
+            ring.clone().into(),
+            "other",
+            peer,
+            1,
+            0,
+            Limits::default()
+        )
+        .is_err());
+        assert!(mesa_identity::owned::suite_c_material(
+            ring.into(),
+            "gw-btc",
+            PeerId(peer.0 ^ 1),
+            1,
+            0,
+            Limits::default()
+        )
+        .is_err());
+    }
+}
+
+#[test]
+fn owned_ring_rejects_oversized_sparse_width_before_expansion() {
+    let limits = Limits::default();
+    for width in [usize::MAX, limits.max_blob_bytes + 1] {
+        let ring = mesa_pki::Buffer::new(vec![], width).unwrap();
+        let result =
+            mesa_identity::owned::suite_c_material(ring, "gw-btc", PeerId(1), 1, 0, limits);
+        assert!(matches!(result, Err(mesa_keys::Error::Invalid)));
+    }
+}
+
+#[test]
+fn owned_ring_accepts_exact_blob_limit_and_rejects_one_byte_less() {
+    let row = &fixtures()[0];
+    let pass = hex(&row["pass"]);
+    let peer = bound(&pass).name();
+    let ring = hex(&row["ring"]);
+    let limits = Limits {
+        max_blob_bytes: ring.len(),
+        ..Limits::default()
+    };
+    let material =
+        mesa_identity::owned::suite_c_material(ring.clone().into(), "gw-btc", peer, 1, 0, limits)
+            .unwrap();
+    assert_eq!(material.binding().evidence.to_vec(), pass);
+    let result = mesa_identity::owned::suite_c_material(
+        ring.into(),
+        "gw-btc",
+        peer,
+        1,
+        0,
+        Limits {
+            max_blob_bytes: limits.max_blob_bytes - 1,
+            ..limits
+        },
+    );
+    assert!(matches!(result, Err(mesa_keys::Error::Invalid)));
+}

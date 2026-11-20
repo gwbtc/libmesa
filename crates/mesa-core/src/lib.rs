@@ -8,6 +8,7 @@
 pub use mesa_bytes::Buffer;
 use std::collections::BTreeMap;
 
+pub mod credentials;
 pub mod host;
 pub mod policy;
 mod protected_read;
@@ -356,6 +357,7 @@ struct Binding {
     access: Access,
     tree: Option<mesa_lss::Tree>,
     signature: Option<[u8; 64]>,
+    signature_life: u32,
 }
 struct Attempt {
     count: u32,
@@ -387,6 +389,9 @@ struct Read {
 }
 
 pub struct Engine<P> {
+    send_gate: credentials::SendGate,
+    quiescent: bool,
+    local_generation: u64,
     config: Config,
     policy: TransferPolicy,
     capacity: usize,
@@ -429,6 +434,9 @@ impl<P: Protection> Engine<P> {
             return Err(Error::MissingKey);
         }
         Ok(Self {
+            send_gate: Default::default(),
+            quiescent: false,
+            local_generation: 0,
             config,
             policy,
             capacity,
@@ -502,6 +510,11 @@ impl<P: Protection> Engine<P> {
     }
 
     pub fn step(&mut self, event: Event<'_>) -> Result<Vec<Action>, Error> {
+        if (self.quiescent || !self.send_gate.is_open())
+            && matches!(event, Event::Read { .. } | Event::Receive { .. })
+        {
+            return Err(Error::Blocked);
+        }
         let revision = self
             .revision
             .checked_add(1)
@@ -529,6 +542,7 @@ impl<P: Protection> Engine<P> {
                     .view
                     .service_allowed = allowed;
                 if !allowed {
+                    self.send_gate.change(self.send_gate.is_open())?;
                     self.fail_peer(peer, ReadFailure::Blocked, &mut actions);
                 }
             }
@@ -540,6 +554,7 @@ impl<P: Protection> Engine<P> {
                     .get_mut(&peer)
                     .ok_or(Error::UnknownPeer)?
                     .attachment = attachment;
+                self.send_gate.change(self.send_gate.is_open())?;
             }
             Event::Bind {
                 path,
@@ -605,7 +620,9 @@ impl<P: Protection> Engine<P> {
                 }
             }
         }
-        self.schedule(&mut actions);
+        if !self.is_quiescent() {
+            self.schedule(&mut actions);
+        }
         actions.push(Action::SetTimer(self.next_timer()));
         self.revision = revision;
         self.counters.observe(received, &actions);
@@ -646,7 +663,10 @@ impl<P: Protection> Engine<P> {
         } else {
             None
         };
-        let signature = if let Some(tree) = &tree {
+        let signature = if let Some(tree) = tree
+            .as_ref()
+            .filter(|_| !self.quiescent && self.send_gate.is_open())
+        {
             let name = Name {
                 publisher: self.local.id,
                 domain: self.local.domain(),
@@ -670,6 +690,11 @@ impl<P: Protection> Engine<P> {
                 access,
                 tree,
                 signature,
+                signature_life: if self.quiescent || !self.send_gate.is_open() {
+                    0
+                } else {
+                    self.local.life
+                },
             }),
         );
         Ok(())
@@ -720,6 +745,9 @@ impl<P: Protection> Engine<P> {
                 return Err(Error::ResourceLimit);
             }
         }
+        // A remote credential change also invalidates retained outbound work.
+        // Conservatively fence the engine's whole send batch; other peers retry.
+        self.send_gate.change(self.send_gate.is_open())?;
         let id = view.id;
         let generations = self
             .peers
@@ -1163,6 +1191,9 @@ impl<P: Protection> Engine<P> {
     }
 
     pub fn next_timer(&self) -> Option<Tick> {
+        if self.is_quiescent() {
+            return None;
+        }
         self.reads
             .values()
             .flat_map(|r| {

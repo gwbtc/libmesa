@@ -69,6 +69,9 @@ pub struct PeerSnapshot {
 }
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Snapshot {
+    pub local: PreconfiguredPeer,
+    pub local_generation: u64,
+    pub quiescent: bool,
     pub revision: u64,
     pub now: Tick,
     pub deadline: Option<Tick>,
@@ -157,6 +160,9 @@ impl Config {
 impl<P: Protection> Engine<P> {
     pub fn snapshot(&self) -> Snapshot {
         Snapshot {
+            local: self.local_view(),
+            local_generation: self.local_generation(),
+            quiescent: self.is_quiescent(),
             revision: self.revision,
             now: self.now,
             deadline: self.next_timer(),
@@ -259,6 +265,7 @@ impl<P: Protection> Engine<P> {
         {
             return Err(Error::StaleGeneration);
         }
+        self.send_gate.change(self.send_gate.is_open())?;
         p.attachment_generation = update.generation;
         p.fenced_attachment = true;
         p.attachment = update.attached.then_some(Attachment(update.generation));

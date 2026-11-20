@@ -11,15 +11,23 @@ impl<P: Protection> Engine<P> {
     ) -> Result<(), DropReason> {
         let tree = binding.tree.as_ref().ok_or(DropReason::Protection)?;
         let proof;
+        let refreshed;
         let mut leaf = [0; mesa_lss::LEAF_BYTES];
         let mut pair_bytes = [0; 64];
         let (fragment, auth) = match name.fragment {
             Fragment::Auth(0) => {
                 proof = tree.proof();
-                (
-                    proof.as_slice(),
-                    Auth::Signature(binding.signature.as_ref().ok_or(DropReason::Protection)?),
-                )
+                let signature =
+                    if binding.signature_life == self.local.life && binding.signature.is_some() {
+                        binding.signature.as_ref().ok_or(DropReason::Protection)?
+                    } else {
+                        refreshed = self
+                            .protection
+                            .sign_root(&self.local, name, binding.bytes.len() as u64, &tree.root())
+                            .ok_or(DropReason::Protection)?;
+                        &refreshed
+                    };
+                (proof.as_slice(), Auth::Signature(signature))
             }
             Fragment::Data(i) => {
                 let index = usize::try_from(i).map_err(|_| DropReason::Fragment)?;

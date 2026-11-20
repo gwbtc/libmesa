@@ -403,9 +403,14 @@ impl Engine {
                         diagnostic = Some(format!("{e:?}"));
                         EVENT_ERROR
                     })?;
+                    let gate = n.send_gate();
                     Ok(actions
                         .into_iter()
                         .filter_map(|a| flow_record(a, &mut self.timer))
+                        .map(|mut r| {
+                            stamp(&mut r, &gate);
+                            r
+                        })
                         .collect())
                 }
             }
@@ -421,6 +426,7 @@ impl Engine {
         })
     }
     pub(super) fn core_records(&mut self, actions: Vec<core::Action>) -> Vec<Record> {
+        let gate = self.gate();
         let mut out = Vec::new();
         for a in actions {
             match a {
@@ -452,7 +458,18 @@ impl Engine {
                 }
             }
         }
+        if let Some(g) = gate {
+            for r in &mut out {
+                stamp(r, &g);
+            }
+        }
         out
+    }
+    pub(super) fn gate(&self) -> Option<core::credentials::SendGate> {
+        match self.backend.as_ref()? {
+            Backend::Core(n) => Some(n.send_gate()),
+            Backend::Flow(n) => Some(n.send_gate()),
+        }
     }
     pub(super) fn core_envelope(&self) -> (usize, usize) {
         (self.step_records, self.step_bytes)
@@ -812,4 +829,16 @@ pub unsafe extern "C" fn mesa_engine_release(h: *mut Engine) {
         }
     }))
     .unwrap_or(())
+}
+
+pub(super) fn stamp(r: &mut Record, g: &core::credentials::SendGate) {
+    if r.c.tag == 101 {
+        if let Some(b) = &r.data {
+            r.packet = Some(g.packet(
+                PeerId(u128::from_le_bytes(r.c.peer)),
+                Attachment(r.c.attachment),
+                b.clone(),
+            ));
+        }
+    }
 }

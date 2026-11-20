@@ -275,3 +275,85 @@ pub unsafe extern "C" fn mesa_udp_endpoint_release(t: *mut Endpoint) {
         }
     }
 }
+
+/// # Safety
+/// Live, serialized endpoint and immutable retained packet handles; see mesa_keys.h.
+#[no_mangle]
+pub unsafe extern "C" fn mesa_udp_endpoint_send_packet(
+    h: *mut Endpoint,
+    packet: *const core::credentials::FencedPacket,
+) -> i32 {
+    catch_unwind(AssertUnwindSafe(|| unsafe {
+        let (Some(h), Some(packet)) = (h.as_mut(), packet.as_ref()) else {
+            return ARG;
+        };
+        if h.poisoned {
+            return PANIC;
+        }
+        h.io.send_fenced(packet)
+            .map(|sent| if sent { 0 } else { CAPACITY })
+            .unwrap_or_else(error)
+    }))
+    .unwrap_or(PANIC)
+}
+
+/// # Safety
+/// Live endpoint and count retained packet handles. Serialized caller; see mesa_keys.h.
+#[no_mangle]
+pub unsafe extern "C" fn mesa_udp_endpoint_send_packets(
+    h: *mut Endpoint,
+    packets: *const *const core::credentials::FencedPacket,
+    count: usize,
+    budget: *const Budget,
+    out: *mut *const Batch,
+) -> i32 {
+    catch_unwind(AssertUnwindSafe(|| unsafe {
+        if out.is_null() {
+            return ARG;
+        }
+        *out = ptr::null();
+        let (Some(h), Some(budget)) = (h.as_mut(), budget.as_ref()) else {
+            return ARG;
+        };
+        if h.poisoned {
+            return PANIC;
+        }
+        if count > 64 || !budget.valid() {
+            return ARG;
+        }
+        let packets = match array(packets, count) {
+            Ok(p) => p,
+            Err(e) => return e,
+        };
+        if packets.iter().any(|p| p.is_null()) {
+            return ARG;
+        }
+        let mut b = Batch::default();
+        if count > 0 && !budget.fits(&b, 1, 0) {
+            return CAPACITY;
+        }
+        h.poisoned = true;
+        for (i, p) in packets.iter().take(budget.max_steps).enumerate() {
+            if !budget.fits(&b, 1, 0) {
+                break;
+            }
+            let mut r = Record::new(201);
+            r.c.event_index = i;
+            r.c.status = match h.io.send_fenced(&**p) {
+                Ok(true) => 0,
+                Ok(false) => CAPACITY,
+                Err(e) => error(e),
+            };
+            let stop = r.c.status == IO;
+            b.push(r);
+            b.processed += 1;
+            if stop {
+                break;
+            }
+        }
+        h.poisoned = false;
+        *out = publish(b);
+        0
+    }))
+    .unwrap_or(PANIC)
+}

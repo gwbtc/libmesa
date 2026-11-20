@@ -147,7 +147,7 @@ pub struct PkiHandle {
     poisoned: bool,
 }
 impl PkiHandle {
-    fn authority(&self) -> &Authority {
+    pub(super) fn authority(&self) -> &Authority {
         match &self.backend {
             PkiBackend::Raw(a) => a,
             PkiBackend::Jael(j) => j.authority(),

@@ -152,6 +152,16 @@ impl UdpEndpoint {
         }
     }
 
+    /// Check the credential fence while holding it through the send syscall.
+    pub fn send_fenced(
+        &mut self,
+        packet: &mesa_core::credentials::FencedPacket,
+    ) -> Result<bool, EndpointError> {
+        packet
+            .submit(|peer, attachment, bytes| bytes.with_bytes(|b| self.send(peer, attachment, b)))
+            .map_err(|_| EndpointError::StaleGeneration)?
+    }
+
     /// One recv syscall at most. Unknown/oversized packets consume one attempt.
     pub fn receive(&mut self) -> Result<Datagram, EndpointError> {
         self.counters.receive_calls = self.counters.receive_calls.saturating_add(1);
@@ -203,5 +213,37 @@ impl UdpEndpoint {
             }
         }
         Ok(out)
+    }
+}
+
+#[cfg(test)]
+mod credential_tests {
+    use super::*;
+    #[test]
+    fn retained_packet_cutover_prevents_actual_udp_syscall() {
+        let receiver = UdpSocket::bind("127.0.0.1:0").unwrap();
+        receiver.set_nonblocking(true).unwrap();
+        let mut sender =
+            UdpEndpoint::new(UdpSocket::bind("127.0.0.1:0").unwrap(), 1472, 2).unwrap();
+        sender
+            .set_route(PeerId(2), 0, 1, Some(receiver.local_addr().unwrap()))
+            .unwrap();
+        let gate = mesa_core::credentials::SendGate::default();
+        let packet = gate.packet(PeerId(2), Attachment(1), vec![7; 32].into());
+        assert!(sender.send_fenced(&packet).unwrap());
+        let calls = sender.counters().send_calls;
+        gate.change(false).unwrap();
+        gate.change(true).unwrap();
+        assert!(matches!(
+            sender.send_fenced(&packet),
+            Err(EndpointError::StaleGeneration)
+        ));
+        assert_eq!(sender.counters().send_calls, calls);
+        let fresh = gate.packet(PeerId(2), Attachment(1), vec![8; 32].into());
+        assert!(sender.send_fenced(&fresh).unwrap());
+        sender
+            .set_route(PeerId(2), 1, 2, Some(receiver.local_addr().unwrap()))
+            .unwrap();
+        assert!(sender.send_fenced(&fresh).is_err());
     }
 }

@@ -1,6 +1,7 @@
 //! Bounded durable message flows over the signed-public named-read engine.
 //! The host commits checkpoints and application effects; this crate owns no I/O.
 //! See spec/13-continuous-flows.md for the transaction and restart contract.
+pub mod credentials;
 mod hints;
 mod retirement;
 mod state;
@@ -194,6 +195,7 @@ pub struct Usage {
 }
 
 pub struct Node {
+    credentials_quiescent: bool,
     config: Config,
     flows: Vec<FlowConfig>,
     core: Engine<SignedPublic>,
@@ -226,6 +228,7 @@ impl Node {
         Self::validate(&config, &local, &flows, &checkpoint, incarnation)?;
         let core = Engine::with_policy(config.core.clone(), local, protection, config.transfer)?;
         let mut node = Self {
+            credentials_quiescent: false,
             config,
             flows,
             core,
@@ -454,6 +457,11 @@ impl Node {
         if self.halted {
             return Err(Error::Halted);
         }
+        if (self.credentials_quiescent || !self.core.send_gate().is_open())
+            && !matches!(event, Event::Committed(_) | Event::Decide { .. })
+        {
+            return Err(Error::Halted);
+        }
         let mut out = vec![];
         match event {
             Event::Enqueue {
@@ -568,6 +576,11 @@ impl Node {
                     Action::SetTimer(None),
                 ]);
             }
+        }
+        if self.credentials_quiescent || !self.core.send_gate().is_open() {
+            out.retain(|a| !matches!(a, Action::Send { .. } | Action::SetTimer(_)));
+            out.push(Action::SetTimer(None));
+            return Ok(out);
         }
         if let Err(e) = self.drive(&mut out) {
             self.halted = true;

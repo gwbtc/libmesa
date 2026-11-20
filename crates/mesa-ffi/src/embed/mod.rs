@@ -14,6 +14,7 @@ use std::{
 };
 mod engine;
 mod inbox;
+mod keys;
 mod pki;
 #[cfg(unix)]
 mod transport;
@@ -175,6 +176,8 @@ struct Record {
     aux: Option<Buffer>,
     checkpoint: Option<Buffer>,
     payload: Option<Buffer>,
+    packet: Option<core::credentials::FencedPacket>,
+    secret: Option<Arc<mesa_crypto::SharedSecret>>,
 }
 // SAFETY: Record metadata contains only null buffer pointers. Owned Rust
 // buffers live in its Option<Buffer> fields. batch_get fills a separate C copy.
