@@ -1,8 +1,8 @@
 # Shrine integration, modular PKI, and native Groundwire interoperability
 
-**Roadmap, 2026-11-19.** PR #12 merged phases 1–3. PR #13 merged phase 4
-at `05c137015836a4bb28b4d35cccfeeb3aaa182df3`. Branch
-`phase5-local-activation` implements phase 5's software custody, durable
+**Roadmap, 2026-11-20.** PR #12 merged phases 1–3. PR #13 merged phase 4
+at `05c137015836a4bb28b4d35cccfeeb3aaa182df3`. PR #14 merged phase 5
+at `c3d34bf473f1912a575243783e399b2001f4a658`: software custody, durable
 activation and CORE/FLOW credential transitions. Read the
 [activation contract](../spec/17-local-activation.md) and
 [phase-5 validation](20-local-activation-validation.md), alongside the
@@ -10,6 +10,9 @@ activation and CORE/FLOW credential transitions. Read the
 [phase-4 validation](19-authority-admission-validation.md).
 Native live-capture evidence in [phase 0](17-raw-udp-phase0.md) remains open.
 Phase 6 native wire integration remains separate work.
+The [native-target investigation](21-native-target-investigation.md) pins
+the executed stack, preserves packet evidence, and specifies phase 6's
+implementation order and remaining live admission gate.
 
 Build the modules an operating system needs to use Mesa and Groundwire ID.
 Shrine is the first integrator. Existing Urbit ships are network peers; they
@@ -420,6 +423,12 @@ and own-rift transition without old-key traffic. No mandatory SQLite inbox is
 used in the OS integration harness.
 
 ### Phase 6 — Implement native Groundwire network compatibility
+
+Use the [2026-11-20 investigation](21-native-target-investigation.md) for
+the concrete profile: exact-byte UDP checksums, native BLAKE3 roots,
+two-party private spaces, bounded proofs, and native byte-service flows.
+Direct-route admission and default-mode migration still need a live fixture
+result before selecting the complete legacy control subset.
 
 Build the native profile identified in phase 0 as a selectable module. Cover
 wire encoding, protected name/root context, fragmentation/LSS, public and

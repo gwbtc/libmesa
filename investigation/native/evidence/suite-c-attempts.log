@@ -1,0 +1,28 @@
+FILE peer-a.log
+urbit 4.6-828244e
+boot: retrieving galaxy table
+boot: retrieving network domains
+tax: [[%sys %vane %jael %hoon 0] [733 7] 735 52]
+king: boot failed
+
+FILE peer-b.log
+urbit 4.6-828244e
+boot: retrieving galaxy table
+boot: retrieving network domains
+tax: [[%sys %vane %jael %hoon 0] [733 7] 735 52]
+king: boot failed
+
+FILE peer-a2.log
+urbit 4.6-828244e
+boot: retrieving galaxy table
+boot: retrieving network domains
+mesa: live on 31627 (localhost only)
+pier (32): live
+clay: cannot run app from two desks: %gw-btc
+
+FILE peer-b2.log
+urbit 4.6-828244e
+boot: retrieving galaxy table
+boot: retrieving network domains
+mesa: live on 31628 (localhost only)
+pier (32): live

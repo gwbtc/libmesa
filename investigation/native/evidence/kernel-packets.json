@@ -1,0 +1,690 @@
+[
+  {
+    "case": "test-sybl-same-key-evidence-refresh-preserves-mesa-state",
+    "sender": "~nec",
+    "kind": "push",
+    "width": 118,
+    "hex": "10018b310002e06713d713f23a9c5d6f49f1ff14bf802c006b000d59006368756d2f322f7e6e65632f322f30766f2e616761676c2e38356731302e38737236712e6b6d7434632e34323463732e38353969732e3565716e672e746c306c6e2e63397339622e64366666372e75746f75622e67766b6f35",
+    "sha256": "8d664143c280a23c5f404db66d974447afcda816343565ee7b2ced00273e9959"
+  },
+  {
+    "case": "test-sybl-full-rederives-known-mesa-paths-on-rotation",
+    "sender": "~nec",
+    "kind": "push",
+    "width": 103,
+    "hex": "101142ea0002e06713d713f23a9c5d6f49f1ff14bf802c006b000d4a006368756d2f312f7e6e65632f322f3076317335702e6338366d742e67666c34722e35316337682e33756967742e676462376d2e34383931332e716e306f6d2e33353561332e3736613474",
+    "sha256": "cf3f001b362a83e69c8db10133bc4d8e65c88d840b103d5c7e268b8b6e14263d"
+  },
+  {
+    "case": "test-sybl-full-clears-snob",
+    "sender": "~nec",
+    "kind": "push",
+    "width": 62,
+    "hex": "1001db5d0002e06713d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f312f612f782f312f2f7061776e2f70726f6f662f312f7e6e65632f32",
+    "sha256": "0ade5f59ce8b32b24f68adec0806f15c225cbfefa230727739215b7194eb07df"
+  },
+  {
+    "case": "test-snob-keeps-known-peer-and-solicits",
+    "sender": "~nec",
+    "kind": "send",
+    "width": 27,
+    "hex": "00aeffc4120100d713f23a9c5d6f49f1ff14bf802c006b6b657973",
+    "sha256": "bfa9cd3a8a00e1a66678fe697289c83c1277df8eaf9b01d65dd561b2d49e0059"
+  },
+  {
+    "case": "test-snob-keeps-alien-pending",
+    "sender": "~nec",
+    "kind": "push",
+    "width": 62,
+    "hex": "1001db5d0002e06713d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f312f612f782f312f2f7061776e2f70726f6f662f312f7e6e65632f32",
+    "sha256": "0ade5f59ce8b32b24f68adec0806f15c225cbfefa230727739215b7194eb07df"
+  },
+  {
+    "case": "test-poof-timer-error-retries-while-snobbed",
+    "sender": "~nec",
+    "kind": "send",
+    "width": 27,
+    "hex": "00aeffc4120100d713f23a9c5d6f49f1ff14bf802c006b6b657973",
+    "sha256": "bfa9cd3a8a00e1a66678fe697289c83c1277df8eaf9b01d65dd561b2d49e0059"
+  },
+  {
+    "case": "test-old-ames-wire-mesa",
+    "sender": "~nec",
+    "kind": "send",
+    "width": 51,
+    "hex": "001007ad3201000200f988e080b9cf7ab45aa43b4b2d7208981800f4570b6c329037bad5e5074230f20b90b87a907fd5fc2e6d",
+    "sha256": "3450240ced2a328a36f294abbbd30bb2ad907319559c3a98638b251c7450210c"
+  },
+  {
+    "case": "test-old-ames-wire-mesa",
+    "sender": "~nec",
+    "kind": "send",
+    "width": 47,
+    "hex": "0080b5da3201000200b579d0f173765c5f1ae476e1d6bce0fe14007379ffc063de398440d2229ff2151453530346b7",
+    "sha256": "90256cd2fd16e3b02a20262c0055dcf76dfe430853b835a2f24305a90446bde4"
+  },
+  {
+    "case": "test-old-ames-wire-mesa",
+    "sender": "~bud",
+    "kind": "send",
+    "width": 32,
+    "hex": "04888cc92302000100f6a6bf4848f449fa398eeb5d0a0d8b870500c47cc2f505",
+    "sha256": "509be1fda52d56d5510497c678b3f18b7315dd577ad095b8488a6aeea79b61a9"
+  },
+  {
+    "case": "test-old-ames-wire-mesa",
+    "sender": "~nec",
+    "kind": "push",
+    "width": 281,
+    "hex": "90c1c77b0002e067100200000d67006368756d2f332f7e6e65632f322f30763173612e357468306d2e6c347175342e32367637372e7575626e732e30336568352e676d6b62722e3969396c362e6f33626c742e38766370372e7364636f362e74397268392e31306d36632e326c336f692e7663713171100100000d68006368756d2f322f7e6275642f332f3076623532642e62666161632e6e63306d732e6b3030636a2e62343838702e346f6d68662e6f736933332e66706a73642e65666c676e2e37633434682e6e743469372e716c616f612e6b7067616b2e69766b72352e3675727073482157d5679916912a50e7a5c103851d904621880176f9b611736e236fb781778768289da7d8ae97f004fd4f0d15cdf15a5d0b01",
+    "sha256": "06feeaffaaa307c5d5c416aabcf0096df73341da16a8b0d35d6051da078f0aca"
+  },
+  {
+    "case": "test-old-ames-wire",
+    "sender": "~nec",
+    "kind": "send",
+    "width": 51,
+    "hex": "001007ad3201000200f988e080b9cf7ab45aa43b4b2d7208981800f4570b6c329037bad5e5074230f20b90b87a907fd5fc2e6d",
+    "sha256": "3450240ced2a328a36f294abbbd30bb2ad907319559c3a98638b251c7450210c"
+  },
+  {
+    "case": "test-old-ames-wire",
+    "sender": "~bud",
+    "kind": "send",
+    "width": 31,
+    "hex": "0450e99a23020001006d6e079d2d4e48c63c6890883c305585040081190202",
+    "sha256": "906f166a058e001a828465b99c96866bda3feacb3b00c3b4739ba15c0a5bdee8"
+  },
+  {
+    "case": "test-no-fief-still-relays-via-sponsor",
+    "sender": "~nec",
+    "kind": "send",
+    "width": 65,
+    "hex": "00f6369412010002015ab15363ef621877bece29f5741df0d31a1e944cd66fc5c764e915c8420d18004b3eb3a7a6f852f74bbfdf9e6adc7da3fbd6b9ddb481af30",
+    "sha256": "8c682ccc6c8b111d95aeb41a1511b2a80320c9289b736c60fd0104464d0dff6f"
+  },
+  {
+    "case": "native-udp-peek",
+    "sender": "~zod",
+    "kind": "udp-peek",
+    "width": 52,
+    "hex": "10f13e660002e067100000000d25007075626c2f312f672f782f302f6e61746976652d70726f62652f2f76616c75652f6e6f756e",
+    "sha256": "77e88d4e2dc0bb753782856d6a0ddb10babb76a69a2b837eaddf300020c47155"
+  },
+  {
+    "case": "native-proof-capture",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "push",
+    "width": 240,
+    "hex": "90805ca70002e06713d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f312f612f782f312f2f7061776e2f70726f6f662f312f7e6e65632f32406f109db1f60d077362e57b99154e014f25d6a334482df1ccc4fbc23b71c47b291caa205ab88ebb8fa8f9c17ed5e4eb385f58094bbdabd205e0cb0703edd07e21036f01bcdee0cadc5ae0c2c6d6cae801e093313c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a113c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a11e006beb3bb1631ba7100ffeb09791dceaeb7a4f87f8a5f401680751c2301",
+    "sha256": "b6fcd638f7112ea5fcb6e8273ebd6797557e619a237f3a21e319358d79dd3c37"
+  },
+  {
+    "case": "native-proof-capture",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "push",
+    "width": 240,
+    "hex": "9000497f0002e06713d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f312f612f782f312f2f7061776e2f70726f6f662f312f7e6e65632f32406fea92dabb560924adafab4f73a89b3fd2fc81260a8e13c2c85b9a0d381633bb4e03c4698de109e58822fb71c12154446b5e8df98f966acaf470515cab3c6866056f01bcdee0cadc5ae0c2c6d6cae801e093313c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a11b300c1e23cc4bcddcecce984e851ae9341bdc60fe90163184edac1e9cdb9210ae006beb3bb1631ba7100ffeb09791dceaeb7a4f87f8a5f40168075c81809",
+    "sha256": "ad304a872bd205719a55de1fc3a0b45394e166a4a764cfd41c4305fbf35452bd"
+  },
+  {
+    "case": "native-proof-capture",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "push",
+    "width": 327,
+    "hex": "9021f61b0002e067100100000d50007075626c2f322f612f782f312f2f6d7574682f322f7e62616c7a6f642d746f726c79742d6d61636865622d6669707465732d2d74697070656c2d6d6f726c65672d726f636d75642d6d6f646465732f3213d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f322f612f782f312f2f7061776e2f70726f6f662f322f7e6e65632f32406f7e100d81bc813a11775457af4bda0c124cc42a05117d4f716a76503c4200d6ab7012fdca853eedca16c5e13a74213959c36f7f6a329bbe6fa08a7343ce9e530a6f01bcdee0cadc5ae0c2c6d6cae801e093313c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a11b300c1e23cc4bcddcecce984e851ae9341bdc60fe90163184edac1e9cdb9210ae006beb3bb1631ba7100ffeb09791dceaeb7a4f87f8a5f40168075c81809",
+    "sha256": "043edca500b29099e4a2a77bf3d553fc80e831f726433112d5fdadde43932a2a"
+  },
+  {
+    "case": "native-proof-capture",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "proof-life1",
+    "width": 240,
+    "hex": "90805ca70002e06713d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f312f612f782f312f2f7061776e2f70726f6f662f312f7e6e65632f32406f109db1f60d077362e57b99154e014f25d6a334482df1ccc4fbc23b71c47b291caa205ab88ebb8fa8f9c17ed5e4eb385f58094bbdabd205e0cb0703edd07e21036f01bcdee0cadc5ae0c2c6d6cae801e093313c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a113c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a11e006beb3bb1631ba7100ffeb09791dceaeb7a4f87f8a5f401680751c2301",
+    "sha256": "b6fcd638f7112ea5fcb6e8273ebd6797557e619a237f3a21e319358d79dd3c37"
+  },
+  {
+    "case": "native-proof-capture",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "proof-life2",
+    "width": 240,
+    "hex": "9000497f0002e06713d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f312f612f782f312f2f7061776e2f70726f6f662f312f7e6e65632f32406fea92dabb560924adafab4f73a89b3fd2fc81260a8e13c2c85b9a0d381633bb4e03c4698de109e58822fb71c12154446b5e8df98f966acaf470515cab3c6866056f01bcdee0cadc5ae0c2c6d6cae801e093313c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a11b300c1e23cc4bcddcecce984e851ae9341bdc60fe90163184edac1e9cdb9210ae006beb3bb1631ba7100ffeb09791dceaeb7a4f87f8a5f40168075c81809",
+    "sha256": "ad304a872bd205719a55de1fc3a0b45394e166a4a764cfd41c4305fbf35452bd"
+  },
+  {
+    "case": "native-proof-capture",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "proof-poke",
+    "width": 327,
+    "hex": "9021f61b0002e067100100000d50007075626c2f322f612f782f312f2f6d7574682f322f7e62616c7a6f642d746f726c79742d6d61636865622d6669707465732d2d74697070656c2d6d6f726c65672d726f636d75642d6d6f646465732f3213d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f322f612f782f312f2f7061776e2f70726f6f662f322f7e6e65632f32406f7e100d81bc813a11775457af4bda0c124cc42a05117d4f716a76503c4200d6ab7012fdca853eedca16c5e13a74213959c36f7f6a329bbe6fa08a7343ce9e530a6f01bcdee0cadc5ae0c2c6d6cae801e093313c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a11b300c1e23cc4bcddcecce984e851ae9341bdc60fe90163184edac1e9cdb9210ae006beb3bb1631ba7100ffeb09791dceaeb7a4f87f8a5f40168075c81809",
+    "sha256": "043edca500b29099e4a2a77bf3d553fc80e831f726433112d5fdadde43932a2a"
+  },
+  {
+    "case": "test-nack",
+    "sender": "~nec",
+    "kind": "send",
+    "width": 51,
+    "hex": "001007ad3201000200f988e080b9cf7ab45aa43b4b2d7208981800f4570b6c329037bad5e5074230f20b90b87a907fd5fc2e6d",
+    "sha256": "3450240ced2a328a36f294abbbd30bb2ad907319559c3a98638b251c7450210c"
+  },
+  {
+    "case": "test-nack",
+    "sender": "~bud",
+    "kind": "send",
+    "width": 31,
+    "hex": "04c8c4e9230200010088874b7456341c139d5c2f5459e7ae5f04002c0c3ef6",
+    "sha256": "bad33ea8c1e315f49ebcbab00aafd540efcc617702602accfa427e06ec46854e"
+  },
+  {
+    "case": "test-nack",
+    "sender": "~bud",
+    "kind": "send",
+    "width": 94,
+    "hex": "007099ce230200010076be66582b56353d29b5fffc7f2a8b454300ae80ca24063c8e03a706738f3fbe1b0cb0bff09a67cf8957e233b52ae70e621c75c5c4afb3692a8bae05a7746c709fd26779ec193fba5e9558ada6ff62a8144e91ea2c",
+    "sha256": "528bc4c585627036a26094796ad6b8a938dace0d07765db45ff2313989a375a9"
+  },
+  {
+    "case": "test-nack",
+    "sender": "~nec",
+    "kind": "send",
+    "width": 32,
+    "hex": "04b081c7320100020009fe35f29277096089ce368ab7405c110500b859129dec",
+    "sha256": "2c5fb643e5bc633c76d077e33bd5d1b3df8b389ad564f6e28519cee6c53f7948"
+  },
+  {
+    "case": "test-message-flow",
+    "sender": "~nec",
+    "kind": "send",
+    "width": 51,
+    "hex": "001007ad3201000200f988e080b9cf7ab45aa43b4b2d7208981800f4570b6c329037bad5e5074230f20b90b87a907fd5fc2e6d",
+    "sha256": "3450240ced2a328a36f294abbbd30bb2ad907319559c3a98638b251c7450210c"
+  },
+  {
+    "case": "test-message-flow",
+    "sender": "~bud",
+    "kind": "send",
+    "width": 31,
+    "hex": "0450e99a23020001006d6e079d2d4e48c63c6890883c305585040081190202",
+    "sha256": "906f166a058e001a828465b99c96866bda3feacb3b00c3b4739ba15c0a5bdee8"
+  },
+  {
+    "case": "test-message-flow",
+    "sender": "~bud",
+    "kind": "send",
+    "width": 45,
+    "hex": "00b02cec2302000100a08921cb754ddef7b736b42110d83bcd12003757f2378ef2a5d944496452d4df055787d5",
+    "sha256": "9167c74b0bdfc0490f7308c7a7f67c969df42bfdafacba0941e6fc10b1b4c01c"
+  },
+  {
+    "case": "test-message-flow",
+    "sender": "~nec",
+    "kind": "send",
+    "width": 31,
+    "hex": "04505de532010002006e78b60639e09d4809dc2d94957fbf910400da08e2fe",
+    "sha256": "031a8efac444e81c2eca6ded6bee98f20a6875f9c568ed638ccf98615457e685"
+  },
+  {
+    "case": "test-mage-life1-proof-endpoint-serves-a-life2-gage",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "push",
+    "width": 240,
+    "hex": "9000497f0002e06713d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f312f612f782f312f2f7061776e2f70726f6f662f312f7e6e65632f32406fea92dabb560924adafab4f73a89b3fd2fc81260a8e13c2c85b9a0d381633bb4e03c4698de109e58822fb71c12154446b5e8df98f966acaf470515cab3c6866056f01bcdee0cadc5ae0c2c6d6cae801e093313c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a11b300c1e23cc4bcddcecce984e851ae9341bdc60fe90163184edac1e9cdb9210ae006beb3bb1631ba7100ffeb09791dceaeb7a4f87f8a5f40168075c81809",
+    "sha256": "ad304a872bd205719a55de1fc3a0b45394e166a4a764cfd41c4305fbf35452bd"
+  },
+  {
+    "case": "test-legacy-keys-from-known-mesa-peer-gets-attestation",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "send",
+    "width": 189,
+    "hex": "806133f712d713f23a9c5d6f49f1ff14bf802c006b010001707f14ea7d92f7c6cf349fbea430140aa125567cf6e329a371d4d0590bf41da682d077ea2e3fb636b67809916c549d3170112311eac59d1bc3d0d9735bd12d06d9009830007c328607c152810fdc8a5ea265da4cd9477d108e3f05a8aec2c6dbffd04f95da5225621620589c8798b7db99399d103dca7532a8d7f8213d600cc3493b38bd39374401dcc07776d72246370ee07f3d21afc3d9f59614ff4ff10bc802b00e1933",
+    "sha256": "3238fc4743688abf896a468fcc94a1a9c294e25bd98f96d0c5838ef10fcabde9"
+  },
+  {
+    "case": "test-legacy-keys-bootstrap-completes-a-reciprocal-attestation",
+    "sender": "~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud",
+    "kind": "send",
+    "width": 212,
+    "hex": "801fe0af110201a7caaad13d4e4075d4670e51a7abd713f23a9c5d6f49f1ff14bf802c006b01901f15e21f69c2f2c3d8b4ea1c69a65a070b8baa95379f047faa5a0efcc6862b187083567ffe3c4813bcf1a76dc9edd3f50a9614b46037e1b10bad0967d4b8dee20190690088402c05b7c35ec7ae49cd0a3ecc0921d491ded0e1035936d6e79bfe48159075c293735d7b27ea01ea0554cfa55abe3a487156596c10f079213e101b4bbfba7f38ca3400010201a7caaad13d4e4075d4670e51a7ab7100ffeb09791dceaeb7a4f87f8a5f4016803503",
+    "sha256": "8fb53f257b0a4248b47282f38e2a2f64e6493144bd19388f5ffd51c5e2283a2d"
+  },
+  {
+    "case": "test-legacy-keys-bootstrap-completes-a-reciprocal-attestation",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "send",
+    "width": 220,
+    "hex": "80171fd712d713f23a9c5d6f49f1ff14bf802c006b0201a7caaad13d4e4075d4670e51a7ab01101f12fcfd8c733974fcf4de306fd114d9b739343fc4596371a8cee7dfbb9b405fb053a1cd70dc404f350311b5e5ff71cbb5eb91afca385d0c4453cc4ba21f511e002d07804fc6f020582af0815bd14bb44c9b29fba80fc2f1a700d555d878fb1ffaa9525baa44cc02048bf310f3763b33a713a247b94e06f51a3fa4078c61386907a737e78628801bf8ceee5ac4e8c601fcaf27e47538bbde92e2ff297e015900d6210310201070aaac1adde30454477de61075baca",
+    "sha256": "018e11dfd88aeb741dff6bf4092ca7691f927c2e6aea26f896652b8a3a197b10"
+  },
+  {
+    "case": "test-known-suite-c-simultaneous-rotation-recovers-with-keys",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "send",
+    "width": 221,
+    "hex": "80cfbfe023d713f23a9c5d6f49f1ff14bf802c006bc0dc108ef64ecd5096e695324e3a98ef0190bf53753197f704dd74861d6f385d783db6d4c694edc8f0964f69633d7c74fc5b98476446e420862c6737a4d55ac7d96f5c1746d48174d478162650d96b82e97401307300f8640c0f82a5021fb815bd44cbb499b28ffa201c7f0a505d858db7ffa19f2ab5a54a04b64ef86cef306943e95c2eae5a6a09658409a23171d0d5dd6940bb7203ae4b04b881efecae458c6e1cc0ff7a425e87b3eb2d29fe9fe2179005601d3a0001c0dc108ef64ecd5096e695324e3a98ef48",
+    "sha256": "0bec99425f5cd9c6f11d864b4aaf618455a91b8d855cd340e9fb9f7bbfe2eeff"
+  },
+  {
+    "case": "test-known-suite-c-simultaneous-rotation-recovers-with-keys",
+    "sender": "~polfep-rocmeg-forpyx-nalryg--ritlyd-panweg-sopryp-riswed",
+    "kind": "send",
+    "width": 221,
+    "hex": "808781c823c0dc108ef64ecd5096e695324e3a98efd713f23a9c5d6f49f1ff14bf802c006b01901f5f390ad9ca2586112ef188cb4c9488bae64fa02f70bc60d25bf16a8817469eb022d5a823b64fcf6b2a1d0c25b1153499cd3c639a70c4260ab38f7bb7c63fcf01307300f8648caefe9e5b636d6f9ffd495956056dfd8bb84a288f275ebe748a1b0bcc1a482804cae80da8b8c25410c9e298d65d1edaf20ea2ea358964a730d073b77193c37c02b881efecae458c6e1c8000606e08477ba766284bf34a19271dccf7d001fcaf27e47538bbde92e2ff297e015900d648",
+    "sha256": "d3f2e54de94c25c381d292bfa6f482ea5cad02bf8503ca2499a608588fe2c682"
+  },
+  {
+    "case": "test-known-suite-c-simultaneous-rotation-recovers-with-keys",
+    "sender": "~polfep-rocmeg-forpyx-nalryg--ritlyd-panweg-sopryp-riswed",
+    "kind": "send",
+    "width": 221,
+    "hex": "803768bc13c0dc108ef64ecd5096e695324e3a98efd713f23a9c5d6f49f1ff14bf802c006b0190bf741586487aad278b4ae475bc70152faba126d98a71fba82b9704ca003f6d59afac57cd116d3518b5adb70eb73d0f67c5a27667cb2223517b2ebfb132f766d201d07200f8648caefe9e5b636d6f9ffd495956056dfd8bb84a288f275ebe748a1b0bcc1a482804cae80da8b8c25410c9e298d65d1edaf20ea2ea358964a730d073b77193c37c02b881efecae458c6e1c8000606e08477ba766284bf34a19271dccf7d001fcaf27e47538bbde92e2ff297e015900d60c",
+    "sha256": "15498c24827da832e7a565edb9cba58d4708d967bd0168fb2a4426c4196ad719"
+  },
+  {
+    "case": "test-known-suite-c-simultaneous-rotation-recovers-with-keys",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "send",
+    "width": 221,
+    "hex": "8067d98313d713f23a9c5d6f49f1ff14bf802c006bc0dc108ef64ecd5096e695324e3a98ef01903f2d35b9e52b0b6ba6599f2a1594a43f0dbcb33e04c139f322b8eeb89aa8e6514fac6a0ad285c40a48eaa4327660e88e5c2e2e42f3710074bcb563418de924b901d07200f8640c0f82a5021fb815bd44cbb499b28ffa201c7f0a505d858db7ffa19f2ab5a54a04b64ef86cef306943e95c2eae5a6a09658409a23171d0d5dd6940bb7203ae4b04b881efecae458c6e1cc0ff7a425e87b3eb2d29fe9fe2179005601d3a0001c0dc108ef64ecd5096e695324e3a98ef0c",
+    "sha256": "bbdaefb0f85600bc6b5d85123ee31bc9a413e37bc8af7a4558812d65c88b3f9c"
+  },
+  {
+    "case": "test-heer-suite-c-suspended-domain-fails-closed",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "push",
+    "width": 240,
+    "hex": "90805ca70002e06713d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f312f612f782f312f2f7061776e2f70726f6f662f312f7e6e65632f32406f109db1f60d077362e57b99154e014f25d6a334482df1ccc4fbc23b71c47b291caa205ab88ebb8fa8f9c17ed5e4eb385f58094bbdabd205e0cb0703edd07e21036f01bcdee0cadc5ae0c2c6d6cae801e093313c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a113c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a11e006beb3bb1631ba7100ffeb09791dceaeb7a4f87f8a5f401680751c2301",
+    "sha256": "b6fcd638f7112ea5fcb6e8273ebd6797557e619a237f3a21e319358d79dd3c37"
+  },
+  {
+    "case": "test-heer-suite-c-rejects-an-ineligible-sponsor",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "push",
+    "width": 240,
+    "hex": "90805ca70002e06713d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f312f612f782f312f2f7061776e2f70726f6f662f312f7e6e65632f32406f109db1f60d077362e57b99154e014f25d6a334482df1ccc4fbc23b71c47b291caa205ab88ebb8fa8f9c17ed5e4eb385f58094bbdabd205e0cb0703edd07e21036f01bcdee0cadc5ae0c2c6d6cae801e093313c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a113c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a11e006beb3bb1631ba7100ffeb09791dceaeb7a4f87f8a5f401680751c2301",
+    "sha256": "b6fcd638f7112ea5fcb6e8273ebd6797557e619a237f3a21e319358d79dd3c37"
+  },
+  {
+    "case": "test-heer-suite-c-name-is-always-bound",
+    "sender": "~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud",
+    "kind": "push",
+    "width": 240,
+    "hex": "9040929f0002e067130201a7caaad13d4e4075d4670e51a7ab000d21007075626c2f312f612f782f312f2f7061776e2f70726f6f662f312f7e6e65632f32406f88d4ad74ab46526465af8443fafeeced18ca16811d70f09e283bf58839d538cffb24dcd1603b3212770ff0d1fd7f703910ad4f77887ab8a4b79ab7955d7ff70b6f01bcdee0cadc5ae0c2c6d6cae801e093313c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a113c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a11e006beb3bb1631ba71000204024e9555a37b9c80eaa8cf1ca24e57e31809",
+    "sha256": "477b3552784cbe8a9a3b261b17061e403c3a6322b6fe28402af399569d69a91d"
+  },
+  {
+    "case": "test-heer-suite-c-malformed-dose-fails-closed",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "push",
+    "width": 240,
+    "hex": "90805ca70002e06713d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f312f612f782f312f2f7061776e2f70726f6f662f312f7e6e65632f32406f109db1f60d077362e57b99154e014f25d6a334482df1ccc4fbc23b71c47b291caa205ab88ebb8fa8f9c17ed5e4eb385f58094bbdabd205e0cb0703edd07e21036f01bcdee0cadc5ae0c2c6d6cae801e093313c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a113c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a11e006beb3bb1631ba7100ffeb09791dceaeb7a4f87f8a5f401680751c2301",
+    "sha256": "b6fcd638f7112ea5fcb6e8273ebd6797557e619a237f3a21e319358d79dd3c37"
+  },
+  {
+    "case": "test-heer-suite-c-live-domain-routes-current-key",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "push",
+    "width": 240,
+    "hex": "9000497f0002e06713d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f312f612f782f312f2f7061776e2f70726f6f662f312f7e6e65632f32406fea92dabb560924adafab4f73a89b3fd2fc81260a8e13c2c85b9a0d381633bb4e03c4698de109e58822fb71c12154446b5e8df98f966acaf470515cab3c6866056f01bcdee0cadc5ae0c2c6d6cae801e093313c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a11b300c1e23cc4bcddcecce984e851ae9341bdc60fe90163184edac1e9cdb9210ae006beb3bb1631ba7100ffeb09791dceaeb7a4f87f8a5f40168075c81809",
+    "sha256": "ad304a872bd205719a55de1fc3a0b45394e166a4a764cfd41c4305fbf35452bd"
+  },
+  {
+    "case": "test-heer-suite-c-life2-needs-agent",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "push",
+    "width": 240,
+    "hex": "9000497f0002e06713d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f312f612f782f312f2f7061776e2f70726f6f662f312f7e6e65632f32406fea92dabb560924adafab4f73a89b3fd2fc81260a8e13c2c85b9a0d381633bb4e03c4698de109e58822fb71c12154446b5e8df98f966acaf470515cab3c6866056f01bcdee0cadc5ae0c2c6d6cae801e093313c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a11b300c1e23cc4bcddcecce984e851ae9341bdc60fe90163184edac1e9cdb9210ae006beb3bb1631ba7100ffeb09791dceaeb7a4f87f8a5f40168075c81809",
+    "sha256": "ad304a872bd205719a55de1fc3a0b45394e166a4a764cfd41c4305fbf35452bd"
+  },
+  {
+    "case": "test-heer-suite-c-life1-falls-back-without-agent",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "push",
+    "width": 240,
+    "hex": "90805ca70002e06713d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f312f612f782f312f2f7061776e2f70726f6f662f312f7e6e65632f32406f109db1f60d077362e57b99154e014f25d6a334482df1ccc4fbc23b71c47b291caa205ab88ebb8fa8f9c17ed5e4eb385f58094bbdabd205e0cb0703edd07e21036f01bcdee0cadc5ae0c2c6d6cae801e093313c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a113c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a11e006beb3bb1631ba7100ffeb09791dceaeb7a4f87f8a5f401680751c2301",
+    "sha256": "b6fcd638f7112ea5fcb6e8273ebd6797557e619a237f3a21e319358d79dd3c37"
+  },
+  {
+    "case": "test-heer-rejects-a-raw-malformed-suite-c-pass",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "push",
+    "width": 165,
+    "hex": "902094110002e06713d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f312f612f782f312f2f7061776e2f70726f6f662f312f7e6e65632f3240244215131f21ab05738e21f1a36b7466616be075dce4e0e563964ff8b423519c140bea1ec092b997f68de9c4e4ed2592c361306a6a9950bcdd810278769d63a3022401bcdee0cadc5ae0c2c6d6cae8c1c701fcaf27e47538bbde92e2ff297e015900d6718c04",
+    "sha256": "5c551537d178efda946643a22a9dc2131b357d299f8035a1cbd2ccddfeb3c9ac"
+  },
+  {
+    "case": "test-heer-proof-poke-reverifies-a-snobbed-known-chum",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "push",
+    "width": 327,
+    "hex": "9021f61b0002e067100100000d50007075626c2f322f612f782f312f2f6d7574682f322f7e62616c7a6f642d746f726c79742d6d61636865622d6669707465732d2d74697070656c2d6d6f726c65672d726f636d75642d6d6f646465732f3213d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f322f612f782f312f2f7061776e2f70726f6f662f322f7e6e65632f32406f7e100d81bc813a11775457af4bda0c124cc42a05117d4f716a76503c4200d6ab7012fdca853eedca16c5e13a74213959c36f7f6a329bbe6fa08a7343ce9e530a6f01bcdee0cadc5ae0c2c6d6cae801e093313c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a11b300c1e23cc4bcddcecce984e851ae9341bdc60fe90163184edac1e9cdb9210ae006beb3bb1631ba7100ffeb09791dceaeb7a4f87f8a5f40168075c81809",
+    "sha256": "043edca500b29099e4a2a77bf3d553fc80e831f726433112d5fdadde43932a2a"
+  },
+  {
+    "case": "test-heer-proof-page-reverifies-a-snobbed-known-chum",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "push",
+    "width": 240,
+    "hex": "9000497f0002e06713d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f312f612f782f312f2f7061776e2f70726f6f662f312f7e6e65632f32406fea92dabb560924adafab4f73a89b3fd2fc81260a8e13c2c85b9a0d381633bb4e03c4698de109e58822fb71c12154446b5e8df98f966acaf470515cab3c6866056f01bcdee0cadc5ae0c2c6d6cae801e093313c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a11b300c1e23cc4bcddcecce984e851ae9341bdc60fe90163184edac1e9cdb9210ae006beb3bb1631ba7100ffeb09791dceaeb7a4f87f8a5f40168075c81809",
+    "sha256": "ad304a872bd205719a55de1fc3a0b45394e166a4a764cfd41c4305fbf35452bd"
+  },
+  {
+    "case": "test-heer-page-snubbed-on-an-allow-list",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "push",
+    "width": 240,
+    "hex": "90805ca70002e06713d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f312f612f782f312f2f7061776e2f70726f6f662f312f7e6e65632f32406f109db1f60d077362e57b99154e014f25d6a334482df1ccc4fbc23b71c47b291caa205ab88ebb8fa8f9c17ed5e4eb385f58094bbdabd205e0cb0703edd07e21036f01bcdee0cadc5ae0c2c6d6cae801e093313c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a113c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a11e006beb3bb1631ba7100ffeb09791dceaeb7a4f87f8a5f401680751c2301",
+    "sha256": "b6fcd638f7112ea5fcb6e8273ebd6797557e619a237f3a21e319358d79dd3c37"
+  },
+  {
+    "case": "test-heer-page-from-unsnubbed-comet-attests",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "push",
+    "width": 240,
+    "hex": "90805ca70002e06713d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f312f612f782f312f2f7061776e2f70726f6f662f312f7e6e65632f32406f109db1f60d077362e57b99154e014f25d6a334482df1ccc4fbc23b71c47b291caa205ab88ebb8fa8f9c17ed5e4eb385f58094bbdabd205e0cb0703edd07e21036f01bcdee0cadc5ae0c2c6d6cae801e093313c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a113c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a11e006beb3bb1631ba7100ffeb09791dceaeb7a4f87f8a5f401680751c2301",
+    "sha256": "b6fcd638f7112ea5fcb6e8273ebd6797557e619a237f3a21e319358d79dd3c37"
+  },
+  {
+    "case": "test-heer-page-from-snubbed-comet-is-dropped",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "push",
+    "width": 240,
+    "hex": "90805ca70002e06713d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f312f612f782f312f2f7061776e2f70726f6f662f312f7e6e65632f32406f109db1f60d077362e57b99154e014f25d6a334482df1ccc4fbc23b71c47b291caa205ab88ebb8fa8f9c17ed5e4eb385f58094bbdabd205e0cb0703edd07e21036f01bcdee0cadc5ae0c2c6d6cae801e093313c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a113c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a11e006beb3bb1631ba7100ffeb09791dceaeb7a4f87f8a5f401680751c2301",
+    "sha256": "b6fcd638f7112ea5fcb6e8273ebd6797557e619a237f3a21e319358d79dd3c37"
+  },
+  {
+    "case": "test-heer-page-allowed-on-an-allow-list",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "push",
+    "width": 240,
+    "hex": "90805ca70002e06713d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f312f612f782f312f2f7061776e2f70726f6f662f312f7e6e65632f32406f109db1f60d077362e57b99154e014f25d6a334482df1ccc4fbc23b71c47b291caa205ab88ebb8fa8f9c17ed5e4eb385f58094bbdabd205e0cb0703edd07e21036f01bcdee0cadc5ae0c2c6d6cae801e093313c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a113c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a11e006beb3bb1631ba7100ffeb09791dceaeb7a4f87f8a5f401680751c2301",
+    "sha256": "b6fcd638f7112ea5fcb6e8273ebd6797557e619a237f3a21e319358d79dd3c37"
+  },
+  {
+    "case": "test-heer-legacy-signer-rejects-later-lives",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "push",
+    "width": 240,
+    "hex": "90f061fd0002e06713d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f312f612f782f312f2f7061776e2f70726f6f662f312f7e6e65632f32406fc7a184a01a6d32ea27958565fe0b04b0b9eb903bb225b1de02d1a4be3d5df5ff7281f0660cc927c61d5fa6ae58e2c8d4d55c4e9feb7eebe660802b35decbaa0d6f01bcdee0cadc5ae0c2c6d6cae801e093313c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a11b300c1e23cc4bcddcecce984e851ae9341bdc60fe90163184edac1e9cdb9210ae006beb3bb1631ba7100ffeb09791dceaeb7a4f87f8a5f40168075c81809",
+    "sha256": "d5ab38b13a53bf71e349313afbdb747397bc88e0f2a1044f040ac3abdca5ec70"
+  },
+  {
+    "case": "test-heer-legacy-life1-requires-domain-verdict",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "push",
+    "width": 240,
+    "hex": "902089740002e06713d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f312f612f782f312f2f7061776e2f70726f6f662f312f7e6e65632f32406fd991ffa196179c654b85163aea0848c9cbffc5ae1252c43aa518eec9dadbbca47e62892d80f9884b32a3dbe3f07bfda5860556fb60d179213f6ea0655f931b056f01bcdee0cadc5ae0c2c6d6cae801e093313c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a11b300c1e23cc4bcddcecce984e851ae9341bdc60fe90163184edac1e9cdb9210ae006beb3bb1631ba7100ffeb09791dceaeb7a4f87f8a5f401680751c2301",
+    "sha256": "552f75316011a6cd55a3dc2f3548e737b215c829d8c90c30bf7a359d00344265"
+  },
+  {
+    "case": "test-heer-legacy-life1-rejects-unavailable-domains",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "push",
+    "width": 240,
+    "hex": "902089740002e06713d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f312f612f782f312f2f7061776e2f70726f6f662f312f7e6e65632f32406fd991ffa196179c654b85163aea0848c9cbffc5ae1252c43aa518eec9dadbbca47e62892d80f9884b32a3dbe3f07bfda5860556fb60d179213f6ea0655f931b056f01bcdee0cadc5ae0c2c6d6cae801e093313c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a11b300c1e23cc4bcddcecce984e851ae9341bdc60fe90163184edac1e9cdb9210ae006beb3bb1631ba7100ffeb09791dceaeb7a4f87f8a5f401680751c2301",
+    "sha256": "552f75316011a6cd55a3dc2f3548e737b215c829d8c90c30bf7a359d00344265"
+  },
+  {
+    "case": "test-heer-drops-a-one-fragment-gage-cue-bomb",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "push",
+    "width": 240,
+    "hex": "90805ca70002e06713d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f312f612f782f312f2f7061776e2f70726f6f662f312f7e6e65632f32406f109db1f60d077362e57b99154e014f25d6a334482df1ccc4fbc23b71c47b291caa205ab88ebb8fa8f9c17ed5e4eb385f58094bbdabd205e0cb0703edd07e21036f01bcdee0cadc5ae0c2c6d6cae801e093313c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a113c08960a7ce056f4122dd366ca3eea8370fc2940751536defe877eaad4962a11e006beb3bb1631ba7100ffeb09791dceaeb7a4f87f8a5f401680751c2301",
+    "sha256": "b6fcd638f7112ea5fcb6e8273ebd6797557e619a237f3a21e319358d79dd3c37"
+  },
+  {
+    "case": "test-heer-drops-a-malformed-inner-open-packet",
+    "sender": "~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes",
+    "kind": "push",
+    "width": 144,
+    "hex": "90a05ee40002e06713d713f23a9c5d6f49f1ff14bf802c006b000d21007075626c2f312f612f782f312f2f7061776e2f70726f6f662f312f7e6e65632f32400f78210380cccfb8695837a0b0a4367664df881bf435e82f5ec285aa42fc766a201c8e9561981f5779969bbf8f98c73f24072ba6d3a6e9358eadd93ea2f9bee7050f01bcdee0cadc5ae0c2c6d6cae85015",
+    "sha256": "b645cc4d38154123baf0dff665a0f919f8c1877e653d11e96560eeec593c8e16"
+  },
+  {
+    "case": "test-hear-shut-packet-from-known-comet",
+    "sender": "~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud",
+    "kind": "send",
+    "width": 65,
+    "hex": "806959cb210201a7caaad13d4e4075d4670e51a7ab01001fcfca695d4d9bc74bec91440c004fb418002c1d909ae1b49d8ccec1d35e8c2f543e216b5d0bcf88c88f",
+    "sha256": "7df087648bb799759cface1c5d95df4e09b4a448a5ce1900d922291d6004a172"
+  },
+  {
+    "case": "test-fine-request",
+    "sender": "~nec",
+    "kind": "send",
+    "width": 40,
+    "hex": "08185e903201000200000100000018002f7e6275642f302f332f632f7a2f312f6b6964732f737973",
+    "sha256": "f59a6a9ec8bff0da8916bfce8844dbbe8ff9c94eee7d14863c0a227f3b45756c"
+  },
+  {
+    "case": "test-fief-routes-a-sponsored-peer",
+    "sender": "~nec",
+    "kind": "send",
+    "width": 65,
+    "hex": "00eeb0bb1201000201a7caaad13d4e4075d4670e51a7ab9b3e8d99a28208b30b74764fad49709b1800e0968b62ca96f70bf994ad785eb1115b27bf331347876d3f",
+    "sha256": "4ae55aa03043f76b369c8eb052e0c28bb8d160d28a290c1f35f089d7a6f452fb"
+  },
+  {
+    "case": "test-fief-routes-a-sponsored-peer",
+    "sender": "~nec",
+    "kind": "send",
+    "width": 65,
+    "hex": "00eeb0bb1201000201a7caaad13d4e4075d4670e51a7ab9b3e8d99a28208b30b74764fad49709b1800e0968b62ca96f70bf994ad785eb1115b27bf331347876d3f",
+    "sha256": "4ae55aa03043f76b369c8eb052e0c28bb8d160d28a290c1f35f089d7a6f452fb"
+  },
+  {
+    "case": "test-dangling-bone",
+    "sender": "~nec",
+    "kind": "send",
+    "width": 51,
+    "hex": "001007ad3201000200f988e080b9cf7ab45aa43b4b2d7208981800f4570b6c329037bad5e5074230f20b90b87a907fd5fc2e6d",
+    "sha256": "3450240ced2a328a36f294abbbd30bb2ad907319559c3a98638b251c7450210c"
+  },
+  {
+    "case": "test-comet-sends-mesa",
+    "sender": "~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud",
+    "kind": "push",
+    "width": 449,
+    "hex": "9051ee390002e067100200000d01016368756d2f332f7e626f7372796d2d706f6477796c2d6d61676e65732d6461637279732d2d70616e6465722d6861626c65702d6d617372796d2d6d61726275642f312f3076706d2e34763072732e6b6c6172362e31306275622e33326234392e33626f66382e65753375692e63656f68332e366d746c702e766f7268362e6e36686d382e38317434622e6b71756a6e2e62746c366d2e7172646e612e6834726a732e3566646f662e366b6f70312e6a343275662e7176696e342e626c6e6d752e38616f706c2e72346a68302e35363864662e70326c6e622e357666696f2e71703969352e6e357470352e67643461702e316a7038342e756f636d702e3369676f61130201a7caaad13d4e4075d4670e51a7ab000d68006368756d2f312f7e6275642f332f3076646a61692e716f6c36632e6a6e38326c2e6b377463322e666d656d732e7376646d372e71656c64752e69356262312e6b356c36302e626b396e672e62737367752e69376164742e6a67726c6e2e38656872612e336c383035482197a788a176ecc805a76f01c75ab4651821c34fdb5e156fa2f73e1b204647f6f8e4c9b992629c6bf3a70cc189c05ec6a59001",
+    "sha256": "ee1756732c17934cec6070c494cadafd7ee851dcb2bb34623afd5905cb3bba68"
+  },
+  {
+    "case": "test-comet-sends-mesa",
+    "sender": "~bud",
+    "kind": "push",
+    "width": 62,
+    "hex": "10e1d4160002e067130201a7caaad13d4e4075d4670e51a7ab000d21007075626c2f312f612f782f312f2f7061776e2f70726f6f662f312f7e6275642f33",
+    "sha256": "80277a82cd2205a0d12f282f559d2f857a9f3a17e06c4e4042e892845a7166d0"
+  },
+  {
+    "case": "test-comet-sends-ames",
+    "sender": "~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud",
+    "kind": "send",
+    "width": 65,
+    "hex": "801100a3310201a7caaad13d4e4075d4670e51a7ab0200416c4a8b26b4e1e4c7ebd94dde282b9f18003a11b586cc9ef9dde76c40e5cf57e963f9073af4fa837add",
+    "sha256": "55291e2002f54d489d6eef85d012f983132c4e9517c4e49bea042ec39312cb3d"
+  },
+  {
+    "case": "test-comet-message-flow",
+    "sender": "~nec",
+    "kind": "send",
+    "width": 27,
+    "hex": "00aed8f31201000201a7caaad13d4e4075d4670e51a7ab6b657973",
+    "sha256": "8eb4de94a7dc6c1f60aa9125163c5050c4374db4fc595884ab13555a83455dc8"
+  },
+  {
+    "case": "test-comet-message-flow",
+    "sender": "~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud",
+    "kind": "send",
+    "width": 181,
+    "hex": "80c17190210201a7caaad13d4e4075d4670e51a7ab010001701fb7698f2e088f0c19f7d8a9b9b25e3c54f963d65a92054f3510c61620b7d18e5b59bb49f7a9eaad2c1745a7624358d586ecbc79f99f731dd51a41f76ab6a7bc00582c0044209682db61af63d7a466051fe68410ea486fe8f0812c1bebf34d7fa40ac83ae1c9b9aebd13f500f502aae7522d5f1da438ab2c3608f8bc101f888da55fdd3f1c651a800081805365d5e81e27a03aea3387a8d3d5384602",
+    "sha256": "caa8112e3cdb344d65c7601aa308489218f05437f8fba64fefaa9d7b17e52fa8"
+  },
+  {
+    "case": "test-comet-message-flow",
+    "sender": "~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud",
+    "kind": "send",
+    "width": 180,
+    "hex": "80716886110201a7caaad13d4e4075d4670e51a7ab010001707f1e4dfde05fd938d4022db4b234a05e2da7f38f0b40e946cc05e42b2aeef0ed96aee7e0b0ff0c277b308c6bd3ca4961497eceff115a3c897d88f4add0c5d5e900282c0044209682db61af63d7a466051fe68410ea486fe8f0812c1bebf34d7fa40ac83ae1c9b9aebd13f500f502aae7522d5f1da438ab2c3608f8bc101f888da55fdd3f1c651a800081805365d5e81e27a03aea3387a8d3d53866",
+    "sha256": "060b5adb7fc604933568355b448564b4c97efe3fe095b1c926eccdd56f4c05cf"
+  },
+  {
+    "case": "test-comet-message-flow",
+    "sender": "~nec",
+    "kind": "send",
+    "width": 65,
+    "hex": "00aebbc81201000201a7caaad13d4e4075d4670e51a7abdb98470610f3db187bc98bd855df1080180036f39ea0fc6c3f2fb1e28bebb2f45bf66e6e377cc37dff30",
+    "sha256": "3356ff7d8154419c16f991cd06ebced2c819de558b7fb198a85354157ff86518"
+  },
+  {
+    "case": "test-comet-message-flow",
+    "sender": "~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud",
+    "kind": "send",
+    "width": 45,
+    "hex": "8459dacf210201a7caaad13d4e4075d4670e51a7ab01008449c070e3b3b28c03c09c56590f2393040006f99a38",
+    "sha256": "ac4809f9d82866bb7b2c4cfd6d7380d31908eed50ee2f645ba9c7b0eac2e5b89"
+  },
+  {
+    "case": "test-comet-message-flow",
+    "sender": "~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud",
+    "kind": "send",
+    "width": 61,
+    "hex": "80e18ffe210201a7caaad13d4e4075d4670e51a7ab01003dc7227c554199df37f04d63392cbd48140017c6c072d9cf353b91c90c0e53d3b234b00510ad",
+    "sha256": "e284147e87566643abcd53f369ebde9b72e26384f0b7b7d23682b38198c40200"
+  },
+  {
+    "case": "test-comet-message-flow",
+    "sender": "~nec",
+    "kind": "send",
+    "width": 45,
+    "hex": "041e87b41201000201a7caaad13d4e4075d4670e51a7aba268b9738fdafd69b7115455e730c8ed0400cb24c56e",
+    "sha256": "86b1ada427abb595b71d2ff67fb442c77f027f93a0046bc89b6dc06e3cef1de1"
+  },
+  {
+    "case": "test-comet-comet-message-flow",
+    "sender": "~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud",
+    "kind": "send",
+    "width": 41,
+    "hex": "805f0893110201a7caaad13d4e4075d4670e51a7ab02015ab15363ef621877bece29f5741d6b657973",
+    "sha256": "e62c0d3a6eadf226e7ae93daf89011a62b7ccbe3731641ed45302d1ac4540932"
+  },
+  {
+    "case": "test-comet-comet-message-flow",
+    "sender": "~togdut-rosled-fadlev-siddys--botmun-wictev-sapfus-marbud",
+    "kind": "send",
+    "width": 211,
+    "hex": "801f39f51102015ab15363ef621877bece29f5741d0201a7caaad13d4e4075d4670e51a7ab01901fd40b2868496adccd73a729672d56050977bb568806f4f9648448ebb41a72ee9d1e155eb2d7813fa78f09c702e3947b3b1510287c45f19eb14bf369489840e1015069008840cc017597876437e6805edba2bd77d5818bc0008b10b16b2feedec43fbfc9f35d21ce96e3cd3eb099b77fad6d8b9b2658551effe29ec1d315f4e2f5e8ac4a338f3d80bd408056ecd4d8bb18c69daf734a3d5d8f0310201070aaac1adde30454477de61075baca",
+    "sha256": "c85697e1d7f4aa51a9d1943d5af901f2d84a1725a980fb7a153fee8831bd6e18"
+  },
+  {
+    "case": "test-comet-comet-message-flow",
+    "sender": "~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud",
+    "kind": "send",
+    "width": 211,
+    "hex": "803705a8110201a7caaad13d4e4075d4670e51a7ab02015ab15363ef621877bece29f5741d0170bff38a21bb43250fcd53157e9094e53875fd73f1db42184a7f51d0bd94218ef5ad8e6b2e6fc98154c6f226b03b10e4201bd0aef1da6c5f3313686193a535fad200a8340044209682db61af63d7a466051fe68410ea486fe8f0812c1bebf34d7fa40ac83ae1c9b9aebd13f500f502aae7522d5f1da438ab2c3608f8bc101f888da55fdd3f1c651a800081805365d5e81e27a03aea3387a8d3d53880bd408056ecd4d8bb18c69daf734a3d5d67",
+    "sha256": "06d3153f5ebc0ba7aea603952841371e569c4a38ec838cd574ea3ebc2b856746"
+  },
+  {
+    "case": "test-comet-comet-message-flow",
+    "sender": "~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud",
+    "kind": "send",
+    "width": 79,
+    "hex": "802f9397110201a7caaad13d4e4075d4670e51a7ab02015ab15363ef621877bece29f5741df7a9e819abd775d9a8815c9a1262dae21800f9476b63af3c3a19ae4cc33c0bd7b2d564d09c3459b83236",
+    "sha256": "2c40e8f09177ae0e04f8baddaba2c4eec916aab6ef862c433bf2eb04f49fe3bf"
+  },
+  {
+    "case": "test-comet-comet-message-flow",
+    "sender": "~togdut-rosled-fadlev-siddys--botmun-wictev-sapfus-marbud",
+    "kind": "send",
+    "width": 211,
+    "hex": "801f39f51102015ab15363ef621877bece29f5741d0201a7caaad13d4e4075d4670e51a7ab01901fd40b2868496adccd73a729672d56050977bb568806f4f9648448ebb41a72ee9d1e155eb2d7813fa78f09c702e3947b3b1510287c45f19eb14bf369489840e1015069008840cc017597876437e6805edba2bd77d5818bc0008b10b16b2feedec43fbfc9f35d21ce96e3cd3eb099b77fad6d8b9b2658551effe29ec1d315f4e2f5e8ac4a338f3d80bd408056ecd4d8bb18c69daf734a3d5d8f0310201070aaac1adde30454477de61075baca",
+    "sha256": "c85697e1d7f4aa51a9d1943d5af901f2d84a1725a980fb7a153fee8831bd6e18"
+  },
+  {
+    "case": "test-comet-comet-message-flow",
+    "sender": "~togdut-rosled-fadlev-siddys--botmun-wictev-sapfus-marbud",
+    "kind": "send",
+    "width": 59,
+    "hex": "849fd2ad1102015ab15363ef621877bece29f5741d0201a7caaad13d4e4075d4670e51a7abe79e7dd96fc5febbc6c2f7121fca4ef904005e84a1f1",
+    "sha256": "d042f488ec6edb7aeac89e85eb20573fce37ddb2d374551d7218e86aa2d9ff93"
+  },
+  {
+    "case": "test-comet-comet-message-flow",
+    "sender": "~togdut-rosled-fadlev-siddys--botmun-wictev-sapfus-marbud",
+    "kind": "send",
+    "width": 75,
+    "hex": "8047d0b71102015ab15363ef621877bece29f5741d0201a7caaad13d4e4075d4670e51a7ab06e0db9fc22c76688a65a765f1c0359f1400faa67d12994dbf1c12dc50a1d2c4f106a61fc562",
+    "sha256": "7eaf46c4ec06be409ec2fe8d87e1321e0b048946b79b34dc10263d0a84785036"
+  },
+  {
+    "case": "test-comet-comet-message-flow",
+    "sender": "~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud",
+    "kind": "send",
+    "width": 59,
+    "hex": "841f7fc9110201a7caaad13d4e4075d4670e51a7ab02015ab15363ef621877bece29f5741db230f8431961a45cf6eb443c557aae0e04008375de37",
+    "sha256": "fdf4b3aa52317484134b087caa258809d770b0c5f865f347f4372cbb6ff1f165"
+  },
+  {
+    "case": "test-comet-bunt-sends-ames",
+    "sender": "~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud",
+    "kind": "send",
+    "width": 65,
+    "hex": "801100a3310201a7caaad13d4e4075d4670e51a7ab0200416c4a8b26b4e1e4c7ebd94dde282b9f18003a11b586cc9ef9dde76c40e5cf57e963f9073af4fa837add",
+    "sha256": "55291e2002f54d489d6eef85d012f983132c4e9517c4e49bea042ec39312cb3d"
+  },
+  {
+    "case": "test-boon-lost",
+    "sender": "~nec",
+    "kind": "send",
+    "width": 51,
+    "hex": "001007ad3201000200f988e080b9cf7ab45aa43b4b2d7208981800f4570b6c329037bad5e5074230f20b90b87a907fd5fc2e6d",
+    "sha256": "3450240ced2a328a36f294abbbd30bb2ad907319559c3a98638b251c7450210c"
+  },
+  {
+    "case": "test-boon-lost",
+    "sender": "~bud",
+    "kind": "send",
+    "width": 31,
+    "hex": "0450e99a23020001006d6e079d2d4e48c63c6890883c305585040081190202",
+    "sha256": "906f166a058e001a828465b99c96866bda3feacb3b00c3b4739ba15c0a5bdee8"
+  },
+  {
+    "case": "test-boon-lost",
+    "sender": "~bud",
+    "kind": "send",
+    "width": 45,
+    "hex": "00b02cec2302000100a08921cb754ddef7b736b42110d83bcd12003757f2378ef2a5d944496452d4df055787d5",
+    "sha256": "9167c74b0bdfc0490f7308c7a7f67c969df42bfdafacba0941e6fc10b1b4c01c"
+  },
+  {
+    "case": "test-ames-flow-with-new-rift",
+    "sender": "~nec",
+    "kind": "send",
+    "width": 51,
+    "hex": "001007ad3201000200f988e080b9cf7ab45aa43b4b2d7208981800f4570b6c329037bad5e5074230f20b90b87a907fd5fc2e6d",
+    "sha256": "3450240ced2a328a36f294abbbd30bb2ad907319559c3a98638b251c7450210c"
+  },
+  {
+    "case": "test-ames-flow-with-new-rift",
+    "sender": "~bud",
+    "kind": "send",
+    "width": 31,
+    "hex": "0450e99a23020001006d6e079d2d4e48c63c6890883c305585040081190202",
+    "sha256": "906f166a058e001a828465b99c96866bda3feacb3b00c3b4739ba15c0a5bdee8"
+  },
+  {
+    "case": "test-ames-flow-with-new-rift",
+    "sender": "~bud",
+    "kind": "send",
+    "width": 46,
+    "hex": "00d8c8e8230200010087680fb5836d0b70deed31a53fbdbf0313005899b586754f460cd275ca2727c16cdacd6ea5",
+    "sha256": "bb4824a0d126b82c5d949b2edd44924562f157592e72b771dcc93b388afe6ccd"
+  },
+  {
+    "case": "test-ames-flow-with-new-rift",
+    "sender": "~nec",
+    "kind": "send",
+    "width": 31,
+    "hex": "04505de532010002006e78b60639e09d4809dc2d94957fbf910400da08e2fe",
+    "sha256": "031a8efac444e81c2eca6ded6bee98f20a6875f9c568ed638ccf98615457e685"
+  }
+]

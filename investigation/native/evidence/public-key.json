@@ -1,0 +1,7 @@
+{
+  "identity": "~zod",
+  "life": 1,
+  "suite": "b",
+  "fixture": "fresh fake ship; public test key",
+  "signing_key_le_hex": "7e622a051a28c358251ab89f5489be0e4efa178f06c2880efffa27935cf370a8"
+}

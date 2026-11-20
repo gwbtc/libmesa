@@ -1,0 +1,77 @@
+{
+  "result": "incomplete; no live suite-C admission or delivery established",
+  "bootstrap": "two deterministic suite-C identities; empty galaxy map and loopback gateway; no real ledger verifier",
+  "first_attempt": "empty turf rejected by Jael; both processes failed boot",
+  "second_attempt": "nonempty native-test.invalid turf; both processes booted",
+  "provider_setup": "gw-btc fixture conflicted with existing desk reservation; no provider acceptance established",
+  "direct_route_source_finding": "sy-dear ignores unknown peers; native mDNS forwards through sy-dear",
+  "next_experiment": "isolate fixture domain; initiate with explicit UDP destination; capture proof response routes, verifier verdict, default and Mesa per-peer modes",
+  "fixture_identities": [
+    {
+      "label": "a",
+      "name": "~pardyt-polhes-locsup-pacres--fitres-darsed-sabmyl-rapbud",
+      "who": 246883003125693969887285496842230424578,
+      "point": [
+        0,
+        [
+          1,
+          [
+            [
+              [
+                1,
+                [
+                  2,
+                  6297126874263126596189125055915202089922608808562815276572526901595286301670528409465523110615256435161659545193084021659679481256346891991860674136108989847915565168202213485155
+                ]
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                246883003125693969887285496842230424578
+              ],
+              0
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "label": "b",
+      "name": "~hapdec-botmut-fontyn-hadreb--woldyr-savryl-loptev-patwyn",
+      "who": 207870406952669823424146743331451543372,
+      "point": [
+        0,
+        [
+          1,
+          [
+            [
+              [
+                1,
+                [
+                  2,
+                  6297126874263126596187633063755450141726077026549041978275654924148125646334859731912893227812357472431888907705895059888328343408222744322952155387581970818287689359589308371043
+                ]
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                207870406952669823424146743331451543372
+              ],
+              0
+            ]
+          ]
+        ]
+      ]
+    }
+  ]
+}

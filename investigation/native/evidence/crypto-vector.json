@@ -1,0 +1,35 @@
+{
+  "source": "kernel-capture.log:266-274",
+  "encoding": "hex integers are Hoon atoms; byte strings use little endian",
+  "path": "/g/x/0/native-probe//value/noun",
+  "shared_key": {
+    "atom_hex": "0x5b2ba3f79344b89bd178e3899c5959209c322deea79c763641ed5663af74bdef",
+    "bytes_le_hex": "efbd74af6356ed4136769ca7ee2d329c2059599c89e378d19bb84493f7a32b5b",
+    "width": 32
+  },
+  "sealed_path": {
+    "atom_hex": "0x12a981089430c41bf179cb2132b7b3c064956bceddf5f74866a1f7f7645aabdb2efaad632b77e7d250fa594b23e235c",
+    "bytes_le_hex": "5c233eb294a50f257d7eb732d6aaefb2bdaa45767f1f6a86745fdfedbc5649063c7b2b13b29c17bf410c438910982a01",
+    "width": 48
+  },
+  "jam_value": {
+    "atom_hex": "0x91a582e1e6e8c6dff01",
+    "bytes_le_hex": "01ff6d8c6e1e2e581a09",
+    "width": 10
+  },
+  "ciphertext": {
+    "atom_hex": "0x1102398a323d8fff3a663",
+    "bytes_le_hex": "63a6f3ffd823a398231001",
+    "width": 11
+  },
+  "native_root": {
+    "atom_hex": "0x87c0f5b1ad8109de5fa212c6a3fea844065a827add6d594225c84ee1730e71fd",
+    "bytes_le_hex": "fd710e73e14ec82542596ddd7a825a0644a8fea3c612a25fde0981adb1f5c087",
+    "width": 32
+  },
+  "tag": {
+    "atom_hex": "0x451107ddc9bd92879dfa966ea2b82957",
+    "bytes_le_hex": "5729b8a26e96fa9d8792bdc9dd071145",
+    "width": 16
+  }
+}

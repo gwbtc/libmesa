@@ -1,0 +1,905 @@
+[%native-case %test-sybl-same-key-evidence-refresh-preserves-mesa-state]
+[ %native-packet
+  ~nec
+  %push
+  118
+  0x356f.6b76.672e.6275.6f74.752e.3766.6636.642e.6239.7339.632e.6e6c.306c.742e.676e.7165.352e.7369.3935.382e.7363.3432.342e.6334.746d.6b2e.7136.7273.382e.3031.6735.382e.6c67.6167.612e.6f76.302f.322f.6365.6e7e.2f32.2f6d.7568.6300.590d.006b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.67e0.0200.318b.0110
+]
+>   test-sybl-same-key-evidence-refresh-preserves-mesa-state: took ms/5.449
+OK      /tests/native-capture/test-sybl-same-key-evidence-refresh-preserves-mesa-state
+[%native-case %test-sybl-full-rederives-known-mesa-paths-on-rotation]
+[ %native-packet
+  ~nec
+  %push
+  103
+  0x74.3461.3637.2e33.6135.3533.2e6d.6f30.6e71.2e33.3139.3834.2e6d.3762.6467.2e74.6769.7533.2e68.3763.3135.2e72.346c.6667.2e74.6d36.3863.2e70.3573.3176.302f.322f.6365.6e7e.2f31.2f6d.7568.6300.4a0d.006b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.67e0.0200.ea42.1110
+]
+>   test-sybl-full-rederives-known-mesa-paths-on-rotation: took ms/4.715
+OK      /tests/native-capture/test-sybl-full-rederives-known-mesa-paths-on-rotation
+[%native-case %test-sybl-full-preserves-known-peer-qos]
+>   test-sybl-full-preserves-known-peer-qos: took ms/3.186
+OK      /tests/native-capture/test-sybl-full-preserves-known-peer-qos
+[%native-case %test-sybl-full-leaves-an-unsnubbed-ship-alone]
+>   test-sybl-full-leaves-an-unsnubbed-ship-alone: took ms/5.667
+OK      /tests/native-capture/test-sybl-full-leaves-an-unsnubbed-ship-alone
+[%native-case %test-sybl-full-keeps-an-allow-list-snub]
+>   test-sybl-full-keeps-an-allow-list-snub: took ms/5.680
+OK      /tests/native-capture/test-sybl-full-keeps-an-allow-list-snub
+[%native-case %test-sybl-full-clears-snob-but-keeps-snub]
+>   test-sybl-full-clears-snob-but-keeps-snub: took ms/5.971
+OK      /tests/native-capture/test-sybl-full-clears-snob-but-keeps-snub
+[%native-case %test-sybl-full-clears-snob]
+[ %native-packet
+  ~nec
+  %push
+  62
+  0x322f.6365.6e7e.2f31.2f66.6f6f.7270.2f6e.7761.702f.2f31.2f78.2f61.2f31.2f6c.6275.7000.210d.006b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.67e0.0200.5ddb.0110
+]
+>   test-sybl-full-clears-snob: took ms/5.288
+OK      /tests/native-capture/test-sybl-full-clears-snob
+[%native-case %test-sybl-full-breaches-known-peer-on-rift-increase]
+ames: breach peer [~nec ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes]
+>   test-sybl-full-breaches-known-peer-on-rift-increase: took ms/3.347
+OK      /tests/native-capture/test-sybl-full-breaches-known-peer-on-rift-increase
+[%native-case %test-sybl-fail-keeps-a-known-peer]
+>   test-sybl-fail-keeps-a-known-peer: took ms/3.356
+OK      /tests/native-capture/test-sybl-fail-keeps-a-known-peer
+[%native-case %test-sybl-fail-drops-only-the-alien-candidate]
+>   test-sybl-fail-drops-only-the-alien-candidate: took ms/4.359
+OK      /tests/native-capture/test-sybl-fail-drops-only-the-alien-candidate
+[%native-case %test-sybl-fail-cannot-prepoison-an-unknown-ship]
+>   test-sybl-fail-cannot-prepoison-an-unknown-ship: took ms/2.439
+OK      /tests/native-capture/test-sybl-fail-cannot-prepoison-an-unknown-ship
+[%native-case %test-suite-c-life-key-model]
+>   test-suite-c-life-key-model: took ms/8.307
+OK      /tests/native-capture/test-suite-c-life-key-model
+[%native-case %test-snub-set-replaces]
+>   test-snub-set-replaces: took ms/3.232
+OK      /tests/native-capture/test-snub-set-replaces
+[%native-case %test-snub-mode-mismatch]
+>   test-snub-mode-mismatch: took ms/3.974
+OK      /tests/native-capture/test-snub-mode-mismatch
+[%native-case %test-snub-del-removes]
+>   test-snub-del-removes: took ms/3.249
+OK      /tests/native-capture/test-snub-del-removes
+[%native-case %test-snub-add-preserves-manual]
+>   test-snub-add-preserves-manual: took ms/3.210
+OK      /tests/native-capture/test-snub-add-preserves-manual
+[%native-case %test-snob-task-edits-only-soft-list]
+>   test-snob-task-edits-only-soft-list: took ms/3.217
+OK      /tests/native-capture/test-snob-task-edits-only-soft-list
+[%native-case %test-snob-migrates-rc-adult-and-cached-larva]
+>   ames: larva %37 reload
+ames: migrating from state %37 to %38
+>   ames: %snob soft blocklist
+ames: unix-duct received on %born
+ames: metamorphosis on %call
+ames: migrating from state %37 to %38
+>   ames: %snob soft blocklist
+ames: unix-duct received on %born
+ames: metamorphosis on %call
+>   test-snob-migrates-rc-adult-and-cached-larva: took ms/2.147
+OK      /tests/native-capture/test-snob-migrates-rc-adult-and-cached-larva
+[%native-case %test-snob-keeps-known-peer-and-solicits]
+[ %native-packet
+  ~nec
+  %send
+  27
+  0x73.7965.6b6b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d700.0112.c4ff.ae00
+]
+>   test-snob-keeps-known-peer-and-solicits: took ms/4.030
+OK      /tests/native-capture/test-snob-keeps-known-peer-and-solicits
+[%native-case %test-snob-keeps-alien-pending]
+[ %native-packet
+  ~nec
+  %push
+  62
+  0x322f.6365.6e7e.2f31.2f66.6f6f.7270.2f6e.7761.702f.2f31.2f78.2f61.2f31.2f6c.6275.7000.210d.006b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.67e0.0200.5ddb.0110
+]
+>   test-snob-keeps-alien-pending: took ms/4.022
+OK      /tests/native-capture/test-snob-keeps-alien-pending
+[%native-case %test-sift-open-rejects-a-raw-malformed-suite-c-pass]
+>   test-sift-open-rejects-a-raw-malformed-suite-c-pass: took ms/2.700
+OK      /tests/native-capture/test-sift-open-rejects-a-raw-malformed-suite-c-pass
+[%native-case %test-shut-packet-encoding]
+>   test-shut-packet-encoding: took ms/2.141
+OK      /tests/native-capture/test-shut-packet-encoding
+[%native-case %test-publ-full-without-a-fief-pushes-nothing]
+>   test-publ-full-without-a-fief-pushes-nothing: took ms/4.343
+OK      /tests/native-capture/test-publ-full-without-a-fief-pushes-nothing
+[%native-case %test-publ-full-pushes-the-fief]
+>   test-publ-full-pushes-the-fief: took ms/4.445
+OK      /tests/native-capture/test-publ-full-pushes-the-fief
+[%native-case %test-publ-full-initializes-qos-after-breach]
+ames: breach peer [~nec ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes]
+>   test-publ-full-initializes-qos-after-breach: took ms/3.361
+OK      /tests/native-capture/test-publ-full-initializes-qos-after-breach
+[%native-case %test-publ-full-breaches-known-peer-on-rift-increase]
+ames: breach peer [~nec ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes]
+>   test-publ-full-breaches-known-peer-on-rift-increase: took ms/3.277
+OK      /tests/native-capture/test-publ-full-breaches-known-peer-on-rift-increase
+[%native-case %test-private-keys-cannot-roll-ames-back]
+>   test-private-keys-cannot-roll-ames-back: took ms/2.447
+OK      /tests/native-capture/test-private-keys-cannot-roll-ames-back
+[%native-case %test-private-keys-cannot-replace-active-life]
+>   test-private-keys-cannot-replace-active-life: took ms/2.546
+OK      /tests/native-capture/test-private-keys-cannot-replace-active-life
+[%native-case %test-private-keys-cannot-rename-a-comet]
+>   test-private-keys-cannot-rename-a-comet: took ms/5.527
+OK      /tests/native-capture/test-private-keys-cannot-rename-a-comet
+[%native-case %test-private-key-resend-cannot-undo-anew]
+>   test-private-key-resend-cannot-undo-anew: took ms/4.115
+OK      /tests/native-capture/test-private-key-resend-cannot-undo-anew
+[%native-case %test-poof-timer-error-stops-after-full]
+ames: re-attestation timer failed
+test poof timer error
+>   test-poof-timer-error-stops-after-full: took ms/2.013
+OK      /tests/native-capture/test-poof-timer-error-stops-after-full
+[%native-case %test-poof-timer-error-retries-while-snobbed]
+ames: re-attestation timer failed
+test poof timer error
+[ %native-packet
+  ~nec
+  %send
+  27
+  0x73.7965.6b6b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d700.0112.c4ff.ae00
+]
+>   test-poof-timer-error-retries-while-snobbed: took ms/2.297
+OK      /tests/native-capture/test-poof-timer-error-retries-while-snobbed
+[%native-case %test-plug]
+>   test-plug: took ms/2.078
+OK      /tests/native-capture/test-plug
+[%native-case %test-pki-domain-state-is-tristate]
+>   test-pki-domain-state-is-tristate: took ms/2.080
+OK      /tests/native-capture/test-pki-domain-state-is-tristate
+[%native-case %test-packet-encoding]
+>   test-packet-encoding: took ms/2.029
+OK      /tests/native-capture/test-packet-encoding
+[%native-case %test-origin-encoding]
+>   test-origin-encoding: took ms/2.000
+OK      /tests/native-capture/test-origin-encoding
+[%native-case %test-open-packet-with-bad-sponsor-class-is-dropped]
+ames: dropped bad open packet from ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud
+>   test-open-packet-with-bad-sponsor-class-is-dropped: took ms/3.181
+OK      /tests/native-capture/test-open-packet-with-bad-sponsor-class-is-dropped
+[%native-case %test-old-ames-wire-mesa]
+[ %native-packet
+  ~nec
+  %send
+  51
+  0x6d.2efc.d57f.907a.b890.0bf2.3042.07e5.d5ba.3790.326c.0b57.f400.1898.0872.2d4b.3ba4.5ab4.7acf.b980.e088.f900.0200.0132.ad07.1000
+]
+[ %native-packet
+  ~nec
+  %send
+  47
+  0xb7.4603.5353.1415.f29f.22d2.4084.39de.63c0.ff79.7300.14fe.e0bc.d6e1.76e4.1a5f.5c76.73f1.d079.b500.0200.0132.dab5.8000
+]
+[ %native-packet
+  ~bud
+  %send
+  32
+  0x5f5.c27c.c400.0587.8b0d.0a5d.eb8e.39fa.49f4.4848.bfa6.f600.0100.0223.c98c.8804
+]
+[ %native-packet
+  ~nec
+  %push
+  281
+  0x1.0b5d.5af1.cd15.0d4f.fd04.f097.aed8.a79d.2868.8777.81b7.6f23.6e73.11b6.f976.0188.2146.901d.8503.c1a5.e750.2a91.1699.67d5.5721.4873.7072.7536.2e35.726b.7669.2e6b.6167.706b.2e61.6f61.6c71.2e37.6934.746e.2e68.3434.6337.2e6e.676c.6665.2e64.736a.7066.2e33.3369.736f.2e66.686d.6f34.2e70.3838.3462.2e6a.6330.306b.2e73.6d30.636e.2e63.6161.6662.2e64.3235.6276.302f.332f.6475.627e.2f32.2f6d.7568.6300.680d.0000.0110.7131.7163.762e.696f.336c.322e.6336.6d30.312e.3968.7239.742e.366f.6364.732e.3770.6376.382e.746c.6233.6f2e.366c.3969.392e.7262.6b6d.672e.3568.6533.302e.736e.6275.752e.3737.7636.322e.3475.7134.6c2e.6d30.6874.352e.6173.3176.302f.322f.6365.6e7e.2f33.2f6d.7568.6300.670d.0000.0210.67e0.0200.7bc7.c190
+]
+>   test-old-ames-wire-mesa: took ms/8.141
+OK      /tests/native-capture/test-old-ames-wire-mesa
+[%native-case %test-old-ames-wire]
+[ %native-packet
+  ~nec
+  %send
+  51
+  0x6d.2efc.d57f.907a.b890.0bf2.3042.07e5.d5ba.3790.326c.0b57.f400.1898.0872.2d4b.3ba4.5ab4.7acf.b980.e088.f900.0200.0132.ad07.1000
+]
+ames: ~nec: parsing old wire: /bone/~nec/1
+[ %native-packet
+  ~bud
+  %send
+  31
+  0x2.0219.8100.0485.5530.3c88.9068.3cc6.484e.2d9d.076e.6d00.0100.0223.9ae9.5004
+]
+>   test-old-ames-wire: took ms/2.863
+OK      /tests/native-capture/test-old-ames-wire
+[%native-case %test-no-fief-still-relays-via-sponsor]
+[ %native-packet
+  ~nec
+  %send
+  65
+  0x30.af81.b4dd.b9d6.fba3.7ddc.6a9e.dfbf.4bf7.52f8.a6a7.b33e.4b00.180d.42c8.15e9.64c7.c56f.d64c.941e.1ad3.f01d.74f5.29ce.be77.1862.ef63.53b1.5a01.0200.0112.9436.f600
+]
+>   test-no-fief-still-relays-via-sponsor: took ms/5.081
+OK      /tests/native-capture/test-no-fief-still-relays-via-sponsor
+[%native-case %native-udp-peek]
+[ %native-packet
+  ~zod
+  %udp-peek
+  52
+  0x6e75.6f6e.2f65.756c.6176.2f2f.6562.6f72.702d.6576.6974.616e.2f30.2f78.2f67.2f31.2f6c.6275.7000.250d.0000.0010.67e0.0200.663e.f110
+]
+>   test-native-udp-peek-capture: took ms/2.206
+OK      /tests/native-capture/test-native-udp-peek-capture
+[%native-case %native-proof-capture]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %push
+  240
+  0x123.1c75.8016.405f.8a7f.f8a4.b7ae.ce1d.7909.ebff.0071.ba31.16bb.b3be.06e0.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.3193.e001.e8ca.d6c6.c2e0.5adc.cae0.debc.016f.0321.7ed0.ed03.07cb.e005.d2ab.bd4b.0958.5f38.ebe4.d57e.c1f9.a88f.bb8e.b85a.20aa.1c29.7bc4.713b.c2fb.c4cc.f12d.4834.a3d6.254f.014e.1599.7be5.6273.070d.f6b1.9d10.6f40.322f.6365.6e7e.2f31.2f66.6f6f.7270.2f6e.7761.702f.2f31.2f78.2f61.2f31.2f6c.6275.7000.210d.006b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.67e0.0200.a75c.8090
+]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %push
+  240
+  0x918.c875.8016.405f.8a7f.f8a4.b7ae.ce1d.7909.ebff.0071.ba31.16bb.b3be.06e0.0a21.b9cd.e9c1.da4e.1863.01e9.0fc6.bd41.93ae.51e8.84e9.ccce.ddbc.c43c.e2c1.00b3.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.3193.e001.e8ca.d6c6.c2e0.5adc.cae0.debc.016f.0566.683c.ab5c.5170.f4ca.6a96.8ff9.8d5e.6b44.5421.c171.fb22.88e5.09e1.8d69.c403.4ebb.3316.380d.9a5b.c8c2.138e.0a26.81fc.d23f.9ba8.734f.abaf.ad24.0956.bbda.92ea.6f40.322f.6365.6e7e.2f31.2f66.6f6f.7270.2f6e.7761.702f.2f31.2f78.2f61.2f31.2f6c.6275.7000.210d.006b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.67e0.0200.7f49.0090
+]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %push
+  327
+  0x9.18c8.7580.1640.5f8a.7ff8.a4b7.aece.1d79.09eb.ff00.71ba.3116.bbb3.be06.e00a.21b9.cde9.c1da.4e18.6301.e90f.c6bd.4193.ae51.e884.e9cc.cedd.bcc4.3ce2.c100.b311.2a96.d4aa.7e87.fede.3615.7540.29fc.7083.ea3e.ca66.d32d.12f4.56e0.7c0a.9608.3c31.93e0.01e8.cad6.c6c2.e05a.dcca.e0de.bc01.6f0a.539e.ce43.738a.a06f.be9b.326a.7f6f.c359.3921.743a.e1c5.16ca.ed3e.85ca.fd12.70ab.d600.423c.5076.6a71.4f7d.1105.2ac4.4c12.0cda.4baf.5754.7711.3a81.bc81.0d10.7e6f.4032.2f63.656e.7e2f.322f.666f.6f72.702f.6e77.6170.2f2f.312f.782f.612f.322f.6c62.7570.0021.0d00.6b00.2c80.bf14.fff1.496f.5d9c.3af2.13d7.1332.2f73.6564.646f.6d2d.6475.6d63.6f72.2d67.656c.726f.6d2d.6c65.7070.6974.2d2d.7365.7470.6966.2d62.6568.6361.6d2d.7479.6c72.6f74.2d64.6f7a.6c61.627e.2f32.2f68.7475.6d2f.2f31.2f78.2f61.2f32.2f6c.6275.7000.500d.0000.0110.67e0.0200.1bf6.2190
+]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %proof-life1
+  240
+  0x123.1c75.8016.405f.8a7f.f8a4.b7ae.ce1d.7909.ebff.0071.ba31.16bb.b3be.06e0.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.3193.e001.e8ca.d6c6.c2e0.5adc.cae0.debc.016f.0321.7ed0.ed03.07cb.e005.d2ab.bd4b.0958.5f38.ebe4.d57e.c1f9.a88f.bb8e.b85a.20aa.1c29.7bc4.713b.c2fb.c4cc.f12d.4834.a3d6.254f.014e.1599.7be5.6273.070d.f6b1.9d10.6f40.322f.6365.6e7e.2f31.2f66.6f6f.7270.2f6e.7761.702f.2f31.2f78.2f61.2f31.2f6c.6275.7000.210d.006b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.67e0.0200.a75c.8090
+]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %proof-life2
+  240
+  0x918.c875.8016.405f.8a7f.f8a4.b7ae.ce1d.7909.ebff.0071.ba31.16bb.b3be.06e0.0a21.b9cd.e9c1.da4e.1863.01e9.0fc6.bd41.93ae.51e8.84e9.ccce.ddbc.c43c.e2c1.00b3.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.3193.e001.e8ca.d6c6.c2e0.5adc.cae0.debc.016f.0566.683c.ab5c.5170.f4ca.6a96.8ff9.8d5e.6b44.5421.c171.fb22.88e5.09e1.8d69.c403.4ebb.3316.380d.9a5b.c8c2.138e.0a26.81fc.d23f.9ba8.734f.abaf.ad24.0956.bbda.92ea.6f40.322f.6365.6e7e.2f31.2f66.6f6f.7270.2f6e.7761.702f.2f31.2f78.2f61.2f31.2f6c.6275.7000.210d.006b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.67e0.0200.7f49.0090
+]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %proof-poke
+  327
+  0x9.18c8.7580.1640.5f8a.7ff8.a4b7.aece.1d79.09eb.ff00.71ba.3116.bbb3.be06.e00a.21b9.cde9.c1da.4e18.6301.e90f.c6bd.4193.ae51.e884.e9cc.cedd.bcc4.3ce2.c100.b311.2a96.d4aa.7e87.fede.3615.7540.29fc.7083.ea3e.ca66.d32d.12f4.56e0.7c0a.9608.3c31.93e0.01e8.cad6.c6c2.e05a.dcca.e0de.bc01.6f0a.539e.ce43.738a.a06f.be9b.326a.7f6f.c359.3921.743a.e1c5.16ca.ed3e.85ca.fd12.70ab.d600.423c.5076.6a71.4f7d.1105.2ac4.4c12.0cda.4baf.5754.7711.3a81.bc81.0d10.7e6f.4032.2f63.656e.7e2f.322f.666f.6f72.702f.6e77.6170.2f2f.312f.782f.612f.322f.6c62.7570.0021.0d00.6b00.2c80.bf14.fff1.496f.5d9c.3af2.13d7.1332.2f73.6564.646f.6d2d.6475.6d63.6f72.2d67.656c.726f.6d2d.6c65.7070.6974.2d2d.7365.7470.6966.2d62.6568.6361.6d2d.7479.6c72.6f74.2d64.6f7a.6c61.627e.2f32.2f68.7475.6d2f.2f31.2f78.2f61.2f32.2f6c.6275.7000.500d.0000.0110.67e0.0200.1bf6.2190
+]
+>   test-native-proof-capture: took ms/9.628
+OK      /tests/native-capture/test-native-proof-capture
+[%native-case %native-crypto]
+[ %native-crypto
+  0x5b2b.a3f7.9344.b89b.d178.e389.9c59.5920.9c32.2dee.a79c.7636.41ed.5663.af74.bdef
+  [%g %x ~.0 %native-probe %$ %value %noun ~]
+  0x12a.9810.8943.0c41.bf17.9cb2.132b.7b3c.0649.56bc.eddf.5f74.866a.1f7f.7645.aabd.b2ef.aad6.32b7.7e7d.250f.a594.b23e.235c
+  0x91a.582e.1e6e.8c6d.ff01
+  0x1.1023.98a3.23d8.fff3.a663
+  0x87c0.f5b1.ad81.09de.5fa2.12c6.a3fe.a844.065a.827a.dd6d.5942.25c8.4ee1.730e.71fd
+  0x4511.07dd.c9bd.9287.9dfa.966e.a2b8.2957
+]
+>   test-native-crypto-capture: took ms/3.942
+OK      /tests/native-capture/test-native-crypto-capture
+[%native-case %test-nack]
+[ %native-packet
+  ~nec
+  %send
+  51
+  0x6d.2efc.d57f.907a.b890.0bf2.3042.07e5.d5ba.3790.326c.0b57.f400.1898.0872.2d4b.3ba4.5ab4.7acf.b980.e088.f900.0200.0132.ad07.1000
+]
+[ %native-packet
+  ~bud
+  %send
+  31
+  0xf6.3e0c.2c00.045f.aee7.5954.2f5c.9d13.1c34.5674.4b87.8800.0100.0223.e9c4.c804
+]
+[ %native-packet
+  ~bud
+  %send
+  94
+  0x2cea.914e.14a8.62ff.a6ad.5895.5eba.3f19.ec79.67d2.9f70.6c74.a705.ae8b.2a69.b3af.c4c5.751c.620e.e72a.b533.e257.89cf.679a.f0bf.b00c.1bbe.3f8f.7306.a703.8e3c.0624.ca80.ae00.4345.8b2a.7ffc.ffb5.293d.3556.2b58.66be.7600.0100.0223.ce99.7000
+]
+[ %native-packet
+  ~nec
+  %send
+  32
+  0xec9d.1259.b800.0511.5c40.b78a.36ce.8960.0977.92f2.35fe.0900.0200.0132.c781.b004
+]
+>   test-nack: took ms/24.644
+OK      /tests/native-capture/test-nack
+[%native-case %test-mis-signed-open-packet-is-dropped]
+ames: dropped bad open packet from ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud
+>   test-mis-signed-open-packet-is-dropped: took ms/3.935
+OK      /tests/native-capture/test-mis-signed-open-packet-is-dropped
+[%native-case %test-message-flow]
+[ %native-packet
+  ~nec
+  %send
+  51
+  0x6d.2efc.d57f.907a.b890.0bf2.3042.07e5.d5ba.3790.326c.0b57.f400.1898.0872.2d4b.3ba4.5ab4.7acf.b980.e088.f900.0200.0132.ad07.1000
+]
+[ %native-packet
+  ~bud
+  %send
+  31
+  0x2.0219.8100.0485.5530.3c88.9068.3cc6.484e.2d9d.076e.6d00.0100.0223.9ae9.5004
+]
+[ %native-packet
+  ~bud
+  %send
+  45
+  0xd5.8757.05df.d452.6449.44d9.a5f2.8e37.f257.3700.12cd.3bd8.1021.b436.b7f7.de4d.75cb.2189.a000.0100.0223.ec2c.b000
+]
+[ %native-packet
+  ~nec
+  %send
+  31
+  0xfe.e208.da00.0491.bf7f.9594.2ddc.0948.9de0.3906.b678.6e00.0200.0132.e55d.5004
+]
+>   test-message-flow: took ms/32.033
+OK      /tests/native-capture/test-message-flow
+[%native-case %test-mage-life1-proof-endpoint-serves-a-life2-gage]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %push
+  240
+  0x918.c875.8016.405f.8a7f.f8a4.b7ae.ce1d.7909.ebff.0071.ba31.16bb.b3be.06e0.0a21.b9cd.e9c1.da4e.1863.01e9.0fc6.bd41.93ae.51e8.84e9.ccce.ddbc.c43c.e2c1.00b3.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.3193.e001.e8ca.d6c6.c2e0.5adc.cae0.debc.016f.0566.683c.ab5c.5170.f4ca.6a96.8ff9.8d5e.6b44.5421.c171.fb22.88e5.09e1.8d69.c403.4ebb.3316.380d.9a5b.c8c2.138e.0a26.81fc.d23f.9ba8.734f.abaf.ad24.0956.bbda.92ea.6f40.322f.6365.6e7e.2f31.2f66.6f6f.7270.2f6e.7761.702f.2f31.2f78.2f61.2f31.2f6c.6275.7000.210d.006b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.67e0.0200.7f49.0090
+]
+>   test-mage-life1-proof-endpoint-serves-a-life2-gage: took ms/7.840
+OK      /tests/native-capture/test-mage-life1-proof-endpoint-serves-a-life2-gage
+[%native-case %test-legacy-keys-from-known-mesa-peer-gets-attestation]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %send
+  189
+  0x33.190e.b002.c80b.f14f.ff14.96f5.d9c3.af21.3d7f.e00e.3746.22d7.7677.c0dc.0144.3739.bd38.3b49.c30c.603d.21f8.d7a8.3275.ca3d.109d.3999.dbb7.9887.9c58.2016.6225.52da.954f.d0ff.dbc6.c2ae.a805.3f8e.107d.47d9.4cda.65a2.5e8a.dc0f.8152.c107.8632.7c00.3098.00d9.062d.d15b.73d9.d0c3.1b9d.c5ea.1123.1170.319d.546c.9109.78b6.36b6.3f2e.ea77.d082.a61d.f40b.59d0.d471.a329.e3f6.7c56.25a1.0a14.30a4.be9f.34cf.c6f7.927d.ea14.7f70.0100.016b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d712.f733.6180
+]
+>   test-legacy-keys-from-known-mesa-peer-gets-attestation: took ms/5.132
+OK      /tests/native-capture/test-legacy-keys-from-known-mesa-peer-gets-attestation
+[%native-case %test-legacy-keys-bootstrap-completes-a-reciprocal-attestation]
+[ %native-packet
+  ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud
+  %send
+  212
+  0x335.8016.405f.8a7f.f8a4.b7ae.ce1d.7909.ebff.0071.aba7.510e.67d4.7540.4e3d.d1aa.caa7.0102.0100.34ca.387f.babf.4b1b.103e.2179.f010.6c59.5671.483a.be5a.a5cf.5405.ea01.ea27.7b5d.7393.c275.9015.48fe.9be7.d636.5903.e1d0.de91.d421.09cc.3e0a.cd49.aec7.5ec3.b705.2c40.8800.6990.01e2.deb8.d467.09ad.0bb1.e137.60b4.1496.0af5.d3ed.c96d.a7f1.bc13.483c.fe7f.5683.7018.2b86.c6fc.0e5a.aa7f.049f.3795.aa8b.0b07.5aa6.691c.eab4.d8c3.f2c2.691f.e215.1f90.016b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d7ab.a751.0e67.d475.404e.3dd1.aaca.a701.0211.afe0.1f80
+]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %send
+  220
+  0xcaba.7510.e67d.4754.04e3.dd1a.acaa.7010.2010.0321.d600.5901.7e29.ffe2.92de.bb38.75e4.27af.fc01.c6e8.c45a.eece.f81b.8028.86e7.37a7.0769.3861.8c07.a43f.1af5.064e.b947.a213.a733.3b76.f310.f38b.0402.cc44.aa5b.52a9.fa1f.fb78.d855.d500.a7f1.c20f.a8fb.299b.4cb4.4bd1.5b81.f02a.5820.f0c6.4f80.072d.001e.511f.a24b.cc53.440c.5d38.caaf.91eb.b5cb.71ff.e5b5.1103.354f.40dc.70cd.a153.b05f.409b.bbdf.e7ce.a871.6359.c43f.3439.b7d9.14d1.6f30.def4.fc74.3973.8cfd.fc12.1f10.01ab.a751.0e67.d475.404e.3dd1.aaca.a701.026b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d712.d71f.1780
+]
+>   test-legacy-keys-bootstrap-completes-a-reciprocal-attestation: took ms/10.782
+OK      /tests/native-capture/test-legacy-keys-bootstrap-completes-a-reciprocal-attestation
+[%native-case %test-known-suite-c-simultaneous-rotation-recovers-with-keys]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %send
+  221
+  0x48.ef98.3a4e.3295.e696.50cd.4ef6.8e10.dcc0.0100.3a1d.6005.9017.e29f.fe29.2deb.b387.5e42.7aff.c01c.6e8c.45ae.ecef.81b8.044b.ae03.72bb.4069.ddd5.d071.31a2.0984.6509.6a5a.ae2e.5ce9.4369.30ef.6cf8.4eb6.044a.a5b5.2a9f.a1ff.b78d.855d.500a.7f1c.20fa.8fb2.99b4.cb44.bd15.b81f.02a5.820f.0c64.f800.7330.0174.e982.6bd9.5026.1678.d474.81d4.4617.5c6f.d9c7.5ad5.a437.672c.8620.e446.6447.985b.fc74.7c3d.6369.4f96.f0c8.ed94.c6d4.b63d.785d.386f.1d86.74dd.04f7.9731.7553.bf90.01ef.983a.4e32.95e6.9650.cd4e.f68e.10dc.c06b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d723.e0bf.cf80
+]
+[ %native-packet
+  ~polfep-rocmeg-forpyx-nalryg--ritlyd-panweg-sopryp-riswed
+  %send
+  221
+  0x48.d600.5901.7e29.ffe2.92de.bb38.75e4.27af.fc01.d0f7.cc1d.2719.4af3.4b28.66a7.7b47.086e.6000.801c.6e8c.45ae.ecef.81b8.027c.c393.71b7.73d0.30a7.6489.35ea.a20e.f2da.1e5d.d698.e2c9.1054.c2b8.a80d.e8ca.0428.481a.cc0b.1b8a.74be.5e27.8f28.4ab8.8bfd.6d05.5659.49fd.9f6f.6d63.5b9e.feae.8c64.f800.7330.01cf.3fc6.b77b.8fb3.0a26.c470.9a63.3ccd.9934.15b1.250c.1d2a.6bcf.4fb6.23a8.d522.b09e.4617.886a.f15b.d260.bc70.2fa0.4fe6.ba88.944c.cb88.f12e.1186.25ca.d90a.395f.1f90.016b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d7ef.983a.4e32.95e6.9650.cd4e.f68e.10dc.c023.c881.8780
+]
+[ %native-packet
+  ~polfep-rocmeg-forpyx-nalryg--ritlyd-panweg-sopryp-riswed
+  %send
+  221
+  0xc.d600.5901.7e29.ffe2.92de.bb38.75e4.27af.fc01.d0f7.cc1d.2719.4af3.4b28.66a7.7b47.086e.6000.801c.6e8c.45ae.ecef.81b8.027c.c393.71b7.73d0.30a7.6489.35ea.a20e.f2da.1e5d.d698.e2c9.1054.c2b8.a80d.e8ca.0428.481a.cc0b.1b8a.74be.5e27.8f28.4ab8.8bfd.6d05.5659.49fd.9f6f.6d63.5b9e.feae.8c64.f800.72d0.01d2.66f7.32b1.bf2e.7b51.2322.cb67.76a2.c567.0f3d.b70e.b7ad.b518.356d.11cd.57ac.af59.6d3f.00ca.0497.2ba8.fb71.8ad9.26a1.ab2f.1570.bc75.e44a.8b27.ad7a.4886.1574.bf90.016b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d7ef.983a.4e32.95e6.9650.cd4e.f68e.10dc.c013.bc68.3780
+]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %send
+  221
+  0xc.ef98.3a4e.3295.e696.50cd.4ef6.8e10.dcc0.0100.3a1d.6005.9017.e29f.fe29.2deb.b387.5e42.7aff.c01c.6e8c.45ae.ecef.81b8.044b.ae03.72bb.4069.ddd5.d071.31a2.0984.6509.6a5a.ae2e.5ce9.4369.30ef.6cf8.4eb6.044a.a5b5.2a9f.a1ff.b78d.855d.500a.7f1c.20fa.8fb2.99b4.cb44.bd15.b81f.02a5.820f.0c64.f800.72d0.01b9.24e9.8d41.63b5.bc74.0071.f342.2e2e.5c8e.e860.7632.a4ea.480a.c485.d20a.6aac.4f51.e6a8.9ab8.eeb8.22f3.39c1.043e.b3bc.0d3f.a494.152a.9f59.a66b.0b2b.e5b9.352d.3f90.01ef.983a.4e32.95e6.9650.cd4e.f68e.10dc.c06b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.83d9.6780
+]
+>   test-known-suite-c-simultaneous-rotation-recovers-with-keys: took ms/27.155
+OK      /tests/native-capture/test-known-suite-c-simultaneous-rotation-recovers-with-keys
+[%native-case %test-is-open-packet-rejects-a-cue-bomb]
+>   test-is-open-packet-rejects-a-cue-bomb: took ms/2.172
+OK      /tests/native-capture/test-is-open-packet-rejects-a-cue-bomb
+[%native-case %test-is-open-packet-accepts-a-real-attestation]
+>   test-is-open-packet-accepts-a-real-attestation: took ms/3.003
+OK      /tests/native-capture/test-is-open-packet-accepts-a-real-attestation
+[%native-case %test-heer-suite-c-suspended-domain-fails-closed]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %push
+  240
+  0x123.1c75.8016.405f.8a7f.f8a4.b7ae.ce1d.7909.ebff.0071.ba31.16bb.b3be.06e0.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.3193.e001.e8ca.d6c6.c2e0.5adc.cae0.debc.016f.0321.7ed0.ed03.07cb.e005.d2ab.bd4b.0958.5f38.ebe4.d57e.c1f9.a88f.bb8e.b85a.20aa.1c29.7bc4.713b.c2fb.c4cc.f12d.4834.a3d6.254f.014e.1599.7be5.6273.070d.f6b1.9d10.6f40.322f.6365.6e7e.2f31.2f66.6f6f.7270.2f6e.7761.702f.2f31.2f78.2f61.2f31.2f6c.6275.7000.210d.006b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.67e0.0200.a75c.8090
+]
+>   test-heer-suite-c-suspended-domain-fails-closed: took ms/7.231
+OK      /tests/native-capture/test-heer-suite-c-suspended-domain-fails-closed
+[%native-case %test-heer-suite-c-rejects-an-ineligible-sponsor]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %push
+  240
+  0x123.1c75.8016.405f.8a7f.f8a4.b7ae.ce1d.7909.ebff.0071.ba31.16bb.b3be.06e0.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.3193.e001.e8ca.d6c6.c2e0.5adc.cae0.debc.016f.0321.7ed0.ed03.07cb.e005.d2ab.bd4b.0958.5f38.ebe4.d57e.c1f9.a88f.bb8e.b85a.20aa.1c29.7bc4.713b.c2fb.c4cc.f12d.4834.a3d6.254f.014e.1599.7be5.6273.070d.f6b1.9d10.6f40.322f.6365.6e7e.2f31.2f66.6f6f.7270.2f6e.7761.702f.2f31.2f78.2f61.2f31.2f6c.6275.7000.210d.006b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.67e0.0200.a75c.8090
+]
+>   test-heer-suite-c-rejects-an-ineligible-sponsor: took ms/5.113
+OK      /tests/native-capture/test-heer-suite-c-rejects-an-ineligible-sponsor
+[%native-case %test-heer-suite-c-name-is-always-bound]
+[ %native-packet
+  ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud
+  %push
+  240
+  0x918.e357.4ea2.1ccf.a8ea.809c.7ba3.5595.4e02.0402.0071.ba31.16bb.b3be.06e0.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.3193.e001.e8ca.d6c6.c2e0.5adc.cae0.debc.016f.0bf7.7f5d.95b7.9ab7.a4b8.7a88.774f.ad10.3970.7ffd.d1f0.0f77.1232.3b60.d1dc.24fb.cf38.d539.88f5.3b28.9ef0.701d.8116.ca18.edec.fefa.4384.af65.6452.46ab.74ad.d488.6f40.322f.6365.6e7e.2f31.2f66.6f6f.7270.2f6e.7761.702f.2f31.2f78.2f61.2f31.2f6c.6275.7000.210d.00ab.a751.0e67.d475.404e.3dd1.aaca.a701.0213.67e0.0200.9f92.4090
+]
+>   test-heer-suite-c-name-is-always-bound: took ms/9.335
+OK      /tests/native-capture/test-heer-suite-c-name-is-always-bound
+[%native-case %test-heer-suite-c-malformed-dose-fails-closed]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %push
+  240
+  0x123.1c75.8016.405f.8a7f.f8a4.b7ae.ce1d.7909.ebff.0071.ba31.16bb.b3be.06e0.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.3193.e001.e8ca.d6c6.c2e0.5adc.cae0.debc.016f.0321.7ed0.ed03.07cb.e005.d2ab.bd4b.0958.5f38.ebe4.d57e.c1f9.a88f.bb8e.b85a.20aa.1c29.7bc4.713b.c2fb.c4cc.f12d.4834.a3d6.254f.014e.1599.7be5.6273.070d.f6b1.9d10.6f40.322f.6365.6e7e.2f31.2f66.6f6f.7270.2f6e.7761.702f.2f31.2f78.2f61.2f31.2f6c.6275.7000.210d.006b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.67e0.0200.a75c.8090
+]
+>   test-heer-suite-c-malformed-dose-fails-closed: took ms/7.111
+OK      /tests/native-capture/test-heer-suite-c-malformed-dose-fails-closed
+[%native-case %test-heer-suite-c-live-domain-routes-current-key]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %push
+  240
+  0x918.c875.8016.405f.8a7f.f8a4.b7ae.ce1d.7909.ebff.0071.ba31.16bb.b3be.06e0.0a21.b9cd.e9c1.da4e.1863.01e9.0fc6.bd41.93ae.51e8.84e9.ccce.ddbc.c43c.e2c1.00b3.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.3193.e001.e8ca.d6c6.c2e0.5adc.cae0.debc.016f.0566.683c.ab5c.5170.f4ca.6a96.8ff9.8d5e.6b44.5421.c171.fb22.88e5.09e1.8d69.c403.4ebb.3316.380d.9a5b.c8c2.138e.0a26.81fc.d23f.9ba8.734f.abaf.ad24.0956.bbda.92ea.6f40.322f.6365.6e7e.2f31.2f66.6f6f.7270.2f6e.7761.702f.2f31.2f78.2f61.2f31.2f6c.6275.7000.210d.006b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.67e0.0200.7f49.0090
+]
+>   test-heer-suite-c-live-domain-routes-current-key: took ms/7.118
+OK      /tests/native-capture/test-heer-suite-c-live-domain-routes-current-key
+[%native-case %test-heer-suite-c-life2-needs-agent]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %push
+  240
+  0x918.c875.8016.405f.8a7f.f8a4.b7ae.ce1d.7909.ebff.0071.ba31.16bb.b3be.06e0.0a21.b9cd.e9c1.da4e.1863.01e9.0fc6.bd41.93ae.51e8.84e9.ccce.ddbc.c43c.e2c1.00b3.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.3193.e001.e8ca.d6c6.c2e0.5adc.cae0.debc.016f.0566.683c.ab5c.5170.f4ca.6a96.8ff9.8d5e.6b44.5421.c171.fb22.88e5.09e1.8d69.c403.4ebb.3316.380d.9a5b.c8c2.138e.0a26.81fc.d23f.9ba8.734f.abaf.ad24.0956.bbda.92ea.6f40.322f.6365.6e7e.2f31.2f66.6f6f.7270.2f6e.7761.702f.2f31.2f78.2f61.2f31.2f6c.6275.7000.210d.006b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.67e0.0200.7f49.0090
+]
+>   test-heer-suite-c-life2-needs-agent: took ms/7.213
+OK      /tests/native-capture/test-heer-suite-c-life2-needs-agent
+[%native-case %test-heer-suite-c-life1-falls-back-without-agent]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %push
+  240
+  0x123.1c75.8016.405f.8a7f.f8a4.b7ae.ce1d.7909.ebff.0071.ba31.16bb.b3be.06e0.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.3193.e001.e8ca.d6c6.c2e0.5adc.cae0.debc.016f.0321.7ed0.ed03.07cb.e005.d2ab.bd4b.0958.5f38.ebe4.d57e.c1f9.a88f.bb8e.b85a.20aa.1c29.7bc4.713b.c2fb.c4cc.f12d.4834.a3d6.254f.014e.1599.7be5.6273.070d.f6b1.9d10.6f40.322f.6365.6e7e.2f31.2f66.6f6f.7270.2f6e.7761.702f.2f31.2f78.2f61.2f31.2f6c.6275.7000.210d.006b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.67e0.0200.a75c.8090
+]
+>   test-heer-suite-c-life1-falls-back-without-agent: took ms/8.444
+OK      /tests/native-capture/test-heer-suite-c-life1-falls-back-without-agent
+[%native-case %test-heer-rejects-a-raw-malformed-suite-c-pass]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %push
+  165
+  0x4.8c71.d600.5901.7e29.ffe2.92de.bb38.75e4.27af.fc01.c7c1.e8ca.d6c6.c2e0.5adc.cae0.debc.0124.02a3.639d.7678.0281.ddbc.5099.6a6a.3061.c392.25ed.e4c4.e98d.f697.b992.c01e.ea0b.149c.5123.b4f8.4f96.63e5.e0e4.dc75.e06b.6166.746b.a3f1.218e.7305.ab21.1f13.1542.2440.322f.6365.6e7e.2f31.2f66.6f6f.7270.2f6e.7761.702f.2f31.2f78.2f61.2f31.2f6c.6275.7000.210d.006b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.67e0.0200.1194.2090
+]
+>   test-heer-rejects-a-raw-malformed-suite-c-pass: took ms/5.656
+OK      /tests/native-capture/test-heer-rejects-a-raw-malformed-suite-c-pass
+[%native-case %test-heer-proof-poke-reverifies-a-snobbed-known-chum]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %push
+  327
+  0x9.18c8.7580.1640.5f8a.7ff8.a4b7.aece.1d79.09eb.ff00.71ba.3116.bbb3.be06.e00a.21b9.cde9.c1da.4e18.6301.e90f.c6bd.4193.ae51.e884.e9cc.cedd.bcc4.3ce2.c100.b311.2a96.d4aa.7e87.fede.3615.7540.29fc.7083.ea3e.ca66.d32d.12f4.56e0.7c0a.9608.3c31.93e0.01e8.cad6.c6c2.e05a.dcca.e0de.bc01.6f0a.539e.ce43.738a.a06f.be9b.326a.7f6f.c359.3921.743a.e1c5.16ca.ed3e.85ca.fd12.70ab.d600.423c.5076.6a71.4f7d.1105.2ac4.4c12.0cda.4baf.5754.7711.3a81.bc81.0d10.7e6f.4032.2f63.656e.7e2f.322f.666f.6f72.702f.6e77.6170.2f2f.312f.782f.612f.322f.6c62.7570.0021.0d00.6b00.2c80.bf14.fff1.496f.5d9c.3af2.13d7.1332.2f73.6564.646f.6d2d.6475.6d63.6f72.2d67.656c.726f.6d2d.6c65.7070.6974.2d2d.7365.7470.6966.2d62.6568.6361.6d2d.7479.6c72.6f74.2d64.6f7a.6c61.627e.2f32.2f68.7475.6d2f.2f31.2f78.2f61.2f32.2f6c.6275.7000.500d.0000.0110.67e0.0200.1bf6.2190
+]
+>   test-heer-proof-poke-reverifies-a-snobbed-known-chum: took ms/8.164
+OK      /tests/native-capture/test-heer-proof-poke-reverifies-a-snobbed-known-chum
+[%native-case %test-heer-proof-page-reverifies-a-snobbed-known-chum]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %push
+  240
+  0x918.c875.8016.405f.8a7f.f8a4.b7ae.ce1d.7909.ebff.0071.ba31.16bb.b3be.06e0.0a21.b9cd.e9c1.da4e.1863.01e9.0fc6.bd41.93ae.51e8.84e9.ccce.ddbc.c43c.e2c1.00b3.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.3193.e001.e8ca.d6c6.c2e0.5adc.cae0.debc.016f.0566.683c.ab5c.5170.f4ca.6a96.8ff9.8d5e.6b44.5421.c171.fb22.88e5.09e1.8d69.c403.4ebb.3316.380d.9a5b.c8c2.138e.0a26.81fc.d23f.9ba8.734f.abaf.ad24.0956.bbda.92ea.6f40.322f.6365.6e7e.2f31.2f66.6f6f.7270.2f6e.7761.702f.2f31.2f78.2f61.2f31.2f6c.6275.7000.210d.006b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.67e0.0200.7f49.0090
+]
+>   test-heer-proof-page-reverifies-a-snobbed-known-chum: took ms/8.779
+OK      /tests/native-capture/test-heer-proof-page-reverifies-a-snobbed-known-chum
+[%native-case %test-heer-page-snubbed-on-an-allow-list]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %push
+  240
+  0x123.1c75.8016.405f.8a7f.f8a4.b7ae.ce1d.7909.ebff.0071.ba31.16bb.b3be.06e0.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.3193.e001.e8ca.d6c6.c2e0.5adc.cae0.debc.016f.0321.7ed0.ed03.07cb.e005.d2ab.bd4b.0958.5f38.ebe4.d57e.c1f9.a88f.bb8e.b85a.20aa.1c29.7bc4.713b.c2fb.c4cc.f12d.4834.a3d6.254f.014e.1599.7be5.6273.070d.f6b1.9d10.6f40.322f.6365.6e7e.2f31.2f66.6f6f.7270.2f6e.7761.702f.2f31.2f78.2f61.2f31.2f6c.6275.7000.210d.006b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.67e0.0200.a75c.8090
+]
+>   test-heer-page-snubbed-on-an-allow-list: took ms/4.639
+OK      /tests/native-capture/test-heer-page-snubbed-on-an-allow-list
+[%native-case %test-heer-page-from-unsnubbed-comet-attests]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %push
+  240
+  0x123.1c75.8016.405f.8a7f.f8a4.b7ae.ce1d.7909.ebff.0071.ba31.16bb.b3be.06e0.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.3193.e001.e8ca.d6c6.c2e0.5adc.cae0.debc.016f.0321.7ed0.ed03.07cb.e005.d2ab.bd4b.0958.5f38.ebe4.d57e.c1f9.a88f.bb8e.b85a.20aa.1c29.7bc4.713b.c2fb.c4cc.f12d.4834.a3d6.254f.014e.1599.7be5.6273.070d.f6b1.9d10.6f40.322f.6365.6e7e.2f31.2f66.6f6f.7270.2f6e.7761.702f.2f31.2f78.2f61.2f31.2f6c.6275.7000.210d.006b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.67e0.0200.a75c.8090
+]
+>   test-heer-page-from-unsnubbed-comet-attests: took ms/7.066
+OK      /tests/native-capture/test-heer-page-from-unsnubbed-comet-attests
+[%native-case %test-heer-page-from-snubbed-comet-is-dropped]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %push
+  240
+  0x123.1c75.8016.405f.8a7f.f8a4.b7ae.ce1d.7909.ebff.0071.ba31.16bb.b3be.06e0.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.3193.e001.e8ca.d6c6.c2e0.5adc.cae0.debc.016f.0321.7ed0.ed03.07cb.e005.d2ab.bd4b.0958.5f38.ebe4.d57e.c1f9.a88f.bb8e.b85a.20aa.1c29.7bc4.713b.c2fb.c4cc.f12d.4834.a3d6.254f.014e.1599.7be5.6273.070d.f6b1.9d10.6f40.322f.6365.6e7e.2f31.2f66.6f6f.7270.2f6e.7761.702f.2f31.2f78.2f61.2f31.2f6c.6275.7000.210d.006b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.67e0.0200.a75c.8090
+]
+>   test-heer-page-from-snubbed-comet-is-dropped: took ms/4.434
+OK      /tests/native-capture/test-heer-page-from-snubbed-comet-is-dropped
+[%native-case %test-heer-page-allowed-on-an-allow-list]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %push
+  240
+  0x123.1c75.8016.405f.8a7f.f8a4.b7ae.ce1d.7909.ebff.0071.ba31.16bb.b3be.06e0.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.3193.e001.e8ca.d6c6.c2e0.5adc.cae0.debc.016f.0321.7ed0.ed03.07cb.e005.d2ab.bd4b.0958.5f38.ebe4.d57e.c1f9.a88f.bb8e.b85a.20aa.1c29.7bc4.713b.c2fb.c4cc.f12d.4834.a3d6.254f.014e.1599.7be5.6273.070d.f6b1.9d10.6f40.322f.6365.6e7e.2f31.2f66.6f6f.7270.2f6e.7761.702f.2f31.2f78.2f61.2f31.2f6c.6275.7000.210d.006b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.67e0.0200.a75c.8090
+]
+>   test-heer-page-allowed-on-an-allow-list: took ms/7.083
+OK      /tests/native-capture/test-heer-page-allowed-on-an-allow-list
+[%native-case %test-heer-legacy-signer-rejects-later-lives]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %push
+  240
+  0x918.c875.8016.405f.8a7f.f8a4.b7ae.ce1d.7909.ebff.0071.ba31.16bb.b3be.06e0.0a21.b9cd.e9c1.da4e.1863.01e9.0fc6.bd41.93ae.51e8.84e9.ccce.ddbc.c43c.e2c1.00b3.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.3193.e001.e8ca.d6c6.c2e0.5adc.cae0.debc.016f.0daa.cbde.352b.8060.e6eb.7eeb.9f4e.5cd5.d4c8.e258.aea6.5f1d.c627.c90c.66f0.8172.fff5.5d3d.bea4.d102.deb1.25b2.3b90.ebb9.b004.0bfe.6585.9527.ea32.6d1a.a084.a1c7.6f40.322f.6365.6e7e.2f31.2f66.6f6f.7270.2f6e.7761.702f.2f31.2f78.2f61.2f31.2f6c.6275.7000.210d.006b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.67e0.0200.fd61.f090
+]
+>   test-heer-legacy-signer-rejects-later-lives: took ms/6.656
+OK      /tests/native-capture/test-heer-legacy-signer-rejects-later-lives
+[%native-case %test-heer-legacy-life1-requires-domain-verdict]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %push
+  240
+  0x123.1c75.8016.405f.8a7f.f8a4.b7ae.ce1d.7909.ebff.0071.ba31.16bb.b3be.06e0.0a21.b9cd.e9c1.da4e.1863.01e9.0fc6.bd41.93ae.51e8.84e9.ccce.ddbc.c43c.e2c1.00b3.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.3193.e001.e8ca.d6c6.c2e0.5adc.cae0.debc.016f.051b.935f.65a0.6e3f.2179.d160.fb56.0586.a5fd.7bf0.e3db.a332.4b88.f980.2d89.627e.a4bc.dbda.c9ee.18a5.3ac4.5212.aec5.ffcb.c948.08ea.3a16.854b.659c.1796.a1ff.91d9.6f40.322f.6365.6e7e.2f31.2f66.6f6f.7270.2f6e.7761.702f.2f31.2f78.2f61.2f31.2f6c.6275.7000.210d.006b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.67e0.0200.7489.2090
+]
+>   test-heer-legacy-life1-requires-domain-verdict: took ms/8.966
+OK      /tests/native-capture/test-heer-legacy-life1-requires-domain-verdict
+[%native-case %test-heer-legacy-life1-rejects-unavailable-domains]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %push
+  240
+  0x123.1c75.8016.405f.8a7f.f8a4.b7ae.ce1d.7909.ebff.0071.ba31.16bb.b3be.06e0.0a21.b9cd.e9c1.da4e.1863.01e9.0fc6.bd41.93ae.51e8.84e9.ccce.ddbc.c43c.e2c1.00b3.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.3193.e001.e8ca.d6c6.c2e0.5adc.cae0.debc.016f.051b.935f.65a0.6e3f.2179.d160.fb56.0586.a5fd.7bf0.e3db.a332.4b88.f980.2d89.627e.a4bc.dbda.c9ee.18a5.3ac4.5212.aec5.ffcb.c948.08ea.3a16.854b.659c.1796.a1ff.91d9.6f40.322f.6365.6e7e.2f31.2f66.6f6f.7270.2f6e.7761.702f.2f31.2f78.2f61.2f31.2f6c.6275.7000.210d.006b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.67e0.0200.7489.2090
+]
+>   test-heer-legacy-life1-rejects-unavailable-domains: took ms/11.355
+OK      /tests/native-capture/test-heer-legacy-life1-rejects-unavailable-domains
+[%native-case %test-heer-drops-a-one-fragment-gage-cue-bomb]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %push
+  240
+  0x123.1c75.8016.405f.8a7f.f8a4.b7ae.ce1d.7909.ebff.0071.ba31.16bb.b3be.06e0.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.112a.96d4.aa7e.87fe.de36.1575.4029.fc70.83ea.3eca.66d3.2d12.f456.e07c.0a96.083c.3193.e001.e8ca.d6c6.c2e0.5adc.cae0.debc.016f.0321.7ed0.ed03.07cb.e005.d2ab.bd4b.0958.5f38.ebe4.d57e.c1f9.a88f.bb8e.b85a.20aa.1c29.7bc4.713b.c2fb.c4cc.f12d.4834.a3d6.254f.014e.1599.7be5.6273.070d.f6b1.9d10.6f40.322f.6365.6e7e.2f31.2f66.6f6f.7270.2f6e.7761.702f.2f31.2f78.2f61.2f31.2f6c.6275.7000.210d.006b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.67e0.0200.a75c.8090
+]
+>   test-heer-drops-a-one-fragment-gage-cue-bomb: took ms/5.800
+OK      /tests/native-capture/test-heer-drops-a-one-fragment-gage-cue-bomb
+[%native-case %test-heer-drops-a-malformed-inner-open-packet]
+[ %native-packet
+  ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+  %push
+  144
+  0x1550.e8ca.d6c6.c2e0.5adc.cae0.debc.010f.05e7.bef9.a23e.d9ad.8e35.e9a6.d3a6.2b07.243f.c798.8fbf.9b96.7957.1f98.6195.8e1c.206a.76fc.42aa.85c2.5e2f.e835.f41b.88df.6476.36a4.b0a0.3758.69b8.cfcc.8003.2178.0f40.322f.6365.6e7e.2f31.2f66.6f6f.7270.2f6e.7761.702f.2f31.2f78.2f61.2f31.2f6c.6275.7000.210d.006b.002c.80bf.14ff.f149.6f5d.9c3a.f213.d713.67e0.0200.e45e.a090
+]
+>   test-heer-drops-a-malformed-inner-open-packet: took ms/5.479
+OK      /tests/native-capture/test-heer-drops-a-malformed-inner-open-packet
+[%native-case %test-hear-suite-c-suspended-domain-fails-closed]
+>   test-hear-suite-c-suspended-domain-fails-closed: took ms/4.462
+OK      /tests/native-capture/test-hear-suite-c-suspended-domain-fails-closed
+[%native-case %test-hear-suite-c-rejects-unrelated-receiver-life]
+ames: dropped bad open packet from ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+>   test-hear-suite-c-rejects-unrelated-receiver-life: took ms/3.040
+OK      /tests/native-capture/test-hear-suite-c-rejects-unrelated-receiver-life
+[%native-case %test-hear-suite-c-name-is-always-bound]
+ames: dropped bad open packet from ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud
+>   test-hear-suite-c-name-is-always-bound: took ms/4.374
+OK      /tests/native-capture/test-hear-suite-c-name-is-always-bound
+[%native-case %test-hear-suite-c-malformed-dose-fails-closed]
+>   test-hear-suite-c-malformed-dose-fails-closed: took ms/4.322
+OK      /tests/native-capture/test-hear-suite-c-malformed-dose-fails-closed
+[%native-case %test-hear-suite-c-live-domain-routes-current-key]
+>   test-hear-suite-c-live-domain-routes-current-key: took ms/4.424
+OK      /tests/native-capture/test-hear-suite-c-live-domain-routes-current-key
+[%native-case %test-hear-suite-c-life2-needs-agent]
+>   test-hear-suite-c-life2-needs-agent: took ms/4.360
+OK      /tests/native-capture/test-hear-suite-c-life2-needs-agent
+[%native-case %test-hear-suite-c-life1-falls-back-without-agent]
+>   test-hear-suite-c-life1-falls-back-without-agent: took ms/4.967
+OK      /tests/native-capture/test-hear-suite-c-life1-falls-back-without-agent
+[%native-case %test-hear-suite-c-life1-fallback-rechecks-a-new-live-domain]
+>   test-hear-suite-c-life1-fallback-rechecks-a-new-live-domain: took ms/6.702
+OK      /tests/native-capture/test-hear-suite-c-life1-fallback-rechecks-a-new-live-domain
+[%native-case %test-hear-suite-c-higher-life-from-known-mesa-routes-writ]
+>   test-hear-suite-c-higher-life-from-known-mesa-routes-writ: took ms/4.472
+OK      /tests/native-capture/test-hear-suite-c-higher-life-from-known-mesa-routes-writ
+[%native-case %test-hear-suite-c-accepts-bootstrap-receiver-life]
+>   test-hear-suite-c-accepts-bootstrap-receiver-life: took ms/4.344
+OK      /tests/native-capture/test-hear-suite-c-accepts-bootstrap-receiver-life
+[%native-case %test-hear-shut-packet-from-known-comet]
+[ %native-packet
+  ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud
+  %send
+  65
+  0x8f.c888.cf0b.5d6b.213e.542f.8c5e.d3c1.ce8c.9db4.e19a.901d.2c00.18b4.4f00.0c44.91ec.4bc7.9b4d.5d69.cacf.1f00.01ab.a751.0e67.d475.404e.3dd1.aaca.a701.0221.cb59.6980
+]
+>   test-hear-shut-packet-from-known-comet: took ms/4.710
+OK      /tests/native-capture/test-hear-shut-packet-from-known-comet
+[%native-case %test-hear-reattestation-from-known-comet]
+>   test-hear-reattestation-from-known-comet: took ms/4.228
+OK      /tests/native-capture/test-hear-reattestation-from-known-comet
+[%native-case %test-hear-legacy-signer-retains-name-binding]
+ames: dropped bad open packet from ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud
+>   test-hear-legacy-signer-retains-name-binding: took ms/5.760
+OK      /tests/native-capture/test-hear-legacy-signer-retains-name-binding
+[%native-case %test-hear-legacy-signer-rejects-later-lives]
+ames: dropped bad open packet from ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+>   test-hear-legacy-signer-rejects-later-lives: took ms/3.755
+OK      /tests/native-capture/test-hear-legacy-signer-rejects-later-lives
+[%native-case %test-hear-legacy-signer-rejects-an-unrelated-key]
+ames: dropped bad open packet from ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+>   test-hear-legacy-signer-rejects-an-unrelated-key: took ms/5.219
+OK      /tests/native-capture/test-hear-legacy-signer-rejects-an-unrelated-key
+[%native-case %test-hear-legacy-life1-requires-domain-verdict]
+>   test-hear-legacy-life1-requires-domain-verdict: took ms/5.675
+OK      /tests/native-capture/test-hear-legacy-life1-requires-domain-verdict
+[%native-case %test-hear-legacy-life1-rejects-unavailable-domains]
+ames: dropped bad open packet from ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+ames: dropped bad open packet from ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+ames: dropped bad open packet from ~balzod-torlyt-macheb-fiptes--tippel-morleg-rocmud-moddes
+>   test-hear-legacy-life1-rejects-unavailable-domains: took ms/6.075
+OK      /tests/native-capture/test-hear-legacy-life1-rejects-unavailable-domains
+[%native-case %test-hear-legacy-life1-does-not-replace-known-life2]
+>   test-hear-legacy-life1-does-not-replace-known-life2: took ms/6.207
+OK      /tests/native-capture/test-hear-legacy-life1-does-not-replace-known-life2
+[%native-case %test-hear-drops-unroutable-comet-packet]
+>   test-hear-drops-unroutable-comet-packet: took ms/2.110
+OK      /tests/native-capture/test-hear-drops-unroutable-comet-packet
+[%native-case %test-hear-bootstrap-replay-of-known-current-peer-is-idempotent]
+>   test-hear-bootstrap-replay-of-known-current-peer-is-idempotent: took ms/4.873
+OK      /tests/native-capture/test-hear-bootstrap-replay-of-known-current-peer-is-idempotent
+[%native-case %test-hear-attestation-from-unknown-comet]
+>   test-hear-attestation-from-unknown-comet: took ms/4.359
+OK      /tests/native-capture/test-hear-attestation-from-unknown-comet
+[%native-case %test-fine-response]
+num-frag=60
+%verifying-sig
+>   test-fine-response: took ms/83.284
+OK      /tests/native-capture/test-fine-response
+[%native-case %test-fine-request]
+[ %native-packet
+  ~nec
+  %send
+  40
+  0x7379.732f.7364.696b.2f31.2f7a.2f63.2f33.2f30.2f64.7562.7e2f.0018.0000.0001.0000.0200.0132.905e.1808
+]
+[%0 path=/~bud/0/3/c/z/1/kids/sys num=1]
+>   test-fine-request: took ms/3.022
+OK      /tests/native-capture/test-fine-request
+[%native-case %test-fine-hunk]
+>   test-fine-hunk: took ms/60.741
+OK      /tests/native-capture/test-fine-hunk
+[%native-case %test-fief-routes-a-sponsored-peer]
+[ %native-packet
+  ~nec
+  %send
+  65
+  0x3f.6d87.4713.33bf.275b.11b1.5e78.ad94.f90b.f796.ca62.8b96.e000.189b.7049.ad4f.7674.0bb3.0882.a299.8d3e.9bab.a751.0e67.d475.404e.3dd1.aaca.a701.0200.0112.bbb0.ee00
+]
+[ %native-packet
+  ~nec
+  %send
+  65
+  0x3f.6d87.4713.33bf.275b.11b1.5e78.ad94.f90b.f796.ca62.8b96.e000.189b.7049.ad4f.7674.0bb3.0882.a299.8d3e.9bab.a751.0e67.d475.404e.3dd1.aaca.a701.0200.0112.bbb0.ee00
+]
+>   test-fief-routes-a-sponsored-peer: took ms/5.440
+OK      /tests/native-capture/test-fief-routes-a-sponsored-peer
+[%native-case %test-fief-leaves-a-self-sponsor-direct]
+>   test-fief-leaves-a-self-sponsor-direct: took ms/5.454
+OK      /tests/native-capture/test-fief-leaves-a-self-sponsor-direct
+[%native-case %test-fief-diff-routes-a-known-peer]
+>   test-fief-diff-routes-a-known-peer: took ms/4.755
+OK      /tests/native-capture/test-fief-diff-routes-a-known-peer
+[%native-case %test-dangling-bone]
+[ %native-packet
+  ~nec
+  %send
+  51
+  0x6d.2efc.d57f.907a.b890.0bf2.3042.07e5.d5ba.3790.326c.0b57.f400.1898.0872.2d4b.3ba4.5ab4.7acf.b980.e088.f900.0200.0132.ad07.1000
+]
+ames: ~nec: dropping old rift wire: /bone/~nec/0/1
+>   test-dangling-bone: took ms/5.722
+OK      /tests/native-capture/test-dangling-bone
+[%native-case %test-comet-sends-mesa]
+[ %native-packet
+  ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud
+  %push
+  449
+  0x1.90a5.c65e.c089.c10c.a7f3.6b9c.6292.b9c9.e4f8.f647.4620.1b3e.f7a2.6f15.5edb.4fc3.2118.65b4.5ac7.016f.a705.c8ec.76a1.88a7.9721.4835.3038.6c33.2e61.7268.6538.2e6e.6c72.676a.2e74.6461.3769.2e75.6773.7362.2e67.6e39.6b62.2e30.366c.356b.2e31.6262.3569.2e75.646c.6571.2e37.6d64.7673.2e73.6d65.6d66.2e32.6374.376b.2e6c.3238.6e6a.2e63.366c.6f71.2e69.616a.6476.302f.332f.6475.627e.2f31.2f6d.7568.6300.680d.00ab.a751.0e67.d475.404e.3dd1.aaca.a701.0213.616f.6769.332e.706d.636f.752e.3438.706a.312e.7061.3464.672e.3570.7435.6e2e.3569.3970.712e.6f69.6676.352e.626e.6c32.702e.6664.3836.352e.3068.6a34.722e.6c70.6f61.382e.756d.6e6c.622e.346e.6976.712e.6675.3234.6a2e.3170.6f6b.362e.666f.6466.352e.736a.7234.682e.616e.6472.712e.6d36.6c74.622e.6e6a.7571.6b2e.6234.7431.382e.386d.6836.6e2e.3668.726f.762e.706c.746d.362e.3368.6f65.632e.6975.3375.652e.3866.6f62.332e.3934.6232.332e.6275.6230.312e.3672.616c.6b2e.7372.3076.342e.6d70.7630.2f31.2f64.7562.7261.6d2d.6d79.7273.616d.2d70.656c.6261.682d.7265.646e.6170.2d2d.7379.7263.6164.2d73.656e.6761.6d2d.6c79.7764.6f70.2d6d.7972.736f.627e.2f33.2f6d.7568.6301.010d.0000.0210.67e0.0200.39ee.5190
+]
+[ %native-packet
+  ~bud
+  %push
+  62
+  0x332f.6475.627e.2f31.2f66.6f6f.7270.2f6e.7761.702f.2f31.2f78.2f61.2f31.2f6c.6275.7000.210d.00ab.a751.0e67.d475.404e.3dd1.aaca.a701.0213.67e0.0200.16d4.e110
+]
+>   test-comet-sends-mesa: took ms/5.590
+OK      /tests/native-capture/test-comet-sends-mesa
+[%native-case %test-comet-sends-ames]
+[ %native-packet
+  ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud
+  %send
+  65
+  0xdd.7a83.faf4.3a07.f963.e957.cfe5.406c.e7dd.f99e.cc86.b511.3a00.189f.2b28.de4d.d9eb.c7e4.e1b4.268b.4a6c.4100.02ab.a751.0e67.d475.404e.3dd1.aaca.a701.0231.a300.1180
+]
+mesa: ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud: hear ames packet for %alien |mesa peer
+>   test-comet-sends-ames: took ms/2.676
+OK      /tests/native-capture/test-comet-sends-ames
+[%native-case %test-comet-message-flow]
+ames: ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud: requesting attestion
+[ %native-packet
+  ~nec
+  %send
+  27
+  0x73.7965.6bab.a751.0e67.d475.404e.3dd1.aaca.a701.0200.0112.f3d8.ae00
+]
+ames: ~nec: received packet
+ames: ~nec: requested attestation
+[ %native-packet
+  ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud
+  %send
+  181
+  0x2.4638.d5d3.a887.33ea.3aa0.271e.e8d5.6553.8081.0080.1a65.1c3f.dd5f.a58d.881f.10bc.f808.362c.ab38.a41d.5f2d.52e7.aa02.f500.f513.bdae.b9c9.e13a.c80a.a47f.4df3.eb1b.2c81.f0e8.6f48.ea10.84e6.1f05.66a4.d763.af61.db82.9620.4400.2c58.00bc.a7b6.6af7.411a.d51d.739f.f979.bcec.86d5.5843.62a7.4517.2cad.eaa9.f749.bb59.5b8e.d1b7.2016.c610.354f.0592.5ad6.63f9.543c.5eb2.b9a9.d8f7.190c.8f08.2e8f.69b7.1f70.0100.01ab.a751.0e67.d475.404e.3dd1.aaca.a701.0221.9071.c180
+]
+[ %native-packet
+  ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud
+  %send
+  180
+  0x6638.d5d3.a887.33ea.3aa0.271e.e8d5.6553.8081.0080.1a65.1c3f.dd5f.a58d.881f.10bc.f808.362c.ab38.a41d.5f2d.52e7.aa02.f500.f513.bdae.b9c9.e13a.c80a.a47f.4df3.eb1b.2c81.f0e8.6f48.ea10.84e6.1f05.66a4.d763.af61.db82.9620.4400.2c28.00e9.d5c5.d0ad.f488.7d89.3c5a.11ff.ce7e.4961.49ca.d36b.8c30.7b27.0cff.b0e0.e7ae.96ed.f0ee.2a2b.e405.cc46.e940.0b8f.f3a7.2d5e.a034.b2b4.2d02.d438.d95f.e0fd.4d1e.7f70.0100.01ab.a751.0e67.d475.404e.3dd1.aaca.a701.0211.8668.7180
+]
+ames: ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud: received packet
+ames: ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud: got attestation
+ames: ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud: plea [[~nec 2] [~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud 1] bone=0 %g /talk]
+[ %native-packet
+  ~nec
+  %send
+  65
+  0x30.ff7d.c37c.376e.6ef6.5bf4.b2eb.8be2.b12f.3f6c.fca0.9ef3.3600.1880.10df.55d8.8bc9.7b18.dbf3.1006.4798.dbab.a751.0e67.d475.404e.3dd1.aaca.a701.0200.0112.c8bb.ae00
+]
+ames: ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud: received packet
+ames: ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud: got attestation
+ames: ~nec: received packet
+ames: ~nec: hear ~nec seq=1 1kb
+ames: ~nec: sink plea [~nec bone=1 message-num=1]
+[ %native-packet
+  ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud
+  %send
+  45
+  0x38.9af9.0600.0493.230f.5956.9cc0.038c.b2b3.e370.c049.8400.01ab.a751.0e67.d475.404e.3dd1.aaca.a701.0221.cfda.5984
+]
+ames: ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud: received packet
+ames: ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud: done [num=1 rto=5.125 rtt=1.125 rttvar=1.000 ssthresh=10.000 cwnd=2 num-live=0 counter=1]
+ames: ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud: done [num=1 rto=5.125 rtt=1.125 rttvar=1.000 ssthresh=10.000 cwnd=2 num-live=0 counter=1]
+[ %native-packet
+  ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud
+  %send
+  61
+  0xad.1005.b034.b2d3.530e.0cc9.913b.35cf.d972.c0c6.1700.1448.bd2c.3963.4df0.37df.9941.557c.22c7.3d00.01ab.a751.0e67.d475.404e.3dd1.aaca.a701.0221.fe8f.e180
+]
+ames: ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud: received packet
+ames: ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud: hear ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud seq=1 1kb
+ames: ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud: sink boon [~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud bone=0 message-num=1]
+[ %native-packet
+  ~nec
+  %send
+  45
+  0x6e.c524.cb00.04ed.c830.e755.5411.b769.fdda.8f73.b968.a2ab.a751.0e67.d475.404e.3dd1.aaca.a701.0200.0112.b487.1e04
+]
+>   test-comet-message-flow: took ms/32.935
+OK      /tests/native-capture/test-comet-message-flow
+[%native-case %test-comet-comet-message-flow]
+[ %native-packet
+  ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud
+  %send
+  41
+  0x73.7965.6b1d.74f5.29ce.be77.1862.ef63.53b1.5a01.02ab.a751.0e67.d475.404e.3dd1.aaca.a701.0211.9308.5f80
+]
+[ %native-packet
+  ~togdut-rosled-fadlev-siddys--botmun-wictev-sapfus-marbud
+  %send
+  211
+  0xca.ba75.10e6.7d47.5404.e3dd.1aac.aa70.1020.1003.8f5d.3d4a.73af.9dc6.18bb.d8d4.ec56.8040.bd80.3d8f.334a.ace8.f5e2.f415.d3c1.9ee2.ff1e.5558.269b.8b6d.ad7f.b799.b03e.cde3.96ce.215d.f3c9.bf3f.c4de.ee2f.6bb1.108b.00c0.8b81.d577.bda2.db5e.80e6.3764.8797.7501.cc40.8800.6950.01e1.4098.4869.f34b.b19e.f145.7c28.1015.3b7b.94e3.02c7.098f.a73f.81d7.b25e.151e.9dee.721a.b4eb.4884.64f9.f406.8856.bb77.0905.562d.6729.a773.cddc.6a49.6828.0bd4.1f90.01ab.a751.0e67.d475.404e.3dd1.aaca.a701.021d.74f5.29ce.be77.1862.ef63.53b1.5a01.0211.f539.1f80
+]
+[ %native-packet
+  ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud
+  %send
+  211
+  0x67.5d3d.4a73.af9d.c618.bbd8.d4ec.5680.40bd.8038.d5d3.a887.33ea.3aa0.271e.e8d5.6553.8081.0080.1a65.1c3f.dd5f.a58d.881f.10bc.f808.362c.ab38.a41d.5f2d.52e7.aa02.f500.f513.bdae.b9c9.e13a.c80a.a47f.4df3.eb1b.2c81.f0e8.6f48.ea10.84e6.1f05.66a4.d763.af61.db82.9620.4400.34a8.00d2.fa35.a593.6168.1333.5f6c.daf1.aed0.1b20.e410.3bb0.26f2.c654.81c9.6f2e.6b8e.adf5.8e21.94bd.d051.7f4a.1842.dbf1.73fd.7538.e594.907e.1553.cd0f.2543.bb21.8af3.bf70.011d.74f5.29ce.be77.1862.ef63.53b1.5a01.02ab.a751.0e67.d475.404e.3dd1.aaca.a701.0211.a805.3780
+]
+[ %native-packet
+  ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud
+  %send
+  79
+  0x36.32b8.5934.9cd0.64d5.b2d7.0b3c.c34c.ae19.3a3c.af63.6b47.f900.18e2.da62.129a.5c81.a8d9.75d7.ab19.e8a9.f71d.74f5.29ce.be77.1862.ef63.53b1.5a01.02ab.a751.0e67.d475.404e.3dd1.aaca.a701.0211.9793.2f80
+]
+[ %native-packet
+  ~togdut-rosled-fadlev-siddys--botmun-wictev-sapfus-marbud
+  %send
+  211
+  0xca.ba75.10e6.7d47.5404.e3dd.1aac.aa70.1020.1003.8f5d.3d4a.73af.9dc6.18bb.d8d4.ec56.8040.bd80.3d8f.334a.ace8.f5e2.f415.d3c1.9ee2.ff1e.5558.269b.8b6d.ad7f.b799.b03e.cde3.96ce.215d.f3c9.bf3f.c4de.ee2f.6bb1.108b.00c0.8b81.d577.bda2.db5e.80e6.3764.8797.7501.cc40.8800.6950.01e1.4098.4869.f34b.b19e.f145.7c28.1015.3b7b.94e3.02c7.098f.a73f.81d7.b25e.151e.9dee.721a.b4eb.4884.64f9.f406.8856.bb77.0905.562d.6729.a773.cddc.6a49.6828.0bd4.1f90.01ab.a751.0e67.d475.404e.3dd1.aaca.a701.021d.74f5.29ce.be77.1862.ef63.53b1.5a01.0211.f539.1f80
+]
+[ %native-packet
+  ~togdut-rosled-fadlev-siddys--botmun-wictev-sapfus-marbud
+  %send
+  59
+  0xf1.a184.5e00.04f9.4eca.1f12.f7c2.c6bb.fec5.6fd9.7d9e.e7ab.a751.0e67.d475.404e.3dd1.aaca.a701.021d.74f5.29ce.be77.1862.ef63.53b1.5a01.0211.add2.9f84
+]
+[ %native-packet
+  ~togdut-rosled-fadlev-siddys--botmun-wictev-sapfus-marbud
+  %send
+  75
+  0x62.c51f.a606.f1c4.d2a1.50dc.121c.bf4d.9912.7da6.fa00.149f.35c0.f165.a765.8a68.762c.c29f.dbe0.06ab.a751.0e67.d475.404e.3dd1.aaca.a701.021d.74f5.29ce.be77.1862.ef63.53b1.5a01.0211.b7d0.4780
+]
+[ %native-packet
+  ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud
+  %send
+  59
+  0x37.de75.8300.040e.ae7a.553c.44eb.f65c.a461.1943.f830.b21d.74f5.29ce.be77.1862.ef63.53b1.5a01.02ab.a751.0e67.d475.404e.3dd1.aaca.a701.0211.c97f.1f84
+]
+>   test-comet-comet-message-flow: took ms/31.864
+OK      /tests/native-capture/test-comet-comet-message-flow
+[%native-case %test-comet-bunt-sends-ames]
+[ %native-packet
+  ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud
+  %send
+  65
+  0xdd.7a83.faf4.3a07.f963.e957.cfe5.406c.e7dd.f99e.cc86.b511.3a00.189f.2b28.de4d.d9eb.c7e4.e1b4.268b.4a6c.4100.02ab.a751.0e67.d475.404e.3dd1.aaca.a701.0231.a300.1180
+]
+ames: ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud: ignore non ahoy pleas
+ames: ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud: received packet
+ames: ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud: hear ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud seq=1 1kb
+ames: ~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud: sink plea [~bosrym-podwyl-magnes-dacrys--pander-hablep-masrym-marbud bone=1 message-num=1]
+>   test-comet-bunt-sends-ames: took ms/4.884
+OK      /tests/native-capture/test-comet-bunt-sends-ames
+[%native-case %test-boon-lost]
+[ %native-packet
+  ~nec
+  %send
+  51
+  0x6d.2efc.d57f.907a.b890.0bf2.3042.07e5.d5ba.3790.326c.0b57.f400.1898.0872.2d4b.3ba4.5ab4.7acf.b980.e088.f900.0200.0132.ad07.1000
+]
+[ %native-packet
+  ~bud
+  %send
+  31
+  0x2.0219.8100.0485.5530.3c88.9068.3cc6.484e.2d9d.076e.6d00.0100.0223.9ae9.5004
+]
+[ %native-packet
+  ~bud
+  %send
+  45
+  0xd5.8757.05df.d452.6449.44d9.a5f2.8e37.f257.3700.12cd.3bd8.1021.b436.b7f7.de4d.75cb.2189.a000.0100.0223.ec2c.b000
+]
+>   test-boon-lost: took ms/11.353
+OK      /tests/native-capture/test-boon-lost
+[%native-case %test-blocked-policy-deny-allow-hit-miss]
+>   test-blocked-policy-deny-allow-hit-miss: took ms/1.951
+OK      /tests/native-capture/test-blocked-policy-deny-allow-hit-miss
+[%native-case %test-anew-cannot-restore-an-old-life-key]
+>   test-anew-cannot-restore-an-old-life-key: took ms/4.537
+OK      /tests/native-capture/test-anew-cannot-restore-an-old-life-key
+[%native-case %test-ames-flow-with-new-rift]
+[ %native-packet
+  ~nec
+  %send
+  51
+  0x6d.2efc.d57f.907a.b890.0bf2.3042.07e5.d5ba.3790.326c.0b57.f400.1898.0872.2d4b.3ba4.5ab4.7acf.b980.e088.f900.0200.0132.ad07.1000
+]
+[ %native-packet
+  ~bud
+  %send
+  31
+  0x2.0219.8100.0485.5530.3c88.9068.3cc6.484e.2d9d.076e.6d00.0100.0223.9ae9.5004
+]
+[ %native-packet
+  ~bud
+  %send
+  46
+  0xa56e.cdda.6cc1.2727.ca75.d20c.464f.7586.b599.5800.1303.bfbd.3fa5.31ed.de70.0b6d.83b5.0f68.8700.0100.0223.e8c8.d800
+]
+[ %native-packet
+  ~nec
+  %send
+  31
+  0xfe.e208.da00.0491.bf7f.9594.2ddc.0948.9de0.3906.b678.6e00.0200.0132.e55d.5004
+]
+>   test-ames-flow-with-new-rift: took ms/29.283
+OK      /tests/native-capture/test-ames-flow-with-new-rift
+[%native-case %test-alien-encounter]
+>   test-alien-encounter: took ms/26.289
+OK      /tests/native-capture/test-alien-encounter
