@@ -630,6 +630,15 @@ impl Activation {
         if self.pins.len() >= self.config.operations {
             return Err(Error::Capacity);
         }
+        // A prepared retirement may already be durable when the host asks to pin.
+        // Reserve its deletion set until the proposal is canceled or expires.
+        if self
+            .pending
+            .as_ref()
+            .is_some_and(|p| p.next.delete.contains(&reference))
+        {
+            return Err(Error::Busy);
+        }
         if !self
             .state
             .active

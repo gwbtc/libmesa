@@ -287,3 +287,56 @@ fn full_width_identifiers_survive_public_snapshots_and_checkpoint_restore() {
         reference
     );
 }
+
+#[test]
+fn pending_retirement_rejects_pins_without_blocking_other_keys() {
+    let (mut a, p) = authority();
+    let mut s = store();
+    let mut k = Activation::new(config()).unwrap();
+    for life in 1..=3 {
+        let c = candidate(1, life, 0, life as u8);
+        install(&mut a, p, c.clone());
+        stage(&mut s, life as u64, c, life as u8);
+        commit(&mut k, &a, &s, life as u64);
+    }
+    let q = k.retire(&a, reference(1)).unwrap();
+    assert_eq!(k.pin(77, reference(1)), Err(Error::Busy));
+    // Rejection must not consume the pin ID or block unrelated history/active keys.
+    k.pin(77, reference(2)).unwrap();
+    k.pin(78, reference(3)).unwrap();
+    k.commit(&a, &s, q.token).unwrap();
+    assert_eq!(k.pin(79, reference(1)), Err(Error::MissingKey));
+    k.delete_retired(&mut s, reference(1)).unwrap();
+    assert!(!s.contains(reference(1)));
+    assert!(s.contains(reference(2)) && s.contains(reference(3)));
+    assert!(matches!(k.retire(&a, reference(2)), Err(Error::Busy)));
+    k.unpin(77).unwrap();
+    assert!(k.retire(&a, reference(2)).is_ok());
+}
+
+#[test]
+fn cancelled_or_expired_retirement_allows_pinning_again() {
+    for expire in [false, true] {
+        let (mut a, p) = authority();
+        let mut s = store();
+        let mut k = Activation::new(config()).unwrap();
+        for life in 1..=2 {
+            let c = candidate(1, life, 0, life as u8);
+            install(&mut a, p, c.clone());
+            stage(&mut s, life as u64, c, life as u8);
+            commit(&mut k, &a, &s, life as u64);
+        }
+        let q = k.retire(&a, reference(1)).unwrap();
+        assert_eq!(k.pin(77, reference(1)), Err(Error::Busy));
+        if expire {
+            k.advance(k.deadline().unwrap()).unwrap();
+        } else {
+            k.cancel(q.token).unwrap();
+        }
+        assert_eq!(k.commit(&a, &s, q.token), Err(Error::Stale));
+        k.pin(77, reference(1)).unwrap();
+        assert!(matches!(k.retire(&a, reference(1)), Err(Error::Busy)));
+        assert_eq!(k.delete_retired(&mut s, reference(1)), Err(Error::Busy));
+        assert!(s.contains(reference(1)));
+    }
+}

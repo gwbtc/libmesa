@@ -210,9 +210,10 @@ are separate integrations; this API does not claim to implement them. Historical
 keys cannot sign ordinary new traffic. Reopen retained versions of one software
 object in increasing version order; rebuilding a store does not import its
 historical slots automatically. Explicit bounded pins protect retained
-protocol material until the owning protocol releases it. Reconstruct those pins from durable protocol state before
-allowing retirement after restart. There is no implicit
-old-key grace period.
+protocol material until the owning protocol releases it. A pending retirement
+rejects new pins for its deletion set; cancellation or expiry releases that
+reservation. Reconstruct those pins from durable protocol state before allowing
+retirement after restart. There is no implicit old-key grace period.
 
 Mutable handles require one serialized caller. Completed batches, descriptors,
 packets and buffers are immutable and may cross threads. C `mesa_keys_submit`

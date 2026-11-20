@@ -15,7 +15,7 @@ both default and optional `suite-c` C builds.
 | Check | Evidence |
 |---|---|
 | Formatting and lint | `cargo fmt --all -- --check`; `cargo clippy --workspace --all-targets --all-features -- -D warnings` |
-| Rust regression suite | `cargo test --workspace`; 230 tests, including existing transport/process tests |
+| Rust regression suite | `cargo test --workspace`; 234 tests, including existing transport/process tests |
 | Existing runnable slices | `two-peer`, `two-peer-flows`, `flow-loopback` examples |
 | Protection and wire regressions | `tools/protection-vector.py --check`, `tools/test-protected-udp.py`, `tools/conformance-v2.py`, `tools/conformance-noun.py` |
 | Default C ABI | `bash tools/test-ffi.sh`; existing ownership/inbox/UDP/admission tests and new activation harness |
@@ -41,6 +41,13 @@ invalid backend signatures, reject stale generation completions, compare both
 sides of real key agreement, and invalidate agreement when the remote point
 changes. Timeout, cancellation, backward time, bounded operation capacity,
 historical pins and retirement/delete replay have separate assertions.
+
+Review regressions reserve keys in a pending retirement against new pins, while
+allowing pins for unrelated history and active keys. Canceling or expiring the
+proposal releases that reservation. Sparse rings above the configured byte limit,
+including logical width `usize::MAX`, return an error before expansion; a valid
+ring exactly at the limit still imports. Both reported failures were reproduced
+before applying these fixes.
 
 The CORE test publishes and reads a 16,000-byte value, rotates the local signer,
 updates the reader's remote credential, and reads the retained publication

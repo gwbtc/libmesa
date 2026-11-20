@@ -45,6 +45,9 @@ pub fn suite_c_material(
     limits: suite_c::Limits,
 ) -> Result<mesa_keys::Material, mesa_keys::Error> {
     use mesa_keys::Error;
+    if ring.len() > limits.max_blob_bytes {
+        return Err(Error::Invalid);
+    }
     let tag = DomainTag::new(domain).map_err(|_| Error::Invalid)?;
     ring.with_bytes(|bytes| {
         let parsed = suite_c::parse_current_ring(bytes, tag, limits).map_err(|_| Error::Invalid)?;
