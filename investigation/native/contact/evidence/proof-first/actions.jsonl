@@ -1,0 +1,13 @@
+{"time_ns": 1795371834107916000, "label": "a", "name": "initial", "result": "[0 %avow 0 %noun [0xb7512d2b60a16fdd23af26e4941a42cd %peer %alien] [[0xb0944ca3e32eaec9fd954dd1381f7f41 %peer %known] 0 0] [17101 %peer %known] [[0xcde782a0669b70b52e9230e1d892377d %chum %known] [[153 %peer %known] 0 0] 0] 0]\n"}
+{"time_ns": 1795371834287228000, "label": "b", "name": "initial", "result": "[0 %avow 0 %noun [0xb7512d2b60a16fdd23af26e4941a42cd %peer %alien] 0 [0x293592d131de4151281d76f92f72db7e %peer %known] 0 [17101 %peer %known] [[153 %peer %known] 0 0] 0]\n"}
+{"time_ns": 1795371834455102000, "label": "a", "name": "select-mesa", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795371834623846000, "label": "a", "name": "trace", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795371834807713000, "label": "b", "name": "trace", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795371834975458000, "label": "a", "name": "authorize-target", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795371835146792000, "label": "a", "name": "first-message", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795371835315558000, "label": "a", "name": "after-submit", "result": "[0 %avow 0 %noun [0xb7512d2b60a16fdd23af26e4941a42cd %peer %alien] [[0xb0944ca3e32eaec9fd954dd1381f7f41 %peer %known] 0 0] [0x293592d131de4151281d76f92f72db7e %chum %known] 0 [17101 %peer %known] [[0xcde782a0669b70b52e9230e1d892377d %chum %known] [[153 %peer %known] 0 0] 0] 0]\n"}
+{"time_ns": 1795371835486380000, "label": "b", "name": "before-contact", "result": "[0 %avow 0 %noun [0xb7512d2b60a16fdd23af26e4941a42cd %peer %alien] 0 [0x293592d131de4151281d76f92f72db7e %peer %known] 0 [17101 %peer %known] [[153 %peer %known] 0 0] 0]\n"}
+{"time_ns": 1795371843670818000, "label": "a", "name": "direct-route", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795371843844902000, "label": "a", "name": "send-proof-before-data", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795371846066604000, "label": "b", "name": "proof-only-accepted", "result": "[0 %avow 0 %noun [0xb7512d2b60a16fdd23af26e4941a42cd %peer %alien] [[0xb0944ca3e32eaec9fd954dd1381f7f41 %peer %known] 0 0] [0x293592d131de4151281d76f92f72db7e %peer %known] 0 [17101 %peer %known] [[153 %peer %known] 0 0] 0]\n"}
+{"time_ns": 1795371846244848000, "label": "a", "name": "release-private-packets", "result": "[0 %avow 0 %noun %dispatched]\n"}

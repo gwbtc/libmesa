@@ -1,6 +1,6 @@
 # Shrine integration, modular PKI, and native Groundwire interoperability
 
-**Roadmap, 2026-11-20.** PR #12 merged phases 1–3. PR #13 merged phase 4
+**Roadmap, 2026-11-22.** PR #12 merged phases 1–3. PR #13 merged phase 4
 at `05c137015836a4bb28b4d35cccfeeb3aaa182df3`. PR #14 merged phase 5
 at `c3d34bf473f1912a575243783e399b2001f4a658`: software custody, durable
 activation and CORE/FLOW credential transitions. Read the
@@ -8,11 +8,12 @@ activation and CORE/FLOW credential transitions. Read the
 [phase-5 validation](20-local-activation-validation.md), alongside the
 [authority contract](../spec/16-authority-admission.md) and
 [phase-4 validation](19-authority-admission-validation.md).
-Native live-capture evidence in [phase 0](17-raw-udp-phase0.md) remains open.
 Phase 6 native wire integration remains separate work.
 The [native-target investigation](21-native-target-investigation.md) pins
-the executed stack, preserves packet evidence, and specifies phase 6's
-implementation order and remaining live admission gate.
+the executed stack and preserves packet evidence. The
+[live suite-C follow-up](22-suite-c-first-contact.md) closes the direct-UDP
+first-contact investigation and selects the routing and migration scope.
+It does not claim that libmesa implements the Urbit wire profile yet.
 
 Build the modules an operating system needs to use Mesa and Groundwire ID.
 Shrine is the first integrator. Existing Urbit ships are network peers; they
@@ -427,8 +428,11 @@ used in the OS integration harness.
 Use the [2026-11-20 investigation](21-native-target-investigation.md) for
 the concrete profile: exact-byte UDP checksums, native BLAKE3 roots,
 two-party private spaces, bounded proofs, and native byte-service flows.
-Direct-route admission and default-mode migration still need a live fixture
-result before selecting the complete legacy control subset.
+The [live follow-up](22-suite-c-first-contact.md) establishes direct-route
+admission without a working sponsor relay. Use request-driven proof responses:
+accepting an unsolicited proof poke before the first private packet can create
+legacy Ames state on a default-mode receiver. A fresh relationship needs no
+`%ahoy`; takeover of existing legacy flows remains a separate migration task.
 
 Build the native profile identified in phase 0 as a selectable module. Cover
 wire encoding, protected name/root context, fragmentation/LSS, public and
@@ -445,9 +449,11 @@ extending that exception to ordinary page signatures.
 
 The inspected kernel also announces key changes through legacy open packets.
 The proposed strategy is an isolated compatibility implementation of the
-control subset needed by native peers. Determine `%keys`, open-packet and
-migration/`%ahoy` requirements from traces and source. If convergence requires
-more than that subset, expose the dependency and extend the profile explicitly.
+control subset needed by native peers. Implement `%keys` and open-packet
+identity recovery. The initial acceptance profile uses fresh Mesa relationships
+or relationships already migrated by the Urbit operator. Automatic `%ahoy`
+migration of arbitrary legacy flows is not established by the live experiment
+and requires a separate scope decision.
 Do not hide a required Urbit patch or whole legacy data stack inside a fixture.
 
 Only implement legacy control required by suite-C peers in the primary track.

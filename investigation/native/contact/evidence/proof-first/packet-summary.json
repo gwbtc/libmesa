@@ -1,0 +1,749 @@
+[
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "publ/1/a/x/1//muth/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "signature",
+    "body_bytes": 131,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": false,
+    "payload": {
+      "fragment": "Init",
+      "path": "publ/1/a/x/1//pawn/proof/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "proof_signature_valid": true,
+    "signature_valid": true,
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371843789428000,
+    "total_bytes": 131,
+    "type": "poke",
+    "width": 414
+  },
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "chum/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1/0vn9.p7n0m.foqsl.ap2rf.kou1i.uardd.kpeq7.ain55.rgqi4.rfd1v.qbnhl.mhpat.oiab3.o9rhl.1ko0i.sljeb.hgmio.224s4.gupgj.p1sv5.kvah8.6esi5.6fn64.50nn2.pe1jn.22jg3.1g0u8.qvmiu.iopi1.vncjt.t5fo5.r7t4t",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "mac",
+    "body_bytes": 60,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": true,
+    "payload": {
+      "fragment": "Init",
+      "path": "chum/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1/0v6dn9.9j9dc.5po52.73obb.uu83d.td3a0.lii1o.0a9l3.uojpv.riflm.l7lp6.78cmp.cgsha.3lpio.u21mp.lln9m.1osiv.o6gg5.49ll7.5hif8.7jt30.1d2pj.mi9uh.8b61a.4a02d.50s1l.tmd67.fppiu.93ess.e8ehu.edsli.8ij1g",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371843789658000,
+    "total_bytes": 60,
+    "type": "poke",
+    "width": 645
+  },
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "chum/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1/0vmq.ncvo9.tmpvc.45uk7.sh249.g5kp5.0404r.av9r8.ctppo.k22r0.l0r0c.ot12o.72l88.cuiop.v1nlv.e3pm2.t6ech.smjev.967n5.9qjsj.uadh2.5cu5h.m6d3l.five9.shuhs.gqj36.314pm.eckaq.8s020.n3cb5.7uqhf.v1h48",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "mac",
+    "body_bytes": 22,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": true,
+    "payload": {
+      "fragment": "Init",
+      "path": "chum/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1/0v57m2.g7jn3.q77al.jemg9.7971a.l4acq.n26ag.l9uul.nbtc7.ul619.pblfe.ecbc3.mne6o.0pqak.s33ju.e1iop.0mmuj.6sjaj.ptj4c.e146a.gkjj1.74sre.3femo.ndmh5.s7qvb.2h9n4.7h3vm.2upph.57lc9.d9ifi.63dgn.eo2nt",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371843789794000,
+    "total_bytes": 22,
+    "type": "poke",
+    "width": 607
+  },
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "publ/1/a/x/1//muth/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "signature",
+    "body_bytes": 131,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": false,
+    "payload": {
+      "fragment": "Init",
+      "path": "publ/1/a/x/1//pawn/proof/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "proof_signature_valid": true,
+    "signature_valid": true,
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371844790490000,
+    "total_bytes": 131,
+    "type": "poke",
+    "width": 414
+  },
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "chum/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1/0vn9.p7n0m.foqsl.ap2rf.kou1i.uardd.kpeq7.ain55.rgqi4.rfd1v.qbnhl.mhpat.oiab3.o9rhl.1ko0i.sljeb.hgmio.224s4.gupgj.p1sv5.kvah8.6esi5.6fn64.50nn2.pe1jn.22jg3.1g0u8.qvmiu.iopi1.vncjt.t5fo5.r7t4t",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "mac",
+    "body_bytes": 60,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": true,
+    "payload": {
+      "fragment": "Init",
+      "path": "chum/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1/0v6dn9.9j9dc.5po52.73obb.uu83d.td3a0.lii1o.0a9l3.uojpv.riflm.l7lp6.78cmp.cgsha.3lpio.u21mp.lln9m.1osiv.o6gg5.49ll7.5hif8.7jt30.1d2pj.mi9uh.8b61a.4a02d.50s1l.tmd67.fppiu.93ess.e8ehu.edsli.8ij1g",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371844790782000,
+    "total_bytes": 60,
+    "type": "poke",
+    "width": 645
+  },
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "chum/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1/0vmq.ncvo9.tmpvc.45uk7.sh249.g5kp5.0404r.av9r8.ctppo.k22r0.l0r0c.ot12o.72l88.cuiop.v1nlv.e3pm2.t6ech.smjev.967n5.9qjsj.uadh2.5cu5h.m6d3l.five9.shuhs.gqj36.314pm.eckaq.8s020.n3cb5.7uqhf.v1h48",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "mac",
+    "body_bytes": 22,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": true,
+    "payload": {
+      "fragment": "Init",
+      "path": "chum/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1/0v57m2.g7jn3.q77al.jemg9.7971a.l4acq.n26ag.l9uul.nbtc7.ul619.pblfe.ecbc3.mne6o.0pqak.s33ju.e1iop.0mmuj.6sjaj.ptj4c.e146a.gkjj1.74sre.3femo.ndmh5.s7qvb.2h9n4.7h3vm.2upph.57lc9.d9ifi.63dgn.eo2nt",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371844790845000,
+    "total_bytes": 22,
+    "type": "poke",
+    "width": 607
+  },
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "publ/1/a/x/1//muth/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "signature",
+    "body_bytes": 131,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": false,
+    "payload": {
+      "fragment": "Init",
+      "path": "publ/1/a/x/1//pawn/proof/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "proof_signature_valid": true,
+    "signature_valid": true,
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371845791594000,
+    "total_bytes": 131,
+    "type": "poke",
+    "width": 414
+  },
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "chum/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1/0vn9.p7n0m.foqsl.ap2rf.kou1i.uardd.kpeq7.ain55.rgqi4.rfd1v.qbnhl.mhpat.oiab3.o9rhl.1ko0i.sljeb.hgmio.224s4.gupgj.p1sv5.kvah8.6esi5.6fn64.50nn2.pe1jn.22jg3.1g0u8.qvmiu.iopi1.vncjt.t5fo5.r7t4t",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "mac",
+    "body_bytes": 60,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": true,
+    "payload": {
+      "fragment": "Init",
+      "path": "chum/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1/0v6dn9.9j9dc.5po52.73obb.uu83d.td3a0.lii1o.0a9l3.uojpv.riflm.l7lp6.78cmp.cgsha.3lpio.u21mp.lln9m.1osiv.o6gg5.49ll7.5hif8.7jt30.1d2pj.mi9uh.8b61a.4a02d.50s1l.tmd67.fppiu.93ess.e8ehu.edsli.8ij1g",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371845791891000,
+    "total_bytes": 60,
+    "type": "poke",
+    "width": 645
+  },
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "chum/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1/0vmq.ncvo9.tmpvc.45uk7.sh249.g5kp5.0404r.av9r8.ctppo.k22r0.l0r0c.ot12o.72l88.cuiop.v1nlv.e3pm2.t6ech.smjev.967n5.9qjsj.uadh2.5cu5h.m6d3l.five9.shuhs.gqj36.314pm.eckaq.8s020.n3cb5.7uqhf.v1h48",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "mac",
+    "body_bytes": 22,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": true,
+    "payload": {
+      "fragment": "Init",
+      "path": "chum/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1/0v57m2.g7jn3.q77al.jemg9.7971a.l4acq.n26ag.l9uul.nbtc7.ul619.pblfe.ecbc3.mne6o.0pqak.s33ju.e1iop.0mmuj.6sjaj.ptj4c.e146a.gkjj1.74sre.3femo.ndmh5.s7qvb.2h9n4.7h3vm.2upph.57lc9.d9ifi.63dgn.eo2nt",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371845791966000,
+    "total_bytes": 22,
+    "type": "poke",
+    "width": 607
+  },
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "chum/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1/0vn9.p7n0m.foqsl.ap2rf.kou1i.uardd.kpeq7.ain55.rgqi4.rfd1v.qbnhl.mhpat.oiab3.o9rhl.1ko0i.sljeb.hgmio.224s4.gupgj.p1sv5.kvah8.6esi5.6fn64.50nn2.pe1jn.22jg3.1g0u8.qvmiu.iopi1.vncjt.t5fo5.r7t4t",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "mac",
+    "body_bytes": 60,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": false,
+    "payload": {
+      "fragment": "Init",
+      "path": "chum/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1/0v6dn9.9j9dc.5po52.73obb.uu83d.td3a0.lii1o.0a9l3.uojpv.riflm.l7lp6.78cmp.cgsha.3lpio.u21mp.lln9m.1osiv.o6gg5.49ll7.5hif8.7jt30.1d2pj.mi9uh.8b61a.4a02d.50s1l.tmd67.fppiu.93ess.e8ehu.edsli.8ij1g",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371846186701000,
+    "total_bytes": 60,
+    "type": "poke",
+    "width": 645
+  },
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "publ/1/a/x/1//muth/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "signature",
+    "body_bytes": 131,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": false,
+    "payload": {
+      "fragment": "Init",
+      "path": "publ/1/a/x/1//pawn/proof/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "proof_signature_valid": true,
+    "signature_valid": true,
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371846186825000,
+    "total_bytes": 131,
+    "type": "poke",
+    "width": 414
+  },
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "chum/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1/0vmq.ncvo9.tmpvc.45uk7.sh249.g5kp5.0404r.av9r8.ctppo.k22r0.l0r0c.ot12o.72l88.cuiop.v1nlv.e3pm2.t6ech.smjev.967n5.9qjsj.uadh2.5cu5h.m6d3l.five9.shuhs.gqj36.314pm.eckaq.8s020.n3cb5.7uqhf.v1h48",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "mac",
+    "body_bytes": 22,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": false,
+    "payload": {
+      "fragment": "Init",
+      "path": "chum/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1/0v57m2.g7jn3.q77al.jemg9.7971a.l4acq.n26ag.l9uul.nbtc7.ul619.pblfe.ecbc3.mne6o.0pqak.s33ju.e1iop.0mmuj.6sjaj.ptj4c.e146a.gkjj1.74sre.3femo.ndmh5.s7qvb.2h9n4.7h3vm.2upph.57lc9.d9ifi.63dgn.eo2nt",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371846186857000,
+    "total_bytes": 22,
+    "type": "poke",
+    "width": 607
+  },
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "chum/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1/0vn9.p7n0m.foqsl.ap2rf.kou1i.uardd.kpeq7.ain55.rgqi4.rfd1v.qbnhl.mhpat.oiab3.o9rhl.1ko0i.sljeb.hgmio.224s4.gupgj.p1sv5.kvah8.6esi5.6fn64.50nn2.pe1jn.22jg3.1g0u8.qvmiu.iopi1.vncjt.t5fo5.r7t4t",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "mac",
+    "body_bytes": 60,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": false,
+    "payload": {
+      "fragment": "Init",
+      "path": "chum/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1/0v6dn9.9j9dc.5po52.73obb.uu83d.td3a0.lii1o.0a9l3.uojpv.riflm.l7lp6.78cmp.cgsha.3lpio.u21mp.lln9m.1osiv.o6gg5.49ll7.5hif8.7jt30.1d2pj.mi9uh.8b61a.4a02d.50s1l.tmd67.fppiu.93ess.e8ehu.edsli.8ij1g",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371847188398000,
+    "total_bytes": 60,
+    "type": "poke",
+    "width": 645
+  },
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "publ/1/a/x/1//muth/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "signature",
+    "body_bytes": 131,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": false,
+    "payload": {
+      "fragment": "Init",
+      "path": "publ/1/a/x/1//pawn/proof/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "proof_signature_valid": true,
+    "signature_valid": true,
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371847188923000,
+    "total_bytes": 131,
+    "type": "poke",
+    "width": 414
+  },
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "chum/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1/0vmq.ncvo9.tmpvc.45uk7.sh249.g5kp5.0404r.av9r8.ctppo.k22r0.l0r0c.ot12o.72l88.cuiop.v1nlv.e3pm2.t6ech.smjev.967n5.9qjsj.uadh2.5cu5h.m6d3l.five9.shuhs.gqj36.314pm.eckaq.8s020.n3cb5.7uqhf.v1h48",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "mac",
+    "body_bytes": 22,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": false,
+    "payload": {
+      "fragment": "Init",
+      "path": "chum/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1/0v57m2.g7jn3.q77al.jemg9.7971a.l4acq.n26ag.l9uul.nbtc7.ul619.pblfe.ecbc3.mne6o.0pqak.s33ju.e1iop.0mmuj.6sjaj.ptj4c.e146a.gkjj1.74sre.3femo.ndmh5.s7qvb.2h9n4.7h3vm.2upph.57lc9.d9ifi.63dgn.eo2nt",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371847189049000,
+    "total_bytes": 22,
+    "type": "poke",
+    "width": 607
+  },
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "chum/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1/0vn9.p7n0m.foqsl.ap2rf.kou1i.uardd.kpeq7.ain55.rgqi4.rfd1v.qbnhl.mhpat.oiab3.o9rhl.1ko0i.sljeb.hgmio.224s4.gupgj.p1sv5.kvah8.6esi5.6fn64.50nn2.pe1jn.22jg3.1g0u8.qvmiu.iopi1.vncjt.t5fo5.r7t4t",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "mac",
+    "body_bytes": 60,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": false,
+    "payload": {
+      "fragment": "Init",
+      "path": "chum/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1/0v6dn9.9j9dc.5po52.73obb.uu83d.td3a0.lii1o.0a9l3.uojpv.riflm.l7lp6.78cmp.cgsha.3lpio.u21mp.lln9m.1osiv.o6gg5.49ll7.5hif8.7jt30.1d2pj.mi9uh.8b61a.4a02d.50s1l.tmd67.fppiu.93ess.e8ehu.edsli.8ij1g",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371848189488000,
+    "total_bytes": 60,
+    "type": "poke",
+    "width": 645
+  },
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "publ/1/a/x/1//muth/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "signature",
+    "body_bytes": 131,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": false,
+    "payload": {
+      "fragment": "Init",
+      "path": "publ/1/a/x/1//pawn/proof/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "proof_signature_valid": true,
+    "signature_valid": true,
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371848189772000,
+    "total_bytes": 131,
+    "type": "poke",
+    "width": 414
+  },
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "chum/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1/0vmq.ncvo9.tmpvc.45uk7.sh249.g5kp5.0404r.av9r8.ctppo.k22r0.l0r0c.ot12o.72l88.cuiop.v1nlv.e3pm2.t6ech.smjev.967n5.9qjsj.uadh2.5cu5h.m6d3l.five9.shuhs.gqj36.314pm.eckaq.8s020.n3cb5.7uqhf.v1h48",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "mac",
+    "body_bytes": 22,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": false,
+    "payload": {
+      "fragment": "Init",
+      "path": "chum/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1/0v57m2.g7jn3.q77al.jemg9.7971a.l4acq.n26ag.l9uul.nbtc7.ul619.pblfe.ecbc3.mne6o.0pqak.s33ju.e1iop.0mmuj.6sjaj.ptj4c.e146a.gkjj1.74sre.3femo.ndmh5.s7qvb.2h9n4.7h3vm.2upph.57lc9.d9ifi.63dgn.eo2nt",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371848189862000,
+    "total_bytes": 22,
+    "type": "poke",
+    "width": 607
+  },
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "chum/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1/0vn9.p7n0m.foqsl.ap2rf.kou1i.uardd.kpeq7.ain55.rgqi4.rfd1v.qbnhl.mhpat.oiab3.o9rhl.1ko0i.sljeb.hgmio.224s4.gupgj.p1sv5.kvah8.6esi5.6fn64.50nn2.pe1jn.22jg3.1g0u8.qvmiu.iopi1.vncjt.t5fo5.r7t4t",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "mac",
+    "body_bytes": 60,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": false,
+    "payload": {
+      "fragment": "Init",
+      "path": "chum/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1/0v6dn9.9j9dc.5po52.73obb.uu83d.td3a0.lii1o.0a9l3.uojpv.riflm.l7lp6.78cmp.cgsha.3lpio.u21mp.lln9m.1osiv.o6gg5.49ll7.5hif8.7jt30.1d2pj.mi9uh.8b61a.4a02d.50s1l.tmd67.fppiu.93ess.e8ehu.edsli.8ij1g",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371877392342000,
+    "total_bytes": 60,
+    "type": "poke",
+    "width": 645
+  },
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "publ/1/a/x/1//muth/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "signature",
+    "body_bytes": 131,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": false,
+    "payload": {
+      "fragment": "Init",
+      "path": "publ/1/a/x/1//pawn/proof/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "proof_signature_valid": true,
+    "signature_valid": true,
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371877392466000,
+    "total_bytes": 131,
+    "type": "poke",
+    "width": 414
+  },
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "chum/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1/0vmq.ncvo9.tmpvc.45uk7.sh249.g5kp5.0404r.av9r8.ctppo.k22r0.l0r0c.ot12o.72l88.cuiop.v1nlv.e3pm2.t6ech.smjev.967n5.9qjsj.uadh2.5cu5h.m6d3l.five9.shuhs.gqj36.314pm.eckaq.8s020.n3cb5.7uqhf.v1h48",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "mac",
+    "body_bytes": 22,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": false,
+    "payload": {
+      "fragment": "Init",
+      "path": "chum/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1/0v57m2.g7jn3.q77al.jemg9.7971a.l4acq.n26ag.l9uul.nbtc7.ul619.pblfe.ecbc3.mne6o.0pqak.s33ju.e1iop.0mmuj.6sjaj.ptj4c.e146a.gkjj1.74sre.3femo.ndmh5.s7qvb.2h9n4.7h3vm.2upph.57lc9.d9ifi.63dgn.eo2nt",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371877395056000,
+    "total_bytes": 22,
+    "type": "poke",
+    "width": 607
+  },
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "chum/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1/0vn9.p7n0m.foqsl.ap2rf.kou1i.uardd.kpeq7.ain55.rgqi4.rfd1v.qbnhl.mhpat.oiab3.o9rhl.1ko0i.sljeb.hgmio.224s4.gupgj.p1sv5.kvah8.6esi5.6fn64.50nn2.pe1jn.22jg3.1g0u8.qvmiu.iopi1.vncjt.t5fo5.r7t4t",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "mac",
+    "body_bytes": 60,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": false,
+    "payload": {
+      "fragment": "Init",
+      "path": "chum/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1/0v6dn9.9j9dc.5po52.73obb.uu83d.td3a0.lii1o.0a9l3.uojpv.riflm.l7lp6.78cmp.cgsha.3lpio.u21mp.lln9m.1osiv.o6gg5.49ll7.5hif8.7jt30.1d2pj.mi9uh.8b61a.4a02d.50s1l.tmd67.fppiu.93ess.e8ehu.edsli.8ij1g",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371878393296000,
+    "total_bytes": 60,
+    "type": "poke",
+    "width": 645
+  },
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "publ/1/a/x/1//muth/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "signature",
+    "body_bytes": 131,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": false,
+    "payload": {
+      "fragment": "Init",
+      "path": "publ/1/a/x/1//pawn/proof/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "proof_signature_valid": true,
+    "signature_valid": true,
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371878393469000,
+    "total_bytes": 131,
+    "type": "poke",
+    "width": 414
+  },
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "chum/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1/0vmq.ncvo9.tmpvc.45uk7.sh249.g5kp5.0404r.av9r8.ctppo.k22r0.l0r0c.ot12o.72l88.cuiop.v1nlv.e3pm2.t6ech.smjev.967n5.9qjsj.uadh2.5cu5h.m6d3l.five9.shuhs.gqj36.314pm.eckaq.8s020.n3cb5.7uqhf.v1h48",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "mac",
+    "body_bytes": 22,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": false,
+    "payload": {
+      "fragment": "Init",
+      "path": "chum/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1/0v57m2.g7jn3.q77al.jemg9.7971a.l4acq.n26ag.l9uul.nbtc7.ul619.pblfe.ecbc3.mne6o.0pqak.s33ju.e1iop.0mmuj.6sjaj.ptj4c.e146a.gkjj1.74sre.3femo.ndmh5.s7qvb.2h9n4.7h3vm.2upph.57lc9.d9ifi.63dgn.eo2nt",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371878393532000,
+    "total_bytes": 22,
+    "type": "poke",
+    "width": 607
+  },
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "chum/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1/0vn9.p7n0m.foqsl.ap2rf.kou1i.uardd.kpeq7.ain55.rgqi4.rfd1v.qbnhl.mhpat.oiab3.o9rhl.1ko0i.sljeb.hgmio.224s4.gupgj.p1sv5.kvah8.6esi5.6fn64.50nn2.pe1jn.22jg3.1g0u8.qvmiu.iopi1.vncjt.t5fo5.r7t4t",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "mac",
+    "body_bytes": 60,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": false,
+    "payload": {
+      "fragment": "Init",
+      "path": "chum/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1/0v6dn9.9j9dc.5po52.73obb.uu83d.td3a0.lii1o.0a9l3.uojpv.riflm.l7lp6.78cmp.cgsha.3lpio.u21mp.lln9m.1osiv.o6gg5.49ll7.5hif8.7jt30.1d2pj.mi9uh.8b61a.4a02d.50s1l.tmd67.fppiu.93ess.e8ehu.edsli.8ij1g",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371879394436000,
+    "total_bytes": 60,
+    "type": "poke",
+    "width": 645
+  },
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "publ/1/a/x/1//muth/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "signature",
+    "body_bytes": 131,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": false,
+    "payload": {
+      "fragment": "Init",
+      "path": "publ/1/a/x/1//pawn/proof/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "proof_signature_valid": true,
+    "signature_valid": true,
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371879394708000,
+    "total_bytes": 131,
+    "type": "poke",
+    "width": 414
+  },
+  {
+    "ack": {
+      "fragment": "Init",
+      "path": "chum/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1/0vmq.ncvo9.tmpvc.45uk7.sh249.g5kp5.0404r.av9r8.ctppo.k22r0.l0r0c.ot12o.72l88.cuiop.v1nlv.e3pm2.t6ech.smjev.967n5.9qjsj.uadh2.5cu5h.m6d3l.five9.shuhs.gqj36.314pm.eckaq.8s020.n3cb5.7uqhf.v1h48",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "auth": "mac",
+    "body_bytes": 22,
+    "destination_port": 31738,
+    "direction": "a-to-b",
+    "dropped": false,
+    "payload": {
+      "fragment": "Init",
+      "path": "chum/1/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub/1/0v57m2.g7jn3.q77al.jemg9.7971a.l4acq.n26ag.l9uul.nbtc7.ul619.pblfe.ecbc3.mne6o.0pqak.s33ju.e1iop.0mmuj.6sjaj.ptj4c.e146a.gkjj1.74sre.3femo.ndmh5.s7qvb.2h9n4.7h3vm.2upph.57lc9.d9ifi.63dgn.eo2nt",
+      "rift": 0,
+      "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41"
+    },
+    "source": [
+      "127.0.0.1",
+      31727
+    ],
+    "time_ns": 1795371879394773000,
+    "total_bytes": 22,
+    "type": "poke",
+    "width": 607
+  }
+]

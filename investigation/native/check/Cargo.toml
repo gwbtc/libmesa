@@ -3,6 +3,7 @@ name = "native-capture-check"
 version = "0.0.0"
 edition = "2021"
 publish = false
+default-run = "native-capture-check"
 
 [workspace]
 

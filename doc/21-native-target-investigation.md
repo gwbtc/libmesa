@@ -1,6 +1,9 @@
 # Phase 6 native target investigation
 
-**2026-11-20. Investigation only. The live native admission gate remains open.**
+**Historical record, 2026-11-20.** The live admission gate was open at the end
+of this run. The [2026-11-22 follow-up](22-suite-c-first-contact.md) closes
+the direct-UDP first-contact investigation and fixes the routing, proof-ordering,
+and migration requirements. Production phase-6 implementation remains ahead.
 
 The selected target is Groundwire's native Mesa v1 UDP path, with suite-C
 identities and the existing Ames control packets needed for key recovery.

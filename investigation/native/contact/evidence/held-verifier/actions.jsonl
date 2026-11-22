@@ -1,0 +1,23 @@
+{"time_ns": 1795371495366936000, "label": "a", "name": "initial", "result": "[0 %avow 0 %noun [0xb7512d2b60a16fdd23af26e4941a42cd %peer %alien] [[0xb0944ca3e32eaec9fd954dd1381f7f41 %peer %known] 0 0] [17101 %peer %known] [[153 %peer %known] 0 0] 0]\n"}
+{"time_ns": 1795371495544829000, "label": "b", "name": "initial", "result": "[0 %avow 0 %noun [0xb7512d2b60a16fdd23af26e4941a42cd %peer %alien] 0 [17101 %peer %known] [[0xcde782a0669b70b52e9230e1d892377d %peer %known] [[153 %peer %known] 0 0] 0] 0]\n"}
+{"time_ns": 1795371495726540000, "label": "a", "name": "select-mesa", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795371495903481000, "label": "a", "name": "trace", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795371496087902000, "label": "b", "name": "trace", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795371496265767000, "label": "a", "name": "authorize-target", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795371496471840000, "label": "a", "name": "first-message", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795371496645112000, "label": "a", "name": "after-submit", "result": "[0 %avow 0 %noun [0xb7512d2b60a16fdd23af26e4941a42cd %peer %alien] [[0xb0944ca3e32eaec9fd954dd1381f7f41 %peer %known] 0 0] [17101 %peer %known] [[0xcde782a0669b70b52e9230e1d892377d %chum %known] [[153 %peer %known] 0 0] 0] 0]\n"}
+{"time_ns": 1795371496814720000, "label": "b", "name": "before-contact", "result": "[0 %avow 0 %noun [0xb7512d2b60a16fdd23af26e4941a42cd %peer %alien] 0 [17101 %peer %known] [[0xcde782a0669b70b52e9230e1d892377d %peer %known] [[153 %peer %known] 0 0] 0] 0]\n"}
+{"time_ns": 1795371516912258000, "label": "a", "name": "direct-route", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795371517435310000, "label": "a", "name": "contact-two", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795371517606742000, "label": "a", "name": "after-route", "result": "[0 %avow 0 %noun [0xb7512d2b60a16fdd23af26e4941a42cd %peer %alien] [[0xb0944ca3e32eaec9fd954dd1381f7f41 %peer %known] 0 0] [17101 %peer %known] [[0xcde782a0669b70b52e9230e1d892377d %chum %known] [[153 %peer %known] 0 0] 0] 0]\n"}
+{"time_ns": 1795371517782505000, "label": "b", "name": "holding", "result": "[0 %avow 0 %noun [0xb7512d2b60a16fdd23af26e4941a42cd %peer %alien] 0 [17101 %peer %known] [[0xcde782a0669b70b52e9230e1d892377d %peer %known] [[153 %peer %known] 0 0] 0] 0]\n"}
+{"time_ns": 1795371531869042000, "label": "b", "name": "verifier-held", "result": "[0 %avow 0 %noun [0xb7512d2b60a16fdd23af26e4941a42cd %peer %alien] [[0xb0944ca3e32eaec9fd954dd1381f7f41 %chum %alien] 0 0] [17101 %peer %known] [[0xcde782a0669b70b52e9230e1d892377d %peer %known] [[153 %peer %known] 0 0] 0] 0]\n"}
+{"time_ns": 1795371532029878000, "label": "b", "name": "reject-candidate", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795371533230359000, "label": "b", "name": "after-rejection", "result": "[0 %avow 0 %noun [0xb7512d2b60a16fdd23af26e4941a42cd %peer %alien] 0 [17101 %peer %known] [[0xcde782a0669b70b52e9230e1d892377d %peer %known] [[153 %peer %known] 0 0] 0] 0]\n"}
+{"time_ns": 1795371545477557000, "label": "b", "name": "accept-next", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795371545650127000, "label": "a", "name": "contact-three", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795371599365806000, "label": "b", "name": "after-accept-retry", "result": "[0 %avow 0 %noun [0xb7512d2b60a16fdd23af26e4941a42cd %peer %alien] [[0xb0944ca3e32eaec9fd954dd1381f7f41 %chum %known] 0 0] [17101 %peer %known] [[0xcde782a0669b70b52e9230e1d892377d %peer %known] [[153 %peer %known] 0 0] 0] 0]\n"}
+{"time_ns": 1795371603299842000, "label": "b", "name": "reverse-message", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795371617940724000, "label": "a", "name": "retry-pending", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795371618343345000, "label": "a", "name": "bidirectional-complete", "result": "[0 %avow 0 %noun [0xb7512d2b60a16fdd23af26e4941a42cd %peer %alien] [[0xb0944ca3e32eaec9fd954dd1381f7f41 %peer %known] 0 0] [17101 %peer %known] [[0xcde782a0669b70b52e9230e1d892377d %chum %known] [[153 %peer %known] 0 0] 0] 0]\n"}
+{"time_ns": 1795371618509731000, "label": "b", "name": "bidirectional-complete", "result": "[0 %avow 0 %noun [0xb7512d2b60a16fdd23af26e4941a42cd %peer %alien] [[0xb0944ca3e32eaec9fd954dd1381f7f41 %chum %known] 0 0] [17101 %peer %known] [[0xcde782a0669b70b52e9230e1d892377d %peer %known] [[153 %peer %known] 0 0] 0] 0]\n"}

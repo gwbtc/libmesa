@@ -5,6 +5,11 @@ capture tools and an offline checker, not a native libmesa implementation.
 Read [the scope report](../../doc/21-native-target-investigation.md) first.
 [reference.json](reference.json) pins sources, executed artifacts and evidence.
 
+The [2026-11-22 live follow-up](contact/README.md) closes first-contact routing
+and migration selection for fresh suite-C peers. The failed two-process
+attempt and remaining-work section below describe the earlier 2026-11-20 run;
+the follow-up records its replacement fixture and the proof-ordering trap.
+
 ## Evidence boundaries
 
 - `unit-results.json`: 164 pinned Ames/Jael/Mesa kernel tests passed in a fresh
