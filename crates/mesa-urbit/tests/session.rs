@@ -64,6 +64,8 @@ struct Harness {
     settled: Vec<(usize, Outcome)>,
     durable: [flow::State; 2],
     reject: bool,
+    hold_boons: bool,
+    held: Vec<(usize, flow::Id)>,
 }
 impl Harness {
     fn new() -> Self {
@@ -76,6 +78,8 @@ impl Harness {
             settled: Vec::new(),
             durable,
             reject: false,
+            hold_boons: false,
+            held: Vec::new(),
         }
     }
     fn actions(&mut self, i: usize, actions: Vec<Action>) {
@@ -104,6 +108,10 @@ impl Harness {
                     );
                 }
                 Action::Flow(flow::Action::Deliver { id, kind, .. }) => {
+                    if self.hold_boons && kind == Kind::Boon {
+                        self.held.push((i, id));
+                        continue;
+                    }
                     let outcome = if self.reject && kind == Kind::Plea {
                         Outcome::Rejected(gage::rejection(1024).unwrap())
                     } else {
@@ -374,4 +382,61 @@ fn wrong_attachment_cannot_start_a_payload_read() {
     assert!(h.nodes[1].receive(Attachment(99), &bytes).is_err());
     assert_eq!(h.nodes[1].core().usage().reads, 0);
     assert_eq!(h.nodes[1].state().revision, 0);
+}
+
+#[test]
+fn queued_cork_ack_waits_for_host_boon_decision_then_closes() {
+    let mut h = Harness::new();
+    let backward = Flow {
+        backward: true,
+        ..forward()
+    };
+    h.command(0, flow::Event::Admit(forward()));
+    h.command(1, flow::Event::Admit(backward));
+    h.hold_boons = true;
+    h.command(
+        1,
+        flow::Event::Enqueue {
+            flow: backward,
+            kind: Kind::Boon,
+            bytes: vec![7, 0, 0].into(),
+        },
+    );
+    h.command(0, flow::Event::Close(forward()));
+    h.pump();
+    assert_eq!(h.held.len(), 1);
+    let (receiver, id) = h.held.pop().unwrap();
+    assert_eq!(receiver, 0);
+    assert!(!h.nodes[0].state().is_closed(forward()));
+    assert!(h.nodes[0].state().flow(forward()).unwrap().outbox.is_some());
+    h.command(
+        0,
+        flow::Event::Decide {
+            id,
+            outcome: Outcome::Accepted,
+        },
+    );
+    h.pump();
+    h.tick(100);
+    h.pump();
+    assert!(h.nodes[0].state().is_closed(forward()));
+    assert!(h.nodes[1].state().is_closed(backward));
+    assert!(h.settled.contains(&(1, Outcome::Accepted)));
+    // A later flow remains usable after the held delivery and cork complete.
+    h.hold_boons = false;
+    let next = Flow {
+        bone: 8,
+        backward: false,
+    };
+    h.command(0, flow::Event::Admit(next));
+    h.command(
+        0,
+        flow::Event::Enqueue {
+            flow: next,
+            kind: Kind::Plea,
+            bytes: vec![8].into(),
+        },
+    );
+    h.pump();
+    assert!(h.settled.contains(&(0, Outcome::Accepted)));
 }

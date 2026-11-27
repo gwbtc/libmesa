@@ -484,6 +484,7 @@ impl Node {
                 if f.closing != Closing::Received && !sole_cork {
                     return Err(Error::Decision);
                 }
+                self.ensure_delivery_decided(flow)?;
                 let unconfirmed = f
                     .outbox
                     .as_ref()
@@ -593,6 +594,7 @@ impl Node {
         let id = self.id(flow, sequence);
         let mut out = Vec::new();
         if m.kind == Kind::Cork {
+            self.ensure_delivery_decided(flow)?;
             close(&mut s, flow)?;
             out.push(Action::Gone(flow));
         } else {
@@ -605,6 +607,19 @@ impl Node {
             }
         }
         self.propose(s, Change::Settlement(id, outcome), out)
+    }
+    fn ensure_delivery_decided(&self, flow: Flow) -> Result<(), Error> {
+        // Offers may arrive after Close. Keep the flow and its cork until
+        // this offer's effect/receipt transaction commits. The caller retries
+        // the closure event after Busy; Session retains it in its event queue.
+        if self
+            .delivery
+            .as_ref()
+            .is_some_and(|(id, _)| id.flow == flow)
+        {
+            return Err(Error::Busy);
+        }
+        Ok(())
     }
     fn propose(
         &mut self,

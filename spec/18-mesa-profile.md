@@ -119,6 +119,13 @@ ACKs. Closing a receiver with remaining outgoing work includes `unconfirmed`
 in its durable `Closed` change. Recovery and simultaneous corks use the same
 rules. Closed-flow reads and retransmission timers are cancelled.
 
+Final closure waits for any outstanding delivery decision on that flow,
+including an offer made after Close. Until its effect/receipt transaction
+commits, the raw ordered node returns `Busy` for the cork ACK or matching gone
+without consuming it or changing state. The raw caller retains and retries that
+event after `Decide` and `Committed`; the Urbit session queues it automatically.
+Closing another flow preserves the outstanding offer.
+
 ## Urbit binding and recovery
 
 The protected prefix is `/<publisher>//1/`. The pinned Hoon beam uses case 1;

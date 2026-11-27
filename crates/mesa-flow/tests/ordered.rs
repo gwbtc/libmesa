@@ -527,3 +527,122 @@ fn simultaneous_corks_close_without_reusing_a_bone() {
     assert!(n.state().is_closed(flow()));
     assert!(n.step(Event::Admit(flow())).is_err());
 }
+
+#[test]
+fn closure_waits_for_deliveries_offered_before_or_during_close() {
+    for delivery_first in [false, true] {
+        for gone in [false, true] {
+            let mut n = admitted();
+            let other = Flow {
+                bone: 8,
+                backward: false,
+            };
+            commit(&mut n, Event::Admit(other));
+            let id = if delivery_first {
+                let id = receive(&mut n, 1, Kind::Boon);
+                commit(&mut n, Event::Close(flow()));
+                id
+            } else {
+                commit(&mut n, Event::Close(flow()));
+                receive(&mut n, 1, Kind::Boon)
+            };
+            let finish = if gone {
+                Event::Gone(flow())
+            } else {
+                Event::Ack {
+                    flow: flow(),
+                    sequence: 1,
+                    rejected: false,
+                }
+            };
+            let before = n.state().clone();
+            assert_eq!(n.step(finish.clone()), Err(Error::Busy));
+            assert_eq!(n.state(), &before);
+            assert!(n.pending().is_none());
+            assert!(matches!(
+                &n.recover()[..],
+                [Action::Transmit {
+                    kind: Kind::Cork,
+                    ..
+                }]
+            ));
+            // Losing RAM before the effect transaction permits the same offer.
+            let mut before_commit = reload(before, 2);
+            assert_eq!(receive(&mut before_commit, 1, Kind::Boon), id);
+            let p = proposal(
+                &mut n,
+                Event::Decide {
+                    id: id.clone(),
+                    outcome: Outcome::Accepted,
+                },
+            );
+            assert_eq!(n.step(finish.clone()), Err(Error::Busy));
+            // Persisted effect with a lost callback retains the exact receipt.
+            let mut restored = reload(p.state.clone(), 3);
+            assert!(matches!(
+                &restored
+                    .step(Event::Receive {
+                        flow: flow(),
+                        sequence: 1,
+                        kind: Kind::Boon,
+                        bytes: vec![1, 0, 0].into()
+                    })
+                    .unwrap()[..],
+                [Action::Receipt { .. }]
+            ));
+            n.step(Event::Committed(p.token)).unwrap();
+            for node in [&mut n, &mut restored] {
+                commit(node, finish.clone());
+                assert!(node.state().is_closed(flow()));
+                let actions = node
+                    .step(Event::Receive {
+                        flow: other,
+                        sequence: 1,
+                        kind: Kind::Boon,
+                        bytes: vec![9].into(),
+                    })
+                    .unwrap();
+                assert!(matches!(&actions[..], [Action::Deliver { .. }]));
+            }
+        }
+    }
+}
+
+#[test]
+fn closing_one_flow_preserves_another_flows_delivery_reservation() {
+    let mut n = admitted();
+    let other = Flow {
+        bone: 8,
+        backward: false,
+    };
+    commit(&mut n, Event::Admit(other));
+    let actions = n
+        .step(Event::Receive {
+            flow: other,
+            sequence: 1,
+            kind: Kind::Boon,
+            bytes: vec![9].into(),
+        })
+        .unwrap();
+    let Action::Deliver { id, .. } = &actions[0] else {
+        panic!()
+    };
+    let id = id.clone();
+    commit(&mut n, Event::Close(flow()));
+    commit(
+        &mut n,
+        Event::Ack {
+            flow: flow(),
+            sequence: 1,
+            rejected: false,
+        },
+    );
+    commit(
+        &mut n,
+        Event::Decide {
+            id,
+            outcome: Outcome::Accepted,
+        },
+    );
+    assert_eq!(n.state().flow(other).unwrap().received, 1);
+}

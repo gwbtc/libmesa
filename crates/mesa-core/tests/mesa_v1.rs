@@ -311,3 +311,111 @@ fn default_is_mesa_and_missing_namespace_never_falls_back() {
     })
     .unwrap();
 }
+
+#[test]
+fn private_pokes_and_peek_pages_use_publisher_domains_across_authorities() {
+    for poke in [false, true] {
+        for sender in [0usize, 1] {
+            let domains = ["authority-a", "authority-b"];
+            let make = |i: usize| {
+                let local = PreconfiguredPeer::new(
+                    PeerId(i as u128),
+                    domains[i],
+                    1,
+                    0,
+                    KeyHandle(i as u64),
+                )
+                .unwrap();
+                let remote = PreconfiguredPeer::new(
+                    PeerId((1 - i) as u128),
+                    domains[1 - i],
+                    1,
+                    0,
+                    KeyHandle((1 - i) as u64),
+                )
+                .unwrap();
+                let protection = SignedPublic::new(
+                    local.key,
+                    KeyPair::from_seed(&[i as u8; 32]),
+                    BTreeMap::from([(
+                        remote.key,
+                        KeyPair::from_seed(&[(1 - i) as u8; 32]).public_key(),
+                    )]),
+                )
+                .mesa_v1(BTreeMap::from([
+                    (PeerId(0), b"/~zod//1/".to_vec()),
+                    (PeerId(1), b"/~nec//1/".to_vec()),
+                ]));
+                let mut engine = Engine::new(Config::mesa_v1(), local, protection).unwrap();
+                engine.step(Event::InstallPeer(remote.clone())).unwrap();
+                engine
+                    .step(Event::SetAttachment {
+                        peer: remote.id,
+                        attachment: Some(Attachment(1)),
+                    })
+                    .unwrap();
+                engine
+            };
+            let receiver = 1 - sender;
+            let mut a = make(sender);
+            let mut b = make(receiver);
+            a.step(Event::Bind {
+                path: b"private-object".to_vec(),
+                bytes: vec![7, 0, 0],
+                access: Access::Peer(PeerId(receiver as u128)),
+            })
+            .unwrap();
+            let reads = b
+                .step(Event::ReadPrivate {
+                    id: 1,
+                    peer: PeerId(sender as u128),
+                    path: b"private-object".to_vec(),
+                })
+                .unwrap();
+            let sent = if poke {
+                a.step(Event::Poke {
+                    peer: PeerId(receiver as u128),
+                    path: b"private-object".to_vec(),
+                    ack: b"ack".to_vec(),
+                })
+                .unwrap()
+            } else {
+                let bytes = reads
+                    .iter()
+                    .find_map(|a| match a {
+                        Action::Send { bytes, .. } => Some(bytes),
+                        _ => None,
+                    })
+                    .unwrap();
+                a.step(Event::Receive {
+                    claimed_peer: PeerId(receiver as u128),
+                    attachment: Attachment(1),
+                    bytes,
+                })
+                .unwrap()
+            };
+            let bytes = sent
+                .iter()
+                .find_map(|a| match a {
+                    Action::Send { bytes, .. } => Some(bytes),
+                    _ => None,
+                })
+                .unwrap();
+            let received = b
+                .step(Event::Receive {
+                    claimed_peer: PeerId(sender as u128),
+                    attachment: Attachment(1),
+                    bytes,
+                })
+                .unwrap();
+            assert!(
+                received.contains(&Action::ReadFinished {
+                    id: 1,
+                    result: Ok(vec![7, 0, 0])
+                }),
+                "poke={poke} sender={sender}: {received:?}"
+            );
+            assert_eq!(b.usage().reads, 0);
+        }
+    }
+}

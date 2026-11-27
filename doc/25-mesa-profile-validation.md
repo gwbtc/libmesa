@@ -31,7 +31,7 @@ a point.
 
 ## Tests
 
-Local validation on 2026-11-27 passed 271 workspace tests with no failures or
+Initial phase-6 validation on 2026-11-27 passed 271 workspace tests with no failures or
 ignored tests, strict Clippy, formatting, both C configurations, the three
 examples, dependency isolation, codec conformance and both evidence checks.
 The final generic-protection default change also passed the core regression
@@ -89,6 +89,13 @@ historical name-key exception admits only a policy-selected life-1 attestation;
 the ordinary current-key object verifier rejects the same signature.
 Announcement tests cover loss,
 retry bounds, cancellation, clock regression and key-cutover fencing.
+
+Review regressions cover delivery offers made before and during Close, both
+cork ACK and gone completion, recovery around the delivery transaction, and
+continued delivery on another flow. A session test holds the host's boon
+decision while the cork ACK arrives and verifies automatic completion after
+commit. Cross-authority tests authenticate Pokes and Peek/Page exchanges in
+both directions.
 
 ## Default switch
 

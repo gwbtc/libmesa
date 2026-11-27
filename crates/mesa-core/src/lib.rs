@@ -1138,9 +1138,11 @@ impl<P: Protection> Engine<P> {
         if peer.attachment != Some(attachment) {
             return Err(DropReason::Attachment);
         }
-        // Keep the trusted domain independent of the mutable engine borrow.
+        // Incoming Page and Poke payloads name the remote publisher; Peek
+        // targets name this local server. Keep the trusted credential domain
+        // independent of the mutable engine borrow.
         let domain = if mesa_wire::mesa_v1::sift_head(bytes)
-            .is_some_and(|h| h.typ == mesa_wire::PactType::Page)
+            .is_some_and(|h| matches!(h.typ, mesa_wire::PactType::Page | mesa_wire::PactType::Poke))
         {
             peer.view.domain()
         } else {
