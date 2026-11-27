@@ -1,43 +1,33 @@
 # libmesa
 
-A standalone Rust implementation, exposing a C ABI (decision record:
-`doc/07-language.md`), of Urbit's **Mesa** ("directed
-messaging") network protocol and **Groundwire** identity, lifted out of the
-split Arvo-vane + Vere-runtime implementation into one self-contained,
-transport-agnostic engine — usable by non-Arvo peers: Nostr clients, LND
-nodes, Shrubbery ships, and ChatControl-threatened phones.
+libmesa is a Rust implementation of Mesa networking with a C embedding API.
+**Mesa-v1 is the default for new engines.** The Urbit-Mesa profile exchanges
+public reads and encrypted byte messages with the pinned Groundwire Urbit
+stack. See the [phase-6 contract](spec/18-mesa-profile.md) and
+[executed interoperability evidence](investigation/phase6/README.md).
 
-> **Status: signed public reads, durable flow state machines, and bounded transports.**
-> `mesa-core` provides bounded named reads between preconfigured peers through
-> explicit events and actions. A fixed v2 profile authenticates public objects
-> with Ed25519 and bounded BLAKE3 LSS; two independent processes read in both
-> directions over loopback UDP. Host-selected transfer policies provide fixed or
-> bounded exponential retries and a shared per-peer fixed or AIMD window.
-> The in-memory harness tests fragmentation, loss,
-> duplication, reordering, malformed traffic, timeouts, and cancellation.
-> `mesa-flow` adds a bounded durable flow profile with explicit host commits,
-> ordered delivery, signed ACK/NACK receipts, and crash/restart tests against
-> a fake atomic store. Its messages are public plaintext. `mesa-transport` runs
-> those flows over UDP and framed TCP and exercises a bounded two-leg relay
-> with endpoint recovery across a lossy downstream leg. `mesa-store` adds a
-> transactional SQLite inbox, durable sender outcomes, checkpoint recovery,
-> writer fencing, and process crash tests over UDP and TCP. Signed batch
-> watermarks reclaim protocol history while sequence numbers keep increasing.
-> Rust parses and encodes all three packet
-> bodies in experimental v2: fixed 128-bit names, explicit domain selectors,
-> exact-byte checksums, length-prefixed signatures, and none/IPv4 trailers.
-> Decoding is bounded and allocation-free. V1 remains an explicit compatibility
-> module. Noun primitives include canonical atoms, byte mug, bounded mat/rub,
-> and canonical jam/cue. Suite-C public-pass and current-ring parsing are
-> implemented alongside fragment reconstruction and C wire APIs. Domain
-> authority verification and private-space encryption remain unimplemented. Persistent storage currently supports the
-> reference inbox application. The core's service and binding-access checks
-> operate on trusted host configuration. Public reads do not authenticate requesters.
-> Suite-C name derivation, signing, and agreement match executed Hoon vectors.
-> The design beyond these primitives is
-> still a working-group draft. A [Hoon endpoint](interop/README.md) now exchanges
-> authenticated v2 reads with Rust inside a running fake Urbit, through a byte-only
-> UDP/Lick bridge. Native Ames interoperability remains separate.
+`mesa-core` owns authenticated reads, fragmentation, retries, deadlines and
+per-peer fixed or AIMD windows. `mesa-flow::ordered` adds host-committed delivery,
+settlement, bounded rejection history and durable closure. `mesa-urbit` supplies
+Urbit serialization, names, byte-service conventions, proof admission and the
+required identity controls. The core, flow, keys, PKI and normal C dependency
+graph remain noun-free.
+
+The host owns sockets, clock input, verification and transactions. Immutable
+refcounted `[dat wid]` buffers cross component boundaries. Batched events and
+results preserve explicit mutation and ownership contracts. Optional Jael,
+transport drivers and the managed inbox remain separate choices.
+
+`libmesa-exp-v2` and `libmesa-flow/2` are explicit experimental compatibility
+profiles. Existing ABI 1 constructors and checkpoints retain their semantics;
+new defaults do not convert them. The managed SQLite inbox still uses the
+experimental flow profile. Public reads authenticate objects, not requesters.
+
+Suite-C fixtures validate name binding, key rotation and direct UDP admission.
+Their exact-pass providers do not verify a Groundwire ledger. The next phase
+connects real host-provided verification and joint Shrine testing, with
+Shrine-to-Shrine acceptance before Shrine-to-Urbit. Shrine and Urbit repository
+changes are outside this phase.
 
 The [C embedding API](spec/14-c-embedding.md) exposes immutable refcounted
 `[dat wid]` buffers, a raw deterministic engine, POSIX transport adapters, and a
@@ -57,7 +47,7 @@ noun-free `mesa-pki`, optional `mesa-jael`, owned suite-C candidates, explicit
 authority commits, and bounded remote-key updates. Rust and C APIs expose
 provider requests, lifecycle changes and retained buffers. Mesa owns incoming
 admission; the embedding host supplies verification and transaction services.
-Native first-contact wiring and real verifier integration remain later phases.
+The Urbit-Mesa UDP listener now supplies first-contact wiring. Real verifier integration remains phase 7.
 
 The [local activation component](spec/17-local-activation.md) adds `mesa-keys`,
 software custody, exact pass/ring matching, host-confirmed activation and
@@ -96,11 +86,11 @@ exercise engine behavior without implementing cryptography. See the
 [engine contract and test profile](doc/12-peer-engine.md) for limits, timers,
 peer updates, and the multi-fragment fault tests.
 
-The [Rust–Urbit runner](interop/README.md) boots an isolated ship and checks
+The explicit experimental [Rust–Urbit runner](interop/README.md) boots an isolated ship and checks
 21 bidirectional clean/fault cases through 64 KiB. Hoon parses and authenticates
 the packets; native Ames remains unchanged.
 
-The separate UDP runner uses real signatures and LSS with public test seeds.
+The separate experimental UDP runner uses real signatures and LSS with public test seeds.
 It checks exact data in both directions from empty values through 1 MiB under
 both fixed and adaptive transfer policies. See the [policy contract](spec/09-transfer-policies.md)
 for scheduling, feedback, and timer bounds.
@@ -108,7 +98,7 @@ See the [signed-public profile](spec/08-signed-public.md) for its exact transcri
 resource bounds, and verification evidence. Selecting this profile requires
 explicit public binds; private binds are rejected.
 
-The flow example adds explicit enqueue, delivery, and settlement commits over
+The experimental flow example adds explicit enqueue, delivery, and settlement commits over
 the signed-read engine. It restarts both fake stores and peers and checks that
 application effects occur once. See the [durable flow profile](spec/10-durable-flows.md)
 for the original host transaction contract. The [continuous flow profile](spec/13-continuous-flows.md)

@@ -52,6 +52,25 @@ static const mesa_buffer *buffer(const void *p, size_t n, size_t width) {
   host_copy_bytes += n;
   return b;
 }
+static int create(const mesa_options *o, const mesa_resources *r,
+                  const mesa_key *k, size_t nk, mesa_engine **out) {
+#ifdef MESA_TEST_MESA
+  mesa_options native = *o;
+  native.abi_version = 2;
+  mesa_namespace ns[N] = {0};
+  for (size_t i=0;i<N;i++) {
+    memcpy(ns[i].peer, options[i].local.id, 16);
+    char prefix[32];
+    int n=snprintf(prefix,sizeof prefix,"/raw/%zu/",i);
+    ns[i].prefix=buffer(prefix,(size_t)n,(size_t)n);
+  }
+  int rc=mesa_engine_create_mesa(&native,r,k,nk,ns,N,out);
+  for(size_t i=0;i<N;i++) mesa_buffer_release(ns[i].prefix);
+  return rc;
+#else
+  return mesa_engine_create_configured(o,r,k,nk,out);
+#endif
+}
 static int same(const mesa_buffer *a, const mesa_buffer *b) {
   const uint8_t *x, *y;
   size_t xn, yn, xw, yw;
@@ -167,7 +186,11 @@ static int udp_status(int i, const mesa_udp_command *c) {
 }
 static void setup(void) {
   for (int i = 0; i < N; i++) {
-    OK(mesa_options_default(&options[i]));
+#ifdef MESA_TEST_MESA
+    OK(mesa_options_default(&options[i])); assert(options[i].abi_version==2);
+#else
+    OK(mesa_options_exp_v2(&options[i])); assert(options[i].abi_version==1);
+#endif
     options[i].local.id[0] = (uint8_t)(i + 1);
     memcpy(options[i].local.domain, "gw-btc", 7);
     options[i].local.key = (uint64_t)i + 1;
@@ -208,7 +231,7 @@ static void setup(void) {
   resources.max_reads = 1024;
   resources.max_bindings = 65536;
   for (int i = 0; i < N; i++) {
-    OK(mesa_engine_create_configured(&options[i], &resources, keys, N,
+    OK(create(&options[i], &resources, keys, N,
                                      &engine[i]));
     OK(mesa_engine_describe(engine[i], &descriptions[i]));
     assert(field(descriptions[i], "object_bytes") == WIDTH);
@@ -236,12 +259,41 @@ static void setup(void) {
     expected[j] = (uint8_t)(j % 251); /* width must retain 32 zeros */
   payload = buffer(expected, WIDTH, WIDTH);
 }
+#ifdef MESA_TEST_MESA
+static const mesa_buffer *protect(int from, int to, uint32_t tag,
+                                  const mesa_buffer *data, const mesa_buffer *aux) {
+  mesa_event e={0};e.tag=tag;e.peer=options[to].local;e.data=data;e.aux=aux;
+  const mesa_batch *b=submit(from,&e,1,&full);
+  size_t done,n,bytes;OK(mesa_batch_info(b,&done,&n,&bytes));assert(done==1);
+  const mesa_buffer *out=NULL;
+  for(size_t i=0;i<n;i++) {
+    mesa_result r={0};OK(mesa_batch_get(b,i,&r));
+    if(r.tag==MESA_EVENT_RESULT) assert(r.status==0);
+    if(r.tag==MESA_PROTECTED_BUFFER) out=mesa_buffer_retain(r.data);
+    mesa_result_release(&r);
+  }
+  mesa_batch_release(b);assert(out);return out;
+}
+static void private_buffers(void) {
+  const mesa_buffer *path=buffer("/bytes/1",8,8);
+  const mesa_buffer *plain=buffer("a",1,8192);
+  const mesa_buffer *sealed=protect(0,1,MESA_SEAL_PATH,path,NULL);
+  const mesa_buffer *opened=protect(1,0,MESA_OPEN_PATH,sealed,NULL);
+  assert(same(opened,path));
+  const mesa_buffer *encrypted=protect(0,1,MESA_ENCRYPT_OBJECT,sealed,plain);
+  const mesa_buffer *decrypted=protect(1,0,MESA_DECRYPT_OBJECT,sealed,encrypted);
+  assert(same(decrypted,plain));
+  mesa_buffer_release(decrypted);mesa_buffer_release(encrypted);
+  mesa_buffer_release(opened);mesa_buffer_release(sealed);
+  mesa_buffer_release(plain);mesa_buffer_release(path);
+}
+#endif
 static void negatives(void) {
   mesa_resources invalid;
   OK(mesa_resources_default(&invalid));
   invalid.max_reads = 1025;
   mesa_engine *bad = (mesa_engine *)(uintptr_t)1;
-  assert(mesa_engine_create_configured(&options[0], &invalid, keys, N, &bad) ==
+  assert(create(&options[0], &invalid, keys, N, &bad) ==
              MESA_ARGUMENT &&
          bad == NULL);
   const mesa_buffer *before = NULL, *after = NULL;
@@ -490,7 +542,7 @@ static void restart_reader_host(void) {
   mesa_resources r;
   OK(mesa_resources_default(&r));
   r.max_object_bytes = WIDTH;
-  OK(mesa_engine_create_configured(&options[0], &r, keys, N, &engine[0]));
+  OK(create(&options[0], &r, keys, N, &engine[0]));
   assert(field(descriptions[0], "object_bytes") ==
          WIDTH); /* retained after destroy */
   for (int j = 1; j < N; j++) {
@@ -550,6 +602,9 @@ int main(int argc, char **argv) {
   struct timespec start, end;
   assert(clock_gettime(CLOCK_MONOTONIC, &start) == 0);
   setup();
+#ifdef MESA_TEST_MESA
+  private_buffers();
+#endif
   negatives();
   transfer();
   route_replacement();

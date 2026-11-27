@@ -4,6 +4,7 @@
 //! callers must supply the specified protected transcript; signatures alone do
 //! not establish key currency or domain authorization. No packet signing API or
 //! algorithm negotiation is defined here.
+pub mod mesa_v1;
 use curve25519_dalek::{
     edwards::{CompressedEdwardsY, EdwardsPoint},
     scalar::Scalar,

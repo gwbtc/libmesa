@@ -1,5 +1,11 @@
 # Suite-C first contact: routing and migration requirements
 
+**Planning update, 2026-11-25:** the
+[Mesa-v1 default and flow design](23-mesa-default-and-flow-durability.md)
+supersedes the selectable-profile-only implementation direction below.
+Its strict glossary disambiguates this report's historical “native,” “v1,”
+and “legacy” labels. The measurements and routing/migration findings stand.
+
 **2026-11-22. Live investigation closed for the direct-UDP, fresh-peer profile.**
 A pinned Groundwire-enabled Urbit receiver admitted a suite-C peer through its
 registered verifier, exchanged encrypted application messages, and returned

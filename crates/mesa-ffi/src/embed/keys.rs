@@ -201,11 +201,17 @@ impl Keys {
                     h.timer = None;
                     out.push(h.timer_record());
                 }
-                14 | 15 => {
+                14 | 15 | 21 => {
                     let purpose = if e.tag == 14 {
                         Purpose::PublicRoot {
                             path: buffer(e.data, 256)?,
                             total: e.value,
+                            root: e.root,
+                        }
+                    } else if e.tag == 21 {
+                        Purpose::MesaRoot {
+                            path: buffer(e.data, 320)?,
+                            prefix: buffer(e.seed, 320)?,
                             root: e.root,
                         }
                     } else {

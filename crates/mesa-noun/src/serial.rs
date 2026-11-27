@@ -74,6 +74,38 @@ pub struct Noun<'a> {
     root: usize,
 }
 impl<'a> Noun<'a> {
+    /// Construct a bounded DAG from postorder nodes. Edges must address earlier
+    /// nodes, which rules out cycles without recursive traversal or destruction.
+    pub fn from_nodes(nodes: Vec<Node<'a>>, root: usize, limits: Limits) -> Result<Self, Error> {
+        if nodes.len() > limits.max_nodes || root >= nodes.len() {
+            return Err(Error::Limit);
+        }
+        let mut heights: Vec<usize> = Vec::with_capacity(nodes.len());
+        for (i, node) in nodes.iter().enumerate() {
+            let height = match *node {
+                Node::Atom(bits) => {
+                    if bits.len() > limits.max_atom_bits {
+                        return Err(Error::Limit);
+                    }
+                    1usize
+                }
+                Node::Cell { head, tail } => {
+                    if head >= i || tail >= i {
+                        return Err(Error::InvalidReference);
+                    }
+                    1usize
+                        .checked_add(heights[head].max(heights[tail]))
+                        .ok_or(Error::Limit)?
+                }
+            };
+            if height > limits.max_depth {
+                return Err(Error::Limit);
+            }
+            heights.push(height);
+        }
+        Ok(Self { nodes, root })
+    }
+
     pub fn root(&self) -> usize {
         self.root
     }

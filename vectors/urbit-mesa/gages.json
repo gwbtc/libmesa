@@ -1,0 +1,50 @@
+{
+  "urbit_commit": "9f437ff097a0e3836fea7875a568b6192eef6a27",
+  "cases": [
+    {
+      "case": "bytes",
+      "hoon": "[%noun %octs 3 7]",
+      "hex": "01dfedadce1df0dfc6e8e6a1f101"
+    },
+    {
+      "case": "plea",
+      "hoon": "[%message %plea %g /ge/mesa-bytes %0 %m %noun %octs 3 7]",
+      "hex": "01deb6b2b9b9b0b372c087632b0b073f17f8b372009fb6b2b9b016b13cbab2b919bc1df0dddeeadc01ff6d8c6e1e1a1f"
+    },
+    {
+      "case": "boon",
+      "hoon": "[%message %boon %d %noun %octs 3 7]",
+      "hex": "01deb6b2b9b9b0b372c0177b7b730727077cb7b73a77c07f1ba39b87c607"
+    },
+    {
+      "case": "ack",
+      "hoon": "[%message %ack %.n]",
+      "hex": "01deb6b2b9b9b0b372c00b1b5b33"
+    },
+    {
+      "case": "nack",
+      "hoon": "[%message %ack %.y]",
+      "hex": "01deb6b2b9b9b0b372c00b1b5b0b"
+    },
+    {
+      "case": "empty-error",
+      "hoon": "[%message %nax 0 0]",
+      "hex": "01deb6b2b9b9b0b372c0730bc3a7"
+    },
+    {
+      "case": "rejection",
+      "hoon": "[%message %nax %exit ~]",
+      "hex": "01deb6b2b9b9b0b372c0730bc307fc32bc34ba"
+    },
+    {
+      "case": "cork",
+      "hoon": "[%message %plea %$ /flow %cork ~]",
+      "hex": "01deb6b2b9b9b0b372c087632b0b6701df8ceded6ec01f7b935b0b"
+    },
+    {
+      "case": "gone",
+      "hoon": "[%message %gone ~]",
+      "hex": "01deb6b2b9b9b0b372c03f7b732b0b"
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 # C embedding: engine, transport, and persistent inbox
 
+ABI 1 in this document is the explicit experimental compatibility API. New Mesa-v1 engines use ABI 2 and [specification 18](18-mesa-profile.md); select `mesa_options_exp_v2` when running these older examples.
 The additive [raw UDP host extension](15-raw-udp-host.md) supplies configurable
 CORE limits, mutable-state snapshots, generation-checked host updates and a
 shared-socket UDP endpoint. The original ABI-1 layouts and constructors below

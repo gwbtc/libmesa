@@ -158,7 +158,7 @@ static void stage(mesa_keys *k, mesa_pki *p, const mesa_buffer *seed) {
 }
 static mesa_engine *engine(uint8_t incarnation[16]) {
   mesa_options o;
-  OK(mesa_options_default(&o));
+  OK(mesa_options_exp_v2(&o));
   o.local.id[0] = 1;
   memcpy(o.local.domain, "gw-btc", 7);
   o.local.key = 1;
@@ -580,7 +580,7 @@ static void flow_bridge(void) {
   stage(k, p, seed);
   mesa_buffer_release(seed);
   mesa_options o;
-  OK(mesa_options_default(&o));
+  OK(mesa_options_exp_v2(&o));
   o.kind = MESA_FLOW;
   o.local.id[0] = 1;
   memcpy(o.local.domain, "gw-btc", 7);

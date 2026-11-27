@@ -114,7 +114,7 @@ impl Node {
                 .ok_or(Error::UnknownFlow)?
                 .clone();
         }
-        let profile = SignedPublic::with_key(local.key, key.clone(), keys);
+        let profile = SignedPublic::experimental_v2_with_key(local.key, key.clone(), keys);
         let mut replacement = Self::new(
             self.config.clone(),
             local.clone(),

@@ -1,5 +1,13 @@
 # libmesa spec — 1: Experimental Mesa v2 wire format
 
+**Terminology and target, 2026-11-25:** this implemented format is
+**libmesa-exp-v2**. The intended default is **Mesa-v1**, after the
+[roadmap gates](../doc/14-shrine-groundwire-roadmap.md) pass. These are packet
+versions, independent of flow profiles and checkpoint schemas. See the
+[strict glossary](../doc/23-mesa-default-and-flow-durability.md#strict-terminology).
+This specification still describes the existing experimental implementation;
+no runtime default changes with this documentation update.
+
 **Implemented codec profile, 2026-10-21.** The default Rust API implements
 version **2** with fixed 128-bit names, explicit domain selectors, exact-byte
 checksums, and length-delimited signatures. This is a libmesa experimental

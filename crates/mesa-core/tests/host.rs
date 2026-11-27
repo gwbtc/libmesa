@@ -9,7 +9,7 @@ fn engine(config: Config) -> Engine<SignedPublic> {
     Engine::new(
         config,
         peer(1),
-        SignedPublic::new(
+        SignedPublic::experimental_v2(
             KeyHandle(1),
             KeyPair::from_seed(&[1; 32]),
             BTreeMap::from([(KeyHandle(2), KeyPair::from_seed(&[2; 32]).public_key())]),
@@ -311,7 +311,7 @@ fn rust_batch_buffers_survive_batch_and_engine_destruction() {
     let mut publisher = Engine::new(
         Config::default(),
         peer(2),
-        SignedPublic::new(
+        SignedPublic::experimental_v2(
             KeyHandle(2),
             KeyPair::from_seed(&[2; 32]),
             BTreeMap::from([(KeyHandle(1), KeyPair::from_seed(&[1; 32]).public_key())]),

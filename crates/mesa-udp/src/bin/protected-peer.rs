@@ -54,7 +54,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         0,
         KeyHandle(remote.into()),
     )?;
-    let protection = SignedPublic::new(
+    let protection = SignedPublic::experimental_v2(
         local.key,
         KeyPair::from_seed(&[id; 32]),
         BTreeMap::from([(peer.key, KeyPair::from_seed(&[remote; 32]).public_key())]),

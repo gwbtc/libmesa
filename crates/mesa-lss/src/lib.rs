@@ -2,7 +2,7 @@
 //! left spine, and scheduled pairs that reveal future subtrees. No signatures.
 //! Nonempty trees follow Vere io/lss.c at 96fae0a. The v2 empty-value extension
 //! commits to BLAKE3(empty), explicitly separated by the signed total length.
-use blake3::hazmat::{merge_subtrees_non_root, HasherExt, Mode};
+use blake3::hazmat::{merge_subtrees_non_root, merge_subtrees_root, HasherExt, Mode};
 
 pub const LEAF_BYTES: usize = 1024;
 pub const MAX_LEAVES: usize = 1024;
@@ -53,6 +53,7 @@ pub fn expects_pair(leaves: usize, index: usize) -> bool {
 }
 
 pub struct Tree {
+    mesa_root: Hash,
     proof: Vec<Hash>,
     pairs: Vec<Option<Pair>>,
 }
@@ -70,10 +71,18 @@ impl Tree {
     fn build_from(len: usize, copy: &impl Fn(usize, &mut [u8])) -> Result<Self, Error> {
         let n = count(len)?;
         let mut tree = Self {
+            mesa_root: [0; 32],
             proof: vec![[0; 32]; proof_hashes(len)?],
             pairs: vec![None; n],
         };
         tree.subtree(len, copy, 0, n);
+        tree.mesa_root = if n == 1 {
+            let mut bytes = [0; LEAF_BYTES];
+            copy(0, &mut bytes[..len]);
+            *blake3::hash(&bytes[..len]).as_bytes()
+        } else {
+            mesa_root(&tree.proof)?
+        };
         Ok(tree)
     }
     fn subtree(
@@ -106,6 +115,10 @@ impl Tree {
     pub fn root(&self) -> Hash {
         root(&self.proof)
     }
+    /// Mesa-v1 authenticates the ROOT-finalized BLAKE3 hash.
+    pub fn mesa_root(&self) -> Hash {
+        self.mesa_root
+    }
     pub fn proof(&self) -> Vec<u8> {
         self.proof.iter().flatten().copied().collect()
     }
@@ -121,6 +134,16 @@ fn root(proof: &[Hash]) -> Hash {
     proof[1..]
         .iter()
         .fold(proof[0], |left, right| parent(&left, right))
+}
+
+/// The last parent alone carries ROOT. A one-leaf proof contains only a
+/// chaining value and cannot establish a Mesa-v1 root without the leaf bytes.
+fn mesa_root(proof: &[Hash]) -> Result<Hash, Error> {
+    let (last, prefix) = proof.split_last().ok_or(Error::Proof)?;
+    if prefix.is_empty() {
+        return Err(Error::Proof);
+    }
+    Ok(*merge_subtrees_root(&root(prefix), last, Mode::Hash).as_bytes())
 }
 
 #[derive(Clone)]
@@ -170,6 +193,13 @@ impl Verifier {
     }
     pub fn root(&self) -> Hash {
         self.root
+    }
+    pub fn mesa_root(&self) -> Result<Hash, Error> {
+        // Before ingest, the frontier is exactly the initial left spine.
+        if self.next != 0 {
+            return Err(Error::Proof);
+        }
+        mesa_root(&self.frontier.iter().map(|e| e.hash).collect::<Vec<_>>())
     }
     pub fn next_index(&self) -> usize {
         self.next

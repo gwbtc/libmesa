@@ -6,6 +6,17 @@
 //! bounds-checked before allocation. Vector-driven against
 //! `../../vectors/pact/`.
 
+pub mod profile;
+/// Mesa-v1 wire codec. The old module name remains a source compatibility alias.
+pub mod mesa_v1 {
+    pub use crate::legacy_v1::*;
+    /// Mesa-v1 ignores the pinned Vere peer's unused next-hop bits on peeks.
+    /// It has no trailer and establishes no route authority. Encoding emits
+    /// canonical zero hints on peeks. The historical strict codec is unchanged.
+    pub fn decode(bytes: &[u8], checksum: Checksum, limits: Limits) -> Result<Packet<'_>, Error> {
+        crate::legacy_v1::decode_profile(bytes, checksum, limits, true)
+    }
+}
 mod codec;
 mod fragment;
 mod identity;

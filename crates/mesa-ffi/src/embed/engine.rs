@@ -15,6 +15,7 @@ pub struct Engine {
     step_records: usize,
     step_bytes: usize,
     object_bytes: usize,
+    path_bytes: usize,
 }
 fn peer(p: Peer) -> Result<PreconfiguredPeer, i32> {
     let end = p.domain.iter().position(|b| *b == 0).ok_or(ARG)?;
@@ -114,7 +115,7 @@ pub(super) fn setup(
     }
     let local_key = mesa_crypto::KeyPair::from_seed(&o.seed);
     let public = *local_key.public_key().as_bytes();
-    let protection = SignedPublic::new(local.key, local_key, table);
+    let protection = SignedPublic::experimental_v2(local.key, local_key, table);
     let mut fs = Vec::new();
     for f in flows {
         if f.attached > 1 {
@@ -148,7 +149,7 @@ pub(super) fn build(
     flows: &[Flow],
     checkpoint: Option<flow::Checkpoint>,
 ) -> Result<Engine, i32> {
-    build_inner(o, keys, flows, checkpoint, None)
+    build_inner(o, keys, flows, checkpoint, None, None)
 }
 fn build_inner(
     o: &Options,
@@ -156,11 +157,27 @@ fn build_inner(
     flows: &[Flow],
     checkpoint: Option<flow::Checkpoint>,
     resources: Option<core::Config>,
+    namespaces: Option<BTreeMap<PeerId, Vec<u8>>>,
 ) -> Result<Engine, i32> {
     let custom = resources.is_some();
     let (c, p) = config(o)?;
-    let c = resources.unwrap_or(c);
-    let (local, protection, fs, empty, mut descriptor) = setup(o, keys, flows)?;
+    let mut c = resources.unwrap_or(c);
+    let (local, mut protection, fs, empty, mut descriptor) = setup(o, keys, flows)?;
+    let native = namespaces.is_some();
+    if let Some(contexts) = namespaces {
+        if o.kind != 1 || !contexts.contains_key(&local.id) || contexts.len() > c.max_peers + 1 {
+            return Err(ARG);
+        }
+        c.wire.max_path = 320;
+        protection = protection.mesa_v1(contexts.clone());
+        let mut d: serde_json::Value =
+            serde_json::from_slice(&descriptor.to_vec()).map_err(|_| INVALID)?;
+        d["abi"] = 2.into();
+        d["profile"] = "mesa-v1".into();
+        d["limits"]["path_bytes"] = 320.into();
+        d["namespaces"] = serde_json::json!(contexts.iter().map(|(peer,prefix)| serde_json::json!({"peer":format!("{:032x}",peer.0),"prefix":prefix})).collect::<Vec<_>>());
+        descriptor = serde_json::to_vec(&d).map_err(|_| INVALID)?.into();
+    }
     let (step_records, step_bytes) = if custom {
         let envelope = c.event_envelope().map_err(|_| INVALID)?;
         (envelope.records + 1, envelope.bytes.max(256))
@@ -222,6 +239,7 @@ fn build_inner(
         step_records,
         step_bytes,
         object_bytes,
+        path_bytes: if native { 320 } else { 256 },
     })
 }
 impl Engine {
@@ -265,7 +283,7 @@ impl Engine {
                     Some(buffer(
                         e.data,
                         match e.tag {
-                            5..=8 => 256,
+                            5..=8 | 20..=29 => self.path_bytes,
                             11 => 1472,
                             _ => self.object_bytes,
                         },
@@ -278,11 +296,15 @@ impl Engine {
                 } else {
                     Some(buffer(
                         e.aux,
-                        if e.tag == 7 { 256 } else { self.object_bytes },
+                        if matches!(e.tag, 7 | 22 | 23) {
+                            self.path_bytes
+                        } else {
+                            self.object_bytes
+                        },
                     )?)
                 }
             };
-            let bytes = if matches!(e.tag, 5..=8 | 11) {
+            let bytes = if matches!(e.tag, 5..=8 | 11 | 20..=29) {
                 data.as_ref().map(Buffer::to_vec).unwrap_or_default()
             } else {
                 Vec::new()
@@ -296,6 +318,30 @@ impl Engine {
             let backend = self.backend.as_mut().ok_or(CLOSED)?;
             match backend {
                 Backend::Core(n) => {
+                    if e.tag == 29 {
+                        n.release_protocol_object(&bytes).map_err(|_| EVENT_ERROR)?;
+                        return Ok(vec![]);
+                    }
+                    if (25..=28).contains(&e.tag) {
+                        let secret = n.private_space(id).map_err(|_| EVENT_ERROR)?;
+                        let output = match e.tag {
+                            25 => secret.seal_path(&bytes, 256),
+                            26 => secret.open_path(&bytes, 256).map(|b| b.to_vec()),
+                            27 => aux
+                                .ok_or(ARG)?
+                                .with_bytes(|b| secret.encrypt(&bytes, b, self.object_bytes)),
+                            28 => aux.ok_or(ARG)?.with_bytes(|b| {
+                                secret
+                                    .decrypt(&bytes, b, self.object_bytes)
+                                    .map(|b| b.to_vec())
+                            }),
+                            _ => unreachable!(),
+                        }
+                        .map_err(|_| EVENT_ERROR)?;
+                        let mut r = Record::new(114);
+                        r.data = Some(output.into());
+                        return Ok(vec![r]);
+                    }
                     let event = match e.tag {
                         1 => core::Event::InstallPeer(peer(e.peer)?),
                         18 => core::Event::InstallCredential(core::host::CredentialUpdate {
@@ -334,6 +380,31 @@ impl Engine {
                             peer: id,
                             path: bytes,
                         },
+                        20 => core::Event::BindBuffer {
+                            path: bytes,
+                            bytes: aux.ok_or(ARG)?,
+                            access: core::Access::Peer(id),
+                        },
+                        21 => core::Event::ReadPrivate {
+                            id: e.id,
+                            peer: id,
+                            path: bytes,
+                        },
+                        22 => core::Event::ReadPoke {
+                            id: e.id,
+                            peer: id,
+                            path: bytes,
+                            payload: aux.ok_or(ARG)?.to_vec(),
+                        },
+                        23 => core::Event::Poke {
+                            peer: id,
+                            path: bytes,
+                            ack: aux.ok_or(ARG)?.to_vec(),
+                        },
+                        24 => core::Event::SendPage {
+                            peer: id,
+                            path: bytes,
+                        },
                         9 => core::Event::Cancel { id: e.id },
                         10 => core::Event::AdvanceTo(e.value),
                         11 => {
@@ -354,7 +425,7 @@ impl Engine {
                             EVENT_ERROR
                         }
                     })?;
-                    if e.tag == 8 {
+                    if matches!(e.tag, 8 | 21 | 22) {
                         self.reads.insert(e.id);
                     }
                     Ok(self.core_records(actions))
@@ -585,7 +656,7 @@ pub unsafe extern "C" fn mesa_options_default(out: *mut Options) -> i32 {
                 return ARG;
             }
             *out = Options {
-                abi_version: 1,
+                abi_version: 2,
                 kind: 1,
                 local: Peer {
                     id: [0; 16],
@@ -841,4 +912,89 @@ pub(super) fn stamp(r: &mut Record, g: &core::credentials::SendGate) {
             ));
         }
     }
+}
+
+#[repr(C)]
+pub struct Namespace {
+    peer: [u8; 16],
+    prefix: *const Buffer,
+}
+/// # Safety
+/// The caller owns all input buffers through this call. See mesa_embed.h.
+#[no_mangle]
+pub unsafe extern "C" fn mesa_engine_create_mesa(
+    o: *const Options,
+    resources: *const host::Resources,
+    keys: *const Key,
+    nkeys: usize,
+    namespaces: *const Namespace,
+    nspaces: usize,
+    out: *mut *mut Engine,
+) -> i32 {
+    catch_unwind(AssertUnwindSafe(|| {
+        // SAFETY: pointers and arrays follow the header contract.
+        unsafe {
+            if out.is_null() {
+                return ARG;
+            }
+            *out = ptr::null_mut();
+            if o.is_null()
+                || (*o).abi_version != 2
+                || (*o).kind != 1
+                || nkeys > 256
+                || nspaces > 257
+            {
+                return ARG;
+            }
+            let result = (|| {
+                let mut contexts = BTreeMap::new();
+                for ns in array(namespaces, nspaces)? {
+                    let prefix = buffer(ns.prefix, 320)?.to_vec();
+                    if prefix.is_empty()
+                        || contexts
+                            .insert(PeerId(u128::from_le_bytes(ns.peer)), prefix)
+                            .is_some()
+                    {
+                        return Err(ARG);
+                    }
+                }
+                let mut compatible = *o;
+                compatible.abi_version = 1;
+                build_inner(
+                    &compatible,
+                    array(keys, nkeys)?,
+                    &[],
+                    None,
+                    if resources.is_null() {
+                        None
+                    } else {
+                        Some((*resources).config()?)
+                    },
+                    Some(contexts),
+                )
+            })();
+            match result {
+                Ok(h) => {
+                    *out = Box::into_raw(Box::new(h));
+                    0
+                }
+                Err(e) => e,
+            }
+        }
+    }))
+    .unwrap_or(PANIC)
+}
+
+/// # Safety
+/// Follows mesa_embed.h output ownership contracts. Explicit ABI 1 compatibility.
+#[no_mangle]
+pub unsafe extern "C" fn mesa_options_exp_v2(out: *mut Options) -> i32 {
+    // SAFETY: the caller supplies writable output; default validates null.
+    let status = unsafe { mesa_options_default(out) };
+    if status == 0 {
+        unsafe {
+            (*out).abi_version = 1;
+        }
+    }
+    status
 }

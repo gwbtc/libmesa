@@ -1,32 +1,38 @@
-# Fresh-context handoff: Shrine, suite-C PKI and native Urbit peers
+# Fresh-context handoff: Shrine, suite-C PKI and Mesa-v1 peers
 
-**Implementation checkpoint, 2026-11-19.** PR #13 merged phase 4 at
-`05c137015836a4bb28b4d35cccfeeb3aaa182df3`. Branch
-`phase5-local-activation` implements the authorized phase-5 PR. Read
-[the activation contract](../spec/17-local-activation.md) and
-[phase-5 validation](20-local-activation-validation.md). Phase 0 native captures
-remain open; no Shrine files or native packet integrations change in phase 5.
+**Phase-6 implementation, 2026-11-27.** Branch `phase6-mesa-v1` builds on
+merged PR #14 and the native-target investigation. The shared engine now
+supports Mesa-v1; `mesa-urbit` supplies its bounded Urbit edge. Read
+[the validation record](25-mesa-profile-validation.md),
+[the normative API](../spec/18-mesa-profile.md), and
+[the live evidence](../investigation/phase6/README.md) before starting new work.
+
+Mesa-v1 is the new-engine default. The explicit experimental constructors,
+ABI 1 and `libmesa-flow/2` checkpoints remain compatible. No state conversion
+or managed-inbox migration is included. The latest implementation authorization
+ends with one phase-6 PR; phase 7 still needs its own review and scope agreement.
+
+The next project boundary is real host-provided Groundwire verification and
+joint Shrine UDP integration. Preserve Shrine-to-Shrine acceptance before
+Shrine-to-Urbit. Host-harness tests do not satisfy that gate. The fixed verifier
+used by live tests is an exact-pass fixture, not a production verifier.
 
 ## Read first
 
-1. Read [the roadmap](14-shrine-groundwire-roadmap.md).
-2. Read [the pinned reference snapshot](15-shrine-groundwire-reference.md).
-3. Read [the current C contract](../spec/14-c-embedding.md) and the source for
-   the phase being implemented. Use older identity docs for invariants, not
-   their superseded scheduling or external-Jael assumption.
-
-The user authorized one phase-5 PR with tests. Stop after opening it; do not
-merge it or begin phase 6 without further instruction. The next implementation
-phase maps native Groundwire traffic onto the existing authority, activation
-and transport boundaries. Preserve the live Shrine-to-Shrine gate before
-Shrine-to-Urbit. Hardware-only backends, managed-wrapper packaging and verifier
-plugins do not belong to this PR.
+1. [Roadmap](14-shrine-groundwire-roadmap.md), especially phase 7.
+2. [Mesa profile contract](../spec/18-mesa-profile.md) and the new C events.
+3. [Retention and Urbit crash semantics](24-retention-and-urbit-crash-semantics.md).
+4. [Pinned integration reference](15-shrine-groundwire-reference.md).
 
 ## Settled direction
 
+- Put reusable Mesa-v1 framing/protection/transfer/flow mechanisms in the core
+  crates. Limit `mesa-urbit` to serialization, naming, service conventions and
+  required old-Ames identity controls. Freeze experimental profile development;
+  preserve explicit restores and fixtures without reinterpreting old state.
 - Shrine uses the UDP adapter. Live Shrine-to-Shrine acceptance precedes
   Shrine-to-Urbit; host-harness tests do not substitute for that joint gate.
-- Shrine integration is first. Native communication with existing Urbit nodes
+- Shrine integration is first. Urbit-Mesa communication with existing Urbit nodes
   is second. Replacing Ames in Vere is a separate future project.
 - Primary peers use suite-C/Groundwire identities on either runtime.
   Azimuth-ID interoperability and its associated bootstrap work wait.
@@ -38,9 +44,9 @@ plugins do not belong to this PR.
   explicit mutation, stable configuration descriptions and batched processing.
 - Raw CORE, raw FLOW, transport adapters and managed inbox stay separate.
   Shrine's named-read publication path does not require the managed inbox.
-- Finish three bounded embedding gates, then focus on PKI. Start provider
-  contract and native profile research immediately; avoid general transport
-  or inbox expansion before the PKI pivot.
+- Phases 1–5 are merged. Phase 6 implements Mesa-v1 and the Urbit-Mesa profile;
+  phase 7 supplies real verification and joint host acceptance. Keep general
+  transport and inbox expansion off that path.
 
 ## Latest user clarification
 
@@ -50,13 +56,13 @@ or treating the old bridge as the required new API. Extract host requirements,
 publish libmesa contracts, and refresh the successor branch when available.
 
 The primary scope is suite-C comets / Groundwire IDs, whether Shrine or Urbit.
-Native legacy packet handling may still be necessary for those peers; that
+Old-Ames identity controls remain required by the pinned Urbit peers; that
 does not put Azimuth-ID peers back on the critical path.
 
 ## Baseline and workspace care
 
-Plan base: libmesa main `041f2148379bf9232063a9f7d6f6e4e45e4c6b0c`, merged PR #11.
-Plan branch: `codex/shrine-pki-roadmap`; implementation branch:
+Historical phase-1 plan base: `041f2148379bf9232063a9f7d6f6e4e45e4c6b0c`, merged PR #11.
+Historical plan branch: `codex/shrine-pki-roadmap`; implementation branch:
 `codex/raw-udp-embedding`.
 
 Local repositories used for source reading:
@@ -88,15 +94,15 @@ The C UDP harness transfers among three peers under faults, then reconstructs
 one raw host and verifies another read. These are not actual Shrine worlds.
 Shrine's authors still own migration and joint live acceptance.
 
-Carry forward the native-profile investigation alongside those changes. The
-existing v2 Hoon endpoint is not native Ames/Mesa interop, and `flow/2/...` is
-not native `%plea`/`%boon`. Kernel-native proof, spaces, crypto contexts and
-identity-control behavior need their own fixtures and acceptance tests.
+Use the completed phase-6 implementation and validation for the next phase. The experimental
+Hoon endpoint speaks libmesa-exp-v2, and libmesa-flow/2 is not Urbit-Mesa
+plea/boon messaging. Proofs, spaces, crypto contexts and identity controls
+need their recorded fixtures and implementation acceptance tests.
 
 Do not silently retain the old requirement to patch Urbit's rekey announcements.
-The revised default is a separate native compatibility module supporting the
-control subset required by suite-C peers. Determine that subset from the
-pinned kernel and captures before committing to its implementation size.
+The revised target is shared Mesa-v1 mechanisms plus a narrow Urbit-Mesa
+boundary. Old-Ames `%keys`/open identity controls remain required; full
+old-Ames messaging and relationship migration remain separate work.
 
 ## Decisions and external dependencies to resolve
 
@@ -104,11 +110,11 @@ pinned kernel and captures before committing to its implementation size.
 |---|---|
 | Updated Shrine bridge/API and capacity requirements | Shrine/Enki authors; PR #11 is the available public API baseline |
 | Shrine world identity versus Groundwire network persona | Joint host design; current `pass.foil` names are a different scheme |
-| Native Urbit target | Actual deployed source, desk, executable and pill hashes; `gw/final` is an inspected candidate |
+| Urbit-Mesa target | Pinned source, companion, executable and pill in `investigation/native/reference.json`; deployment claims require matching those pins |
 | Required control subset and oversized proof handling | Kernel/source traces; current proof intake expects one 1,024-byte fragment |
 | Real Groundwire authority provider | Host team; interface must cover readiness, view, generations, verdicts and withdrawals |
 | Durable PKI activation and restored-world epochs | Host transaction and secret-storage design; keep independent of the inbox |
-| Application service and payload mapping | Joint Shrine/Urbit application contract, after native protocol mapping |
+| Application service and payload mapping | Joint Shrine/Urbit application contract, after Urbit-Mesa profile mapping |
 
 A configured route may bootstrap connectivity. A configured positive verdict
 does not prove Groundwire PKI. Likewise, a successful signed read does not
@@ -116,25 +122,12 @@ prove private access control, durable acceptance or rekey recovery.
 
 ## Validation status
 
-Phase-5 evidence is recorded in [the activation validation report](20-local-activation-validation.md).
-Phase-4 evidence remains in [the authority validation report](19-authority-admission-validation.md).
+Phase 6 has shared Rust mechanism tests, a C UDP harness, 13 new Rust-process
+SIGKILL boundaries and live exchanges with the pinned Urbit stack. Read
+[the phase-6 validation report](25-mesa-profile-validation.md) for exact commands
+and remaining limits. Earlier [phase-5](20-local-activation-validation.md) and
+[phase-4](19-authority-admission-validation.md) reports remain historical evidence.
 
-The phase PR ran raw-host, Rust workspace, C ownership/crash and UDP tests;
-see the validation record for commands and limits. No live Shrine or native
-Urbit integration was executed. Phase-4 provider fixtures prove orchestration,
-not Groundwire evidence verification. Earlier native acceptance records are
-historical evidence only.
-
-Implementation reports must distinguish deterministic simulation, compiled-host
-execution, native codec conformance and live joint integration. Keep exact
-source/pill/runtime/provider provenance with the acceptance evidence.
-
-## Phase-4 ownership clarification
-
-“Embedding host” means the Mesa client, such as Shrine, not the underlying
-Unix OS. Its scheduler drives Mesa; Mesa owns incoming protocol parsing and
-admission. Shrine first receives a bounded attestation-verification request,
-then supplies its verifier's verdict and durable commit completion. A composed
-client receives admitted messages after its wrapper handles those services.
-See roadmap section 3 for the shared terminology and incoming sequence.
-Shrine-side migration and native packet integration remain outside phase 4.
+The final default is Mesa-v1. Explicit experimental callers preserve their old
+behavior. The managed inbox stays on `libmesa-flow/2`; no Shrine changes,
+Urbit kernel changes, or real Groundwire verifier are included.

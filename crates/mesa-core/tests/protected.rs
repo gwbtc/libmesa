@@ -49,7 +49,7 @@ fn key(i: usize) -> KeyPair {
     KeyPair::from_seed(&[i as u8 + 1; 32])
 }
 fn profile(i: usize) -> SignedPublic {
-    SignedPublic::new(
+    SignedPublic::experimental_v2(
         view(i).key,
         key(i),
         BTreeMap::from([

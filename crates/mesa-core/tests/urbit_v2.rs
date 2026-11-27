@@ -7,7 +7,7 @@ use std::collections::BTreeMap;
 fn engine(wrong_key: bool) -> Engine<SignedPublic> {
     let local = PreconfiguredPeer::new(PeerId(1), "gw-btc", 1, 0, KeyHandle(1)).unwrap();
     let remote = PreconfiguredPeer::new(PeerId(2), "gw-btc", 1, 0, KeyHandle(2)).unwrap();
-    let protection = SignedPublic::new(
+    let protection = SignedPublic::experimental_v2(
         local.key,
         KeyPair::from_seed(&[1; 32]),
         BTreeMap::from([(

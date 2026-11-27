@@ -23,3 +23,5 @@ jobs:
       - run: python3 tools/check-embedding-deps.py
       - run: python3 tools/conformance-v2.py
       - run: python3 tools/conformance-noun.py
+      - run: python3 investigation/phase6/check-evidence.py
+      - run: python3 investigation/native/retention/check-evidence.py

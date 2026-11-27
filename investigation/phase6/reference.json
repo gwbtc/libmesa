@@ -1,0 +1,43 @@
+{
+  "captured_utc": "2026-11-27T18:03:47.030251+00:00",
+  "urbit_commit": "9f437ff097a0e3836fea7875a568b6192eef6a27",
+  "vere_commit": "828244e7751ffc2c7a91c34907c49a9d51f2cc8f",
+  "groundwire_commit": "a5cf857e2de90c283aa18087db9d4a3981f3ab55",
+  "vere_sha256": "f5a45c0e306dcdf657e60da0e79b90a99e56d8dc5f82c5c5962e1c1de8c8506f",
+  "pill_sha256": "58b23808442be2c3f364d52fae5f8d2d254f271f0188d04df3cacc1d79c50805",
+  "implementation": "phase6-mesa-v1 worktree during implementation; final tests replay the recorded codecs and shared mechanisms",
+  "verification": "Fixed exact-pass fixture provider, not Groundwire ledger verification",
+  "files": {
+    "evidence/comet-network.log": "5bff9cacae07f8801e30b0f21c5b284bc78a3bb36ed26c19c8b7041c35545430",
+    "evidence/comet-reverse.json": "7a3a0e186bfa9a852e0e75148a7ba208b1a9d4a50ab4d7284fb7a6277171a8f0",
+    "evidence/comet-session-4100.json": "0dd66f59d551403866a4ef95472dadb072bdeb898f4d943a8d7091dda2d208d4",
+    "evidence/d-first-contact.json": "6822d84738be7c5eeedac58e9373207e7e6ac64871be802b859c830ad712cded",
+    "evidence/final-build.json": "f1a410be1795372b0349c8ecdb52a93de75625b391ce732c3e378eaf9d38208e",
+    "evidence/final-closure.json": "f7403a91f8a3ec827250b0e05d3cadd368806088193da74a53963f061c30d0c1",
+    "evidence/fragment2-live.json": "b3b026442a5988b6bec78b199ad33d2150205a83704252967f2fb14a418fcaea",
+    "evidence/peek-long-before-fix.json": "942d9ea045c724b8acdd42519172ef0ede7c5ec1e74e58239d06c972fd21e476",
+    "evidence/public-read.json": "96c9678637fed778c957d957462df59ec7d7558fb2c8efbeaa2a7de906236d72",
+    "evidence/public-serve-result.txt": "122213a854cab7768511960c1cd7f718bc7072a24f49b19be4f83179c0e479b9",
+    "evidence/public-serve.json": "684ce5873367b0051ea0ee7624fb9a0a9336c6086dceb0f2f647941425e30f27",
+    "evidence/recovery-live.json": "85f3cbebef3f18850444cc6ee1352e7f7635476157c0a6b7cbe9fb00284b1af1",
+    "evidence/reject2-live.json": "0e92d9916c49b74556939ccaa2a6ce13cf21cc3fb9bc01338c3e474144128e3d",
+    "evidence/rekey-live.json": "4ac3ca05cfe553fb0216d670c01d6c49128aee7e8d8325afdff15d8820cfddfe",
+    "evidence/reverse-fragment.json": "9782d55caf0cc18d3826d71bfd24c4f0b441a8d930ee3a92b0db310c071e0cbd",
+    "fixtures/crash-probe.hoon": "00586d67adac664ab92297d8370441b5a48c3abbc9db142c981490b23ab71ea0",
+    "fixtures/historical-proof.hoon": "0f945fa9b52969560be0e3432cfc26f1a1464ee593c93c767067d4406aa5277b",
+    "fixtures/make-rust-identities.hoon": "af65928a311618d4ede5e633b0bcae7f28718cd3a66a93f111c37bf327524d21",
+    "fixtures/mesa-test-recovery.hoon": "1d60e091c260c05b91c4a93557bc17a995b0ea8af4fed500b534c6a27315d0ab",
+    "fixtures/mesa-test-rotated.hoon": "cc4eb28b02e8e6fef7ecea85b48b5f961936879e4a8fc859973e416bfd1d9a35",
+    "fixtures/mesa-test.hoon": "6f5629dea82ceb6a1d87656c23a55cdf394a0baf4604899ae2e77fe5d3d49b13",
+    "fixtures/open-vector.hoon": "eaa918f2c3c56acaf036d681b1bb6e4fce66e1ea8f09dd36c1a17243a1d1c37b",
+    "fixtures/public-serve.hoon": "50f7c6ecdcf50cad32f358cc02fca31c22cf8314fbde3f00ea530968eae9dca1",
+    "fixtures/reverse-fragment.hoon": "4f81024ba0f85f53f2c2cdc21bd882699376176307685546ff12e3e62f0570ba"
+  },
+  "final_build": {
+    "captured_utc": "2026-11-27T18:17:11.492676+00:00",
+    "binary_sha256": "8363ab1dd3f86790a24ade8ea15c81cdb81b00e2cc6423f9262617a089aff7e5",
+    "result": "4,100-byte plea accepted; cork closed; resumed original outbox after the LONG-hint correction; the first five-second restart ended before Urbit retried; a 45-second run completed",
+    "report": "evidence/final-build.json",
+    "closure": "evidence/final-closure.json"
+  }
+}

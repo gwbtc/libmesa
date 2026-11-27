@@ -1,0 +1,50 @@
+play: events 1713-1715
+play (1715): done (~2026.11.22..18.30.37, now=~2026.11.25..17.23.57)
+pier (1733): live
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: send %plea [bone=8 seq=1 path="/ge/crash-probe"]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: hear %ack for [bone=8 seq=1]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: send %plea [bone=8 seq=2 path="/ge/crash-probe"]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: hear %ack for [bone=8 seq=2]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: send %plea [bone=8 seq=3 path="/ge/crash-probe"]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: hear %ack for [bone=8 seq=3]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: send %plea [bone=8 seq=4 path="/ge/crash-probe"]
+play: events 1822-1864
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: send %plea [bone=8 seq=2 path="/ge/crash-probe"]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: hear %ack for [bone=8 seq=2]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: send %plea [bone=8 seq=3 path="/ge/crash-probe"]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: hear %ack for [bone=8 seq=3]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: send %plea [bone=8 seq=4 path="/ge/crash-probe"]
+play (1864): done (~2026.11.25..17.25.57, now=~2026.11.25..17.27.46)
+pier (1885): live
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: hear %ack for [bone=8 seq=4]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: send %plea [bone=8 seq=5 path="/ge/crash-probe"]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: send %plea [bone=12 seq=1 path="/ge/crash-probe"]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: hear %ack for [bone=12 seq=1]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: sink %boon [bone=12 seq=1]; ack
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: send %plea [bone=12 seq=2 path="/ge/crash-probe"]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: hear %ack for [bone=12 seq=2]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: send %cork [bone=12 seq=3 path="/flow"]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: hear %ack for [bone=12 seq=3]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: hear cork ack; delete bone=12
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: send %plea [bone=16 seq=1 path="/ge/crash-probe"]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: hear %ack for [bone=16 seq=1]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: sink %boon [bone=16 seq=1]; ack
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: send %plea [bone=16 seq=2 path="/ge/crash-probe"]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: hear %ack for [bone=16 seq=2]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: send %cork [bone=16 seq=3 path="/flow"]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: hear %ack for [bone=16 seq=3]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: hear cork ack; delete bone=16
+play: events 1960-2002
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: send %plea [bone=16 seq=1 path="/ge/crash-probe"]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: hear %ack for [bone=16 seq=1]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: sink %boon [bone=16 seq=1]; ack
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: send %plea [bone=16 seq=2 path="/ge/crash-probe"]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: hear %ack for [bone=16 seq=2]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: send %cork [bone=16 seq=3 path="/flow"]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: hear %ack for [bone=16 seq=3]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: hear cork ack; delete bone=16
+play (2002): done (~2026.11.25..17.29.51, now=~2026.11.25..17.31.03)
+pier (2016): live
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: send %plea [bone=20 seq=1 path="/ge/crash-probe"]
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: sink %boon [bone=20 seq=1]; ack
+mesa: ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub: hear %ack for [bone=20 seq=1]

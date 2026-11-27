@@ -261,6 +261,14 @@ impl<'a> Reader<'a> {
 /// Parse a full packet with no allocation. Returned slices borrow the input.
 /// Success establishes wire structure and checksum only, not authentication.
 pub fn decode(bytes: &[u8], checksum: Checksum, limits: Limits) -> Result<Packet<'_>, Error> {
+    decode_profile(bytes, checksum, limits, false)
+}
+pub(crate) fn decode_profile(
+    bytes: &[u8],
+    checksum: Checksum,
+    limits: Limits,
+    peek_hint: bool,
+) -> Result<Packet<'_>, Error> {
     if bytes.len() > limits.max_packet {
         return Err(Error::Limit);
     }
@@ -268,10 +276,12 @@ pub fn decode(bytes: &[u8], checksum: Checksum, limits: Limits) -> Result<Packet
     if checksum.gum(&bytes[HEADER_LEN..]) != head.gum {
         return Err(Error::Checksum);
     }
-    if head.nex > 1 {
+    if head.nex > 1 && !(peek_hint && head.typ == PactType::Peek) {
         return Err(Error::UnsupportedNext);
     }
-    if head.typ != PactType::Page && head.nex != 0 {
+    // Pinned Vere emits unused next-hop bits in subsequent peeks.
+    // Peek framing has no trailer; this hint grants no route authority.
+    if head.typ != PactType::Page && head.nex != 0 && !(peek_hint && head.typ == PactType::Peek) {
         return Err(Error::Reserved);
     }
     let mut r = Reader {

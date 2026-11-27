@@ -1,5 +1,11 @@
 # Fixed names and explicit identity domains
 
+**Wire direction superseded, 2026-11-25.** The
+[Mesa-v1 default decision](23-mesa-default-and-flow-durability.md) replaces this
+document's separate-default wire plan. Fixed internal identities, explicit
+accepted authority bindings, and separable verifier policy remain. The text
+below records why libmesa-exp-v2 was introduced; it does not set the new target.
+
 **Direction, 2026-10-21:** libmesa standardizes on 128-bit comet names.
 Azimuth short names may later alias those underlying names. The target wire
 format has no name-width selector. This supersedes the earlier requirement to

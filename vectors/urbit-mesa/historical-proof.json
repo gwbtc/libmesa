@@ -1,0 +1,18 @@
+{
+  "urbit_commit": "9f437ff097a0e3836fea7875a568b6192eef6a27",
+  "generator": "investigation/phase6/fixtures/historical-proof.hoon",
+  "generator_sha256": "0f945fa9b52969560be0e3432cfc26f1a1464ee593c93c767067d4406aa5277b",
+  "fixture": "vectors/crypto/suite-c.json vector 0; public deterministic seed; tweaked genesis signer",
+  "cases": [
+    {
+      "life": 1,
+      "gage": "01bcdee0cadc5ae0c2c6d6cae801609f3167e68a03ee8e6eb9ca4a8e140444f8cad65c82a68d396b4bf36f832eb41d6a7e67e68a03ee8e6eb9ca4a8e140444f8cad65c82a68d396b4bf36f832eb41d6a7ec008f8ceee5ac4e8c648a2691c121dc05eb43df533f5bd65ea36e0ca9b3d3a2dc601f4fdb6e55ef2ed3a50a282bc63a2256b5206",
+      "signature": "51af676e6790fcd9f69075381e7fe134c0ed7acc285e41147d9869b85bfd530a321f49272353b678d821aa8e867d5471630d1df37dbed4fbfb981871a6197609"
+    },
+    {
+      "life": 2,
+      "gage": "01bcdee0cadc5ae0c2c6d6cae801609f3167e68a03ee8e6eb9ca4a8e140444f8cad65c82a68d396b4bf36f832eb41d6a7e67e68a03ee8e6eb9ca4a8e140444f8cad65c82a68d396b4bf36f832eb41d6a7ec008f8ceee5ac4e8c648a2691c121dc05eb43df533f5bd65ea36e0ca9b3d3a2d860ca0efb72df7926fd7811215e41d132d599332",
+      "signature": "3a3fabb7c041491b1b8a76bd34cf2038e1e9ca9e779250655d6591d651ad213dac4ef518647d2aec0d8c75f54961b3f8c0a6f7183fca4189d62c83ee22696403"
+    }
+  ]
+}
