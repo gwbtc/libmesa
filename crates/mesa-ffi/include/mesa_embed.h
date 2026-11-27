@@ -5,9 +5,10 @@
 extern "C" {
 #endif
 
-/* ABI 1. All integer fields are native C values except 16-byte identities and
+/* ABI 2 selects Mesa-v1; ABI 1 selects explicit experimental compatibility.
+ * All integer fields are native C values except 16-byte identities and
  * incarnations, which are little-endian. Zero-initialize events/results.
- * See spec/14-c-embedding.md for the normative mutation/durability contract. */
+ * See spec/14-c-embedding.md and spec/18-mesa-profile.md for contracts. */
 typedef struct mesa_buffer mesa_buffer;
 typedef struct mesa_engine mesa_engine;
 typedef struct mesa_batch mesa_batch;
@@ -81,8 +82,28 @@ enum {
   MESA_INVALIDATE_EPOCH = 16,
   MESA_CLOSE = 17,
   MESA_INSTALL_CREDENTIAL = 18,
-  MESA_REPLACE_ATTACHMENT = 19
+  MESA_REPLACE_ATTACHMENT = 19,
+  MESA_BIND_PRIVATE = 20, MESA_READ_PRIVATE = 21, MESA_READ_POKE = 22,
+  MESA_POKE = 23, MESA_SEND_PAGE = 24,
+  MESA_SEAL_PATH = 25, MESA_OPEN_PATH = 26,
+  MESA_ENCRYPT_OBJECT = 27, MESA_DECRYPT_OBJECT = 28,
+  MESA_RELEASE_PROTOCOL_OBJECT = 29
 };
+/* Mesa-v1 events: BIND_PRIVATE data=path,aux=payload,peer.id=reader.
+ * READ_PRIVATE uses READ fields. READ_POKE data=remote ACK path,aux=local
+ * payload path,id=read ID,peer.id. POKE data=local payload path,aux=ACK path,
+ * peer.id. SEND_PAGE data=local path,peer.id. All paths <=320 bytes.
+ * Mutation, cancellation, batch and buffer contracts match existing events. */
+/* Native byte protection (CORE only, current installed peer.id): SEAL_PATH
+ * data=plaintext path; OPEN_PATH data=sealed path (each <=256 bytes).
+ * ENCRYPT_OBJECT/DECRYPT_OBJECT data=sealed path IV,aux=object bytes.
+ * DECRYPT_OBJECT requires a completed authenticated READ_PRIVATE result.
+ * These operations return MESA_PROTECTED_BUFFER in data, change no engine state,
+ * and perform no I/O. They are fenced while credentials are quiescent. */
+/* RELEASE_PROTOCOL_OBJECT: data=path. Trusted service-module operation only:
+ * the caller MUST already own a durable sequence/closure fence forbidding reuse
+ * of this logical object. Fails while a READ_POKE references it. Unlike UNBIND,
+ * releases the transient binding slot; it does not create a raw name tombstone. */
 /* Field usage:
  * INSTALL_CREDENTIAL (CORE): peer,sequence=expected generation,id=new generation,
  * flag=breach (0/1). Invalidates old reads; does not verify authority. Keys must
@@ -116,6 +137,7 @@ enum {
   MESA_READ_FINISHED = 102,
   MESA_DROPPED = 103,
   MESA_TIMER = 104,
+  MESA_PROTECTED_BUFFER = 114,
   MESA_COMMIT = 105,
   MESA_DELIVER = 106,
   MESA_ENQUEUED = 107,
@@ -211,7 +233,9 @@ int32_t mesa_engine_create_configured(const mesa_options *, const mesa_resources
  * Does not mutate the engine or configuration descriptor; no seeds. */
 int32_t mesa_engine_snapshot(const mesa_engine *, const mesa_buffer **out);
 
+/* Default creation is Mesa-v1, ABI 2. Experimental restore selects ABI 1. */
 int32_t mesa_options_default(mesa_options *out);
+int32_t mesa_options_exp_v2(mesa_options *out);
 int32_t mesa_key_from_seed(const uint8_t seed[32], uint8_t public_key[32]);
 /* At most 16 key entries and 4 flow entries. Core mode requires no flows or
  * checkpoint. Flow mode requires flows; NULL checkpoint creates revision zero.
@@ -219,6 +243,13 @@ int32_t mesa_key_from_seed(const uint8_t seed[32], uint8_t public_key[32]);
  * Keys are fixed at construction; peer updates select already installed
  * handles. No clocks, sockets, storage calls, worker threads, or host
  * callbacks. */
+/* ABI 2 raw Mesa-v1 engine. Set options.abi_version=2, kind=MESA_CORE.
+ * Namespace prefixes are immutable profile bytes, copied during creation.
+ * They grant no peer authority. No checkpoint or noun conversion is implicit.
+ * ABI 1 constructors remain explicitly libmesa-exp-v2. */
+typedef struct { uint8_t peer[16]; const mesa_buffer *prefix; } mesa_namespace;
+int32_t mesa_engine_create_mesa(const mesa_options *, const mesa_resources *, const mesa_key *, size_t,
+                              const mesa_namespace *, size_t, mesa_engine **);
 int32_t mesa_engine_create(const mesa_options *options, const mesa_key *keys,
                            size_t key_count, const mesa_flow_config *flows,
                            size_t flow_count, const mesa_buffer *checkpoint,

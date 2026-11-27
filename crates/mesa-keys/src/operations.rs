@@ -4,6 +4,13 @@ use super::*;
 use mesa_crypto::SharedSecret;
 #[derive(Clone, Debug)]
 pub enum Purpose {
+    /// Mesa-v1 ROOT transcript. Prefix comes from the immutable profile
+    /// namespace. This trusted protocol operation is not packet-chosen signing.
+    MesaRoot {
+        prefix: Buffer,
+        path: Buffer,
+        root: [u8; 32],
+    },
     PublicRoot {
         path: Buffer,
         total: u64,
@@ -84,6 +91,15 @@ impl Activation {
                 // Public roots are an explicit trusted protocol-module operation.
                 let bytes = path
                     .with_bytes(|p| mesa_core::protection::root_context_owned(&v, p, total, &root));
+                (bytes.into(), None, None)
+            }
+            Purpose::MesaRoot { prefix, path, root } => {
+                if prefix.is_empty() || prefix.len() > 320 || path.len() > 320 {
+                    return Err(Error::Invalid);
+                }
+                let mut bytes = prefix.to_vec();
+                bytes.extend(path.to_vec());
+                bytes.extend(root);
                 (bytes.into(), None, None)
             }
             Purpose::Agreement { peer } => {

@@ -1,5 +1,12 @@
 # Implemented continuous flow profile 2
 
+**Strict name:** **libmesa-flow/2**. This is an experimental flow protocol over
+**libmesa-exp-v2**, not Mesa wire version 2 or the Urbit-Mesa message profile.
+Its implementation and restore contract remain unchanged. The
+[Mesa-v1 default plan](../doc/23-mesa-default-and-flow-durability.md) preserves
+its durability invariants and fixtures while replacing its wire conventions
+for the default service. No checkpoint conversion is implied.
+
 `mesa-flow` reclaims protocol history after a signed, durably committed batch
 handshake. Message sequences increase across reclamation and restart. The
 checkpoint retains one batch per direction; SQLite retains application records

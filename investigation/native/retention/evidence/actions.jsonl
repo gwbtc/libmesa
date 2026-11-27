@@ -1,0 +1,86 @@
+{"time_ns": 1795627483451633000, "label": "a", "name": "install", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627483738749000, "label": "a", "name": "enable", "result": "[0 %avow 0 %noun %enabled]\n"}
+{"time_ns": 1795627483994066000, "label": "b", "name": "install", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627484284235000, "label": "b", "name": "enable", "result": "[0 %avow 0 %noun %enabled]\n"}
+{"time_ns": 1795627508799794000, "label": "a", "name": "route", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627518815142000, "label": "a", "name": "route", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627518982242000, "label": "a", "name": "keep-apps", "result": "[0 %avow 0 %noun %enabled]\n"}
+{"time_ns": 1795627519188644000, "label": "a", "name": "initial-state", "result": "[0 %avow 0 %noun 0 0 0]\n"}
+{"time_ns": 1795627519349702000, "label": "b", "name": "route", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627519522102000, "label": "b", "name": "keep-apps", "result": "[0 %avow 0 %noun %enabled]\n"}
+{"time_ns": 1795627519728542000, "label": "b", "name": "initial-state", "result": "[0 %avow 0 %noun 0 0 0]\n"}
+{"time_ns": 1795627519891511000, "label": "a", "name": "warmup", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627529801860000, "label": "a", "name": "warmup-result", "result": "[0 %avow 0 %noun 0 0 0]\n"}
+{"time_ns": 1795627529965048000, "label": "b", "name": "warmup-receive", "result": "[0 %avow 0 %noun 1 0 [0xb0944ca3e32eaec9fd954dd1381f7f41 %accept 100] 0]\n"}
+{"time_ns": 1795627545525620000, "label": "a", "name": "mount", "result": "[0 %avow 0 %noun 0]\n"}
+{"time_ns": 1795627545957029000, "label": "b", "name": "mount", "result": "[0 %avow 0 %noun 0]\n"}
+{"time_ns": 1795627552471204000, "label": "a", "name": "retry-list", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627552642372000, "label": "a", "name": "retry-result", "result": "[0 %avow 0 %noun 0 [[[%probe 0] %poke-ack 0] 0] 0]\n"}
+{"time_ns": 1795627552802351000, "label": "b", "name": "retry-receive", "result": "[0 %avow 0 %noun 1 0 [0xb0944ca3e32eaec9fd954dd1381f7f41 %accept 100] 0]\n"}
+{"time_ns": 1795627573646073000, "label": "a", "name": "pre-crash", "result": "[0 %avow 0 %noun 0 1 0]\n"}
+{"time_ns": 1795627573816967000, "label": "b", "name": "pre-crash", "result": "[0 %avow 0 %noun 1 0 1]\n"}
+{"time_ns": 1795627573988385000, "label": "a", "name": "receiver-crash-message", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627595206776000, "label": "b", "name": "after-receiver-kill", "result": "[0 %avow 0 %noun 2 0 2]\n"}
+{"time_ns": 1795627595379681000, "label": "a", "name": "ack-still-lost", "result": "[0 %avow 0 %noun 0 1 0]\n"}
+{"time_ns": 1795627595544391000, "label": "a", "name": "recover-receiver-ack", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627603648209000, "label": "a", "name": "receiver-ack-recovered", "result": "[0 %avow 0 %noun 0 2 0]\n"}
+{"time_ns": 1795627603814409000, "label": "b", "name": "receiver-duplicate-suppressed", "result": "[0 %avow 0 %noun 2 0 2]\n"}
+{"time_ns": 1795627603982638000, "label": "a", "name": "sender-crash-message", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627633314952000, "label": "a", "name": "sender-crash-pending", "result": "[0 %avow 0 %noun 0 3 0]\n"}
+{"time_ns": 1795627633479677000, "label": "b", "name": "sender-delivery-check", "result": "[0 %avow 0 %noun 3 0 3]\n"}
+{"time_ns": 1795627651879938000, "label": "a", "name": "route-before-sender-kill", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627652047372000, "label": "b", "name": "route-before-sender-kill", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627652214686000, "label": "a", "name": "sender-kill-retry", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627665897953000, "label": "b", "name": "after-sender-kill", "result": "[0 %avow 0 %noun 3 0 3]\n"}
+{"time_ns": 1795627684958809000, "label": "a", "name": "sender-restored-before-retry", "result": "[0 %avow 0 %noun 0 4 0]\n"}
+{"time_ns": 1795627685130980000, "label": "a", "name": "route-after-sender-kill", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627685296752000, "label": "b", "name": "route-after-sender-kill", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627685463752000, "label": "a", "name": "recover-sender-outbox", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627703132236000, "label": "a", "name": "sender-outbox-recovered", "result": "[0 %avow 0 %noun 0 4 0]\n"}
+{"time_ns": 1795627703297502000, "label": "b", "name": "sender-message-once", "result": "[0 %avow 0 %noun 4 0 4]\n"}
+{"time_ns": 1795627703471409000, "label": "a", "name": "route-before-nack-kill", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627703636388000, "label": "b", "name": "route-before-nack-kill", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627703801955000, "label": "a", "name": "reject-before-kill", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627725199807000, "label": "a", "name": "nack-still-lost", "result": "[0 %avow 0 %noun 0 4 0]\n"}
+{"time_ns": 1795627738574539000, "label": "b", "name": "rejection-restored", "result": "[0 %avow 0 %noun 4 0 4]\n"}
+{"time_ns": 1795627738745528000, "label": "a", "name": "route-nack-recovery", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627738913862000, "label": "b", "name": "route-nack-recovery", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627739080125000, "label": "a", "name": "recover-nack", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627739248821000, "label": "a", "name": "update-watch-fixture", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627739592985000, "label": "b", "name": "update-watch-fixture", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627760328349000, "label": "a", "name": "rejection-confirmed", "result": "[0 %avow 0 %noun 5 0]\n"}
+{"time_ns": 1795627760496219000, "label": "a", "name": "watch", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627766136553000, "label": "a", "name": "watch-result", "result": "[0 %avow 0 %noun 0 7 0]\n"}
+{"time_ns": 1795627766301459000, "label": "b", "name": "watch-receiver", "result": "[0 %avow 0 %noun 4 0 4]\n"}
+{"time_ns": 1795627766467453000, "label": "a", "name": "leave", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627804103347000, "label": "a", "name": "closure-state", "result": "[0 %avow 0 %noun [[12 %for] 0 0] 0]\n"}
+{"time_ns": 1795627804269179000, "label": "b", "name": "closure-state", "result": "[0 %avow 0 %noun [[12 %bak] 0 0] 0]\n"}
+{"time_ns": 1795627804431029000, "label": "a", "name": "before-close-restart", "result": "[0 %avow 0 %noun 0 7 0]\n"}
+{"time_ns": 1795627804594568000, "label": "b", "name": "before-close-restart", "result": "[0 %avow 0 %noun 4 0 4]\n"}
+{"time_ns": 1795627824073430000, "label": "a", "name": "count-watch-deliveries", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627824415440000, "label": "b", "name": "count-watch-deliveries", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627824754109000, "label": "a", "name": "route-before-closed-replay", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627824920450000, "label": "b", "name": "route-before-closed-replay", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627825086415000, "label": "a", "name": "watch-for-closed-replay", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627839468976000, "label": "a", "name": "watch2-complete", "result": "[0 %avow 0 %noun 0 9 0]\n"}
+{"time_ns": 1795627839633636000, "label": "b", "name": "watch2-delivered", "result": "[0 %avow 0 %noun 5 0 5]\n"}
+{"time_ns": 1795627839799401000, "label": "a", "name": "leave-for-closed-replay", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627862223616000, "label": "a", "name": "before-closure-kill", "result": "[0 %avow 0 %noun [[12 %for] 0 [16 %for] 0 0] 0]\n"}
+{"time_ns": 1795627862386894000, "label": "a", "name": "before-closure-kill-counts", "result": "[0 %avow 0 %noun 0 9 0]\n"}
+{"time_ns": 1795627862559992000, "label": "b", "name": "before-closure-kill", "result": "[0 %avow 0 %noun [[12 %bak] 0 [16 %bak] 0 0] 0]\n"}
+{"time_ns": 1795627862728905000, "label": "b", "name": "before-closure-kill-counts", "result": "[0 %avow 0 %noun 5 0 5]\n"}
+{"time_ns": 1795627897035495000, "label": "a", "name": "after-closure-restart", "result": "[0 %avow 0 %noun [[12 %for] 0 [16 %for] 0 0] 0]\n"}
+{"time_ns": 1795627897205508000, "label": "a", "name": "after-closure-restart-counts", "result": "[0 %avow 0 %noun 0 9 0]\n"}
+{"time_ns": 1795627897371684000, "label": "b", "name": "after-closure-restart", "result": "[0 %avow 0 %noun [[12 %bak] 0 [16 %bak] 0 0] 0]\n"}
+{"time_ns": 1795627897539897000, "label": "b", "name": "after-closure-restart-counts", "result": "[0 %avow 0 %noun 5 0 5]\n"}
+{"time_ns": 1795627918612885000, "label": "b", "name": "closed-replay-no-delivery", "result": "[0 %avow 0 %noun 5 0 5]\n"}
+{"time_ns": 1795627918780076000, "label": "b", "name": "closed-replay-still-closed", "result": "[0 %avow 0 %noun [[12 %bak] 0 [16 %bak] 0 0] 0]\n"}
+{"time_ns": 1795627939095264000, "label": "b", "name": "enable-replay-trace", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627939262425000, "label": "a", "name": "route-positive-control", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627939435506000, "label": "b", "name": "route-positive-control", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795627939602684000, "label": "a", "name": "new-flow-positive-control", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795628016822049000, "label": "a", "name": "positive-control-result", "result": "[0 %avow 0 %noun 0 11 0]\n"}
+{"time_ns": 1795628016990145000, "label": "b", "name": "positive-control-delivered", "result": "[0 %avow 0 %noun 6 0 6]\n"}
+{"time_ns": 1795628032494511000, "label": "a", "name": "final-counts", "result": "[0 %avow 0 %noun 0 11 0]\n"}
+{"time_ns": 1795628032662613000, "label": "b", "name": "final-counts", "result": "[0 %avow 0 %noun 6 0 6]\n"}
+{"time_ns": 1795628032827643000, "label": "b", "name": "final-closed", "result": "[0 %avow 0 %noun [[12 %bak] 0 [16 %bak] 0 0] 0]\n"}

@@ -1,0 +1,173 @@
+~
+urbit 4.6-828244e
+boot: home is /Users/armitage/r/gwbtc/libmesa/target/suite-c-contact/b
+loom: mapped 2048MB
+lite: arvo formula 8d9beb2
+lite: core 7765c4e1
+lite: final state 7765c4e1
+boot: loading pill /Users/armitage/r/gwbtc/output/experimental-live-20261107/compat/experimental-live.pill
+boot: retrieving galaxy table
+curl: failed to fetch http://127.0.0.1:18229/_~_/=lamp=/j: Error
+boot: retrieving network domains
+disk: loaded epoch 0i0
+loom: mapped 2048MB
+boot: protected loom
+live: logical boot
+boot: installed 2181 jets
+boot: parsing %solid pill
+--------------- bootstrap starting ----------------
+boot: 1-14
+arvo: metamorphosis
+ames: metamorphosis on %call
+gall: not running %azimuth yet, got %poke
+clay: kernel updated
+clay: rebuilding %base after kernel update
+gall: installing %acme
+gall: installing %azimuth
+gall: installing %dbug
+gall: installing %dojo
+gall: installing %eth-watcher
+gall: installing %hood
+drum: link [~lagnyl-mapten-doltyc-sivdef--fosdux-loslys-noldux-tadwyt %dojo]
+kiln: boot
+gall: installing %herm
+gall: installing %lens
+gall: installing %ping
+gall: installing %spider
+gall: installing %bitcoin-client
+gall: installing %gw-btc
+gall: installing %gevulot
+clay: base is always essential
+--------------- bootstrap complete ----------------
+disk: loaded epoch 0i0
+loom: mapped 2048MB
+boot: protected loom
+live: mapped: MB/91.668.480
+boot: installed 2181 jets
+vere: checking version compatibility
+lick: init mkdir /Users/armitage/r/gwbtc/libmesa/target/suite-c-contact/b/.urb/dev
+mesa start 0xc6c0002d0
+mesa: live on 31728 (localhost only)
+conn: listening on /Users/armitage/r/gwbtc/libmesa/target/suite-c-contact/b/.urb/conn.sock
+ames: unix-duct received on %born
+http: web interface live on http://localhost:18228
+http: loopback live on http://localhost:12325
+pier (32): live
+mdns: lagnyl-mapten-doltyc-sivdef--fosdux-loslys-noldux-tadwyt registered on all interfaces
+ship: loading azimuth snapshot (143.447 points)
+ship: processing azimuth snapshot (143.447 points)
+gall: installing %native-receive
+gall: installing %mesa-test
+gall: reloading %native-receive
+ames: ~barmul-bolmet-ronlus-lighul--rovtun-satryc-moclug-daplyd: requesting attestion
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear attestation proof
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: missing peer for page=/a/x/1//muth/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1
+[%test-pki %queued ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear mesa packet for (alien/missing) %ames peer
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: peek for comet attestation proof
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: push %peek on lanes=[.127.0.0.1:31841, ~reb, ...]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: peek for comet attestation proof
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: push %peek on lanes=[.127.0.0.1:31841, ~reb, ...]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear attestation proof
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear attestation proof
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: missing peer for page=/a/x/1//muth/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: peek for comet attestation proof
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: push %peek on lanes=[.127.0.0.1:31841, ~reb, ...]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: peek for comet attestation proof
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: push %peek on lanes=[.127.0.0.1:31841, ~reb, ...]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear attestation proof
+[%test-pki %mode %reject]
+[ %test-pki
+  %response
+  ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb
+  %.n
+]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: attestation writ failed; dropping candidate
+[%test-pki %mode %accept]
+ames: ~barmul-bolmet-ronlus-lighul--rovtun-satryc-moclug-daplyd: requesting attestion
+l2-sig-failed
+ames: ~barmul-bolmet-ronlus-lighul--rovtun-satryc-moclug-daplyd: requesting attestion
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear mesa packet for (alien/missing) %ames peer
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: peek for comet attestation proof
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: push %peek on lanes=[.127.0.0.1:31841, ~reb, ...]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear attestation proof
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: missing peer for page=/a/x/1//muth/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1
+[%test-pki %queued ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear attestation proof
+[ %test-pki
+  %response
+  ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb
+  %.y
+]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear poke packet
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear direct packet
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: sink %plea [bone=0 seq=1]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: send %plea [bone=0 seq=1 path="/gf"]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: send %poke for ack=/chum/1/~lagnyl-mapten-doltyc-sivdef--fosdux-loslys-noldux-tadwyt/1/0vic.ek9ei.2qlja.73fm4.bk5dt.at85t.6c32j.lntg7.uofne.hnrgf.mfcm6.lvrh0.nsfq6.ut4tm.mej7n.v3jbt.05qon.cqk7b.v21di.rrvc9.f4smb.98694.3kr8a.cf2pt.06ftk.1sqg5.ivocu.dubf8.h2o6m.951ag.kdbk2.17h6g
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: add "/a/x/1//flow/0/ack/bak/~lagnyl-mapten-doltyc-sivdef--fosdux-loslys-noldux-tadwyt/1" to .pit
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: push %poke on lanes=[.127.0.0.1:31841, ...]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: ack message [bone=0 seq=1]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: push %page on lanes=[.127.0.0.1:31841, ...]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear poke packet
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear direct packet
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: sink %plea [bone=4 seq=1]
+[ %native-delivery
+  ~lagnyl-mapten-doltyc-sivdef--fosdux-loslys-noldux-tadwyt
+  ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb
+  %noun
+  [122.623.018.958.137.488.600.624.995 42]
+]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: ack message [bone=4 seq=1]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: push %page on lanes=[.127.0.0.1:31841, ...]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear direct packet
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear page packet [tof=1 typ=%data fag=0]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: give %sage=/a/x/1//flow/0/ack/bak/~lagnyl-mapten-doltyc-sivdef--fosdux-loslys-noldux-tadwyt/1
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear %ack for [bone=0 seq=1]
+[ %native-submit
+  ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb
+  [478.996.167.798.692.255.130.994 45]
+]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: send %plea [bone=4 seq=1 path="/ge/native-receive"]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: send %poke for ack=/chum/1/~lagnyl-mapten-doltyc-sivdef--fosdux-loslys-noldux-tadwyt/1/0vt6.bv8vl.nltlb.6mbg1.m2hbd.fku65.qqltm.29ots.1g3a9.i2dm1.2l64e.3jvl6.hdelt.1fjan.fptq7.o6ir9.f75tu.nqlpg.ojo3e.t6ve0.8ehah.eduec.idd4h.vtfs7.naiv9.jsglr.gq4qm.ju4tp.1eb3o.b4jlk.8eguj.ojbfb
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: add "/a/x/1//flow/4/ack/bak/~lagnyl-mapten-doltyc-sivdef--fosdux-loslys-noldux-tadwyt/1" to .pit
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: push %poke on lanes=[.127.0.0.1:31841, ...]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear direct packet
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear page packet [tof=1 typ=%data fag=0]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: give %sage=/a/x/1//flow/4/ack/bak/~lagnyl-mapten-doltyc-sivdef--fosdux-loslys-noldux-tadwyt/1
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear %ack for [bone=4 seq=1]
+[%native-result /delivery [%poke-ack p=~]]
+ames: ~barmul-bolmet-ronlus-lighul--rovtun-satryc-moclug-daplyd: requesting attestion
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear poke packet
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear direct packet
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: send dupe ack [bone=0 seq=1 last=1] for %plea
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: push %page on lanes=[.127.0.0.1:31841, ...]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear poke packet
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear direct packet
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: send dupe ack [bone=4 seq=1 last=1] for %plea
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: push %page on lanes=[.127.0.0.1:31841, ...]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear attestation proof
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: push %page on lanes=[.127.0.0.1:31841, ...]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear poke packet
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear direct packet
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: sink %plea [bone=4 seq=2]
+[ %native-delivery
+  ~lagnyl-mapten-doltyc-sivdef--fosdux-loslys-noldux-tadwyt
+  ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb
+  %noun
+  [134.754.870.686.349.975.702.368.099 43]
+]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: ack message [bone=4 seq=2]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: push %page on lanes=[.127.0.0.1:31841, ...]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear poke packet
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear direct packet
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: sink %plea [bone=4 seq=3]
+[ %native-delivery
+  ~lagnyl-mapten-doltyc-sivdef--fosdux-loslys-noldux-tadwyt
+  ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb
+  %noun
+  [8.033.440.710.745.301.899.707.690.151.779 44]
+]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: ack message [bone=4 seq=3]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: push %page on lanes=[.127.0.0.1:31841, ...]
+ames: ~barmul-bolmet-ronlus-lighul--rovtun-satryc-moclug-daplyd: requesting attestion
+ames: ~barmul-bolmet-ronlus-lighul--rovtun-satryc-moclug-daplyd: requesting attestion

@@ -11,7 +11,7 @@ fn core() -> mesa_core::Engine<SignedPublic> {
     mesa_core::Engine::new(
         Default::default(),
         view(1),
-        SignedPublic::new(KeyHandle(1), KeyPair::from_seed(&[1; 32]), BTreeMap::new()),
+        SignedPublic::experimental_v2(KeyHandle(1), KeyPair::from_seed(&[1; 32]), BTreeMap::new()),
     )
     .unwrap()
 }
@@ -25,7 +25,7 @@ fn node() -> mesa_flow::Node {
     mesa_flow::Node::new(
         Default::default(),
         view(1),
-        SignedPublic::new(
+        SignedPublic::experimental_v2(
             KeyHandle(1),
             KeyPair::from_seed(&[1; 32]),
             BTreeMap::from([(KeyHandle(2), KeyPair::from_seed(&[2; 32]).public_key())]),

@@ -1,0 +1,27 @@
+{
+  "profile": "mesa-v1/ordered",
+  "epoch": {
+    "domain": "mesa-test",
+    "remote_domain": "mesa-test",
+    "local": 288789872950292295263772269847108121803,
+    "local_rift": 0,
+    "remote": 54776517366605450742595269016484502398,
+    "remote_rift": 0
+  },
+  "revision": 5,
+  "closed": [
+    {
+      "class": 0,
+      "backward": false,
+      "first": 2,
+      "last": 2
+    }
+  ],
+  "flows": [],
+  "settlements": [
+    {
+      "id": "Id { epoch: Epoch { domain: \"mesa-test\", remote_domain: \"mesa-test\", local: 288789872950292295263772269847108121803, local_rift: 0, remote: 54776517366605450742595269016484502398, remote_rift: 0 }, flow: Flow { bone: 8, backward: false }, sequence: 1 }",
+      "outcome": "Accepted"
+    }
+  ]
+}

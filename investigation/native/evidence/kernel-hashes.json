@@ -1,0 +1,17 @@
+{
+  "sys/arvo.hoon": "3a096f9c05b5f58f616594af30c54105ee1163b9cc23b76f581df4fc528323a7",
+  "sys/hoon.hoon": "6d9e2e85aac5c01374d51fe93ac25d8c2aaf387b0401159384637f7cc7fa94a8",
+  "sys/lull.hoon": "52aad6be206848f5065376e11d23ead85d0600558c0b9835183bf1282d920fb3",
+  "sys/vane/ames.hoon": "3d591f99f8657eba4f3484da40f4dc133d67b7a3c0d241512532b224f9d99fdf",
+  "sys/vane/behn.hoon": "63c0459290fde3f54f16657e593d96fb8306f10d0e8d2fe4f20f8a87d8274226",
+  "sys/vane/clay.hoon": "d80ddf3d3e56fc6f250ace983a362697640f5fecd3885be643a1fb4f715bbc0a",
+  "sys/vane/dill.hoon": "227801ac87cb0f359b6a2667b4caa59225112da68ca6498b774a09ecca876dda",
+  "sys/vane/eyre.hoon": "bfb4f446f44ef661900c20648444304e577250dbac97a420f2d6211b5170c54c",
+  "sys/vane/gall.hoon": "c262623a92849a5731691a491a1a663aa8ed54249368b0e6085fe09cf2f31e77",
+  "sys/vane/iris.hoon": "3cb1c72e131068ac29c176f0799ee5cf5e2a2eda71b42a3b7c374d33dbe34be8",
+  "sys/vane/jael.hoon": "9516e5479f91aff2311a538d6be1a4b7dea43dc1ea3960e6adb7f2d3b5d3a01e",
+  "sys/vane/khan.hoon": "25acbbd941f5e2ba2b1ca20cfd3445a729f3d5977cb44ae9b49277cbc1e6302e",
+  "sys/vane/lick.hoon": "c62f5d95caaa4fe3fd103b5c20c263154c109b93f45d649cd69f45eb1a5ef249",
+  "sys/vane/mach.hoon": "299bc0da33c239eae04956efb91de3ef3c8ce14beefe614ce5d37db2016f1421",
+  "sys/zuse.hoon": "cb3f5b09d0122b7230bc3cb7b3bcff79bcac841ebf961187760855d7f5ca595e"
+}

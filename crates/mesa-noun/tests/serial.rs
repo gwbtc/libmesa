@@ -377,3 +377,32 @@ fn deep_inputs_do_not_recurse_and_mutations_never_escape_bounds() {
         }
     }
 }
+
+#[test]
+fn constructed_dags_require_prior_children_and_bound_every_node() {
+    use mesa_noun::serial::{Error, Limits, Node, Noun};
+    let bits = mesa_noun::bits::Bits::from_atom_bytes(&[1]).unwrap();
+    assert!(matches!(
+        Noun::from_nodes(vec![Node::Cell { head: 0, tail: 0 }], 0, Limits::default()),
+        Err(Error::InvalidReference)
+    ));
+    assert!(Noun::from_nodes(vec![Node::Atom(bits)], 1, Limits::default()).is_err());
+    let nodes = vec![
+        Node::Atom(bits),
+        Node::Cell { head: 0, tail: 0 },
+        Node::Cell { head: 1, tail: 1 },
+    ];
+    // Even an unreachable node must respect the construction budget.
+    assert!(matches!(
+        Noun::from_nodes(
+            nodes.clone(),
+            0,
+            Limits {
+                max_depth: 2,
+                ..Limits::default()
+            }
+        ),
+        Err(Error::Limit)
+    ));
+    assert!(Noun::from_nodes(nodes, 2, Limits::default()).is_ok());
+}

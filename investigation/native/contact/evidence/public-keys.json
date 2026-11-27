@@ -1,0 +1,20 @@
+[
+  {
+    "name": "~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb",
+    "ship_hex": "b0944ca3e32eaec9fd954dd1381f7f41",
+    "life": 1,
+    "signing_key_le_hex": "e98f885df38735a3a2ddd88447d7f10daf643d5d4adf23a2e8a2f0228b283859"
+  },
+  {
+    "name": "~lagnyl-mapten-doltyc-sivdef--fosdux-loslys-noldux-tadwyt",
+    "ship_hex": "cde782a0669b70b52e9230e1d892377d",
+    "life": 1,
+    "signing_key_le_hex": "8eb422c3c5ab0f68f54cc213b74f87f41e795d6b3ff09ba255cd37276bb191ea"
+  },
+  {
+    "name": "~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub",
+    "ship_hex": "293592d131de4151281d76f92f72db7e",
+    "life": 1,
+    "signing_key_le_hex": "1a330411fe6095b2927e105ae74811d778fe4fe52a68a39ddfa22e374f76f6ae"
+  }
+]

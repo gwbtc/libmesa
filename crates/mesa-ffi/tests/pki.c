@@ -58,7 +58,7 @@ static void exercise(uint32_t kind){
   mesa_pki_event e=event(MESA_PKI_COMMIT);e.token=p.token;const mesa_budget tiny={0,0,1};const mesa_pki_batch *batch=NULL;
   assert(mesa_pki_step(h,&e,1,&tiny,&batch)==MESA_CAPACITY);assert(!batch);allowed(h,0);
   commit(h,&p);allowed(h,1);
-  mesa_options eo;OK(mesa_options_default(&eo));eo.local.id[0]=1;memcpy(eo.local.domain,"gw-btc",7);eo.local.key=1;eo.incarnation[0]=9;memset(eo.seed,1,32);
+  mesa_options eo;OK(mesa_options_exp_v2(&eo));eo.local.id[0]=1;memcpy(eo.local.domain,"gw-btc",7);eo.local.key=1;eo.incarnation[0]=9;memset(eo.seed,1,32);
   mesa_engine *engine=NULL;OK(mesa_engine_create(&eo,NULL,0,NULL,0,NULL,&engine));const mesa_batch *out=NULL;uint8_t peer[16]={2};peer[15]=128;
   OK(mesa_pki_sync_core(h,engine,peer,&budget,&out));mesa_batch_release(out);
   const mesa_buffer *view=NULL;OK(mesa_engine_snapshot(engine,&view));size_t n=width(view);char *s=calloc(n+1,1);assert(s);OK(mesa_buffer_copy(view,0,(uint8_t*)s,n));assert(strstr(s,"\"allowed\":true"));free(s);mesa_buffer_release(view);

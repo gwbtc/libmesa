@@ -1,0 +1,106 @@
+~
+urbit 4.6-828244e
+boot: home is /Users/armitage/r/gwbtc/libmesa/target/suite-c-proof-first/b
+loom: mapped 2048MB
+lite: arvo formula 8d9beb2
+lite: core 7765c4e1
+lite: final state 7765c4e1
+boot: loading pill /Users/armitage/r/gwbtc/output/experimental-live-20261107/compat/experimental-live.pill
+boot: retrieving galaxy table
+boot: retrieving network domains
+disk: loaded epoch 0i0
+loom: mapped 2048MB
+boot: protected loom
+live: logical boot
+boot: installed 2181 jets
+boot: parsing %solid pill
+--------------- bootstrap starting ----------------
+boot: 1-14
+arvo: metamorphosis
+ames: metamorphosis on %call
+gall: not running %azimuth yet, got %poke
+clay: kernel updated
+clay: rebuilding %base after kernel update
+gall: installing %acme
+gall: installing %azimuth
+gall: installing %dbug
+gall: installing %dojo
+gall: installing %eth-watcher
+gall: installing %hood
+drum: link [~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub %dojo]
+kiln: boot
+gall: installing %herm
+gall: installing %lens
+gall: installing %ping
+gall: installing %spider
+gall: installing %bitcoin-client
+gall: installing %gw-btc
+gall: installing %gevulot
+clay: base is always essential
+--------------- bootstrap complete ----------------
+disk: loaded epoch 0i0
+loom: mapped 2048MB
+boot: protected loom
+live: mapped: MB/91.668.480
+boot: installed 2181 jets
+vere: checking version compatibility
+lick: init mkdir /Users/armitage/r/gwbtc/libmesa/target/suite-c-proof-first/b/.urb/dev
+mesa start 0x70e8002d0
+mesa: live on 31738 (localhost only)
+conn: listening on /Users/armitage/r/gwbtc/libmesa/target/suite-c-proof-first/b/.urb/conn.sock
+ames: unix-duct received on %born
+http: web interface live on http://localhost:18238
+http: loopback live on http://localhost:12326
+pier (37): live
+mdns: hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub registered on all interfaces
+ship: loading azimuth snapshot (143.447 points)
+ship: processing azimuth snapshot (143.447 points)
+gall: installing %native-receive
+gall: installing %mesa-test
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear attestation proof
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: missing peer for page=/a/x/1//muth/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1
+[%test-pki %queued ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb]
+[ %test-pki
+  %response
+  ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb
+  %.y
+]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear attestation proof
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: missing peer for page=/a/x/1//muth/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear poke for regressed
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: no op; ignore /ge/native-receive plea
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear attestation proof
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: missing peer for page=/a/x/1//muth/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear poke for regressed
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: no op; ignore /gf plea
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear poke for regressed
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: no op; ignore /ge/native-receive plea
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear attestation proof
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: missing peer for page=/a/x/1//muth/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear poke for regressed
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: no op; ignore /gf plea
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear poke for regressed
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: no op; ignore /ge/native-receive plea
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear attestation proof
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: missing peer for page=/a/x/1//muth/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear poke for regressed
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: no op; ignore /gf plea
+ames: ~barmul-bolmet-ronlus-lighul--rovtun-satryc-moclug-daplyd: requesting attestion
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear poke for regressed
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: no op; ignore /ge/native-receive plea
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear attestation proof
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: missing peer for page=/a/x/1//muth/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear poke for regressed
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: no op; ignore /gf plea
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear poke for regressed
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: no op; ignore /ge/native-receive plea
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear attestation proof
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: missing peer for page=/a/x/1//muth/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear poke for regressed
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: no op; ignore /gf plea
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear poke for regressed
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: no op; ignore /ge/native-receive plea
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear attestation proof
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: missing peer for page=/a/x/1//muth/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear poke for regressed
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: no op; ignore /gf plea

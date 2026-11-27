@@ -3,6 +3,7 @@
 //! See spec/13-continuous-flows.md for the transaction and restart contract.
 pub mod credentials;
 mod hints;
+pub mod ordered;
 mod retirement;
 mod state;
 pub use mesa_bytes::Buffer;

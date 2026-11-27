@@ -1,0 +1,9 @@
+{"time_ns": 1795371949903040000, "label": "b", "name": "before-public-proof-read", "result": "[0 %avow 0 %noun [0xb7512d2b60a16fdd23af26e4941a42cd %peer %alien] 0 [0x293592d131de4151281d76f92f72db7e %peer %known] 0 [17101 %peer %known] [[153 %peer %known] 0 0] 0]\n"}
+{"time_ns": 1795371950083319000, "label": "b", "name": "after-public-proof-read", "result": "[0 %avow 0 %noun [0xb7512d2b60a16fdd23af26e4941a42cd %peer %alien] 0 [0x293592d131de4151281d76f92f72db7e %peer %known] 0 [17101 %peer %known] [[153 %peer %known] 0 0] 0]\n"}
+{"time_ns": 1795371950270063000, "label": "b", "name": "trace", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795371950442535000, "label": "a", "name": "request-first-route", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795371950617492000, "label": "a", "name": "request-first-send", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795371952829897000, "label": "b", "name": "request-first-accepted", "result": "[0 %avow 0 %noun [0xb7512d2b60a16fdd23af26e4941a42cd %peer %alien] [[0xb0944ca3e32eaec9fd954dd1381f7f41 %chum %known] 0 0] [0x293592d131de4151281d76f92f72db7e %peer %known] 0 [17101 %peer %known] [[153 %peer %known] 0 0] 0]\n"}
+{"time_ns": 1795371953005853000, "label": "a", "name": "request-first-retry-data", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795371953176118000, "label": "b", "name": "request-first-reverse", "result": "[0 %avow 0 %noun %dispatched]\n"}
+{"time_ns": 1795371953347030000, "label": "b", "name": "request-first-complete", "result": "[0 %avow 0 %noun [0xb7512d2b60a16fdd23af26e4941a42cd %peer %alien] [[0xb0944ca3e32eaec9fd954dd1381f7f41 %chum %known] 0 0] [0x293592d131de4151281d76f92f72db7e %peer %known] 0 [17101 %peer %known] [[153 %peer %known] 0 0] 0]\n"}

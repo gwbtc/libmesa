@@ -4,6 +4,19 @@
 remains open.** This record distinguishes those two evidence levels rather than
 claiming the entire phase-0 native target gate has passed.
 
+**2026-11-22 follow-up:** the [live suite-C investigation](22-suite-c-first-contact.md)
+closes first-contact routing and migration selection for the fresh-peer UDP
+profile. It records held/rejected/accepted verification, encrypted messages,
+application receipts, a proof-ordering counterexample, and sponsor-blackhole
+success. The full Rust interoperability and lifecycle gates remain in phase 6.
+
+**2026-11-20 follow-up:** the [native-target investigation](21-native-target-investigation.md)
+records current executable/pill hashes, 164 native kernel tests, instrumented
+proof/lifecycle packets, and seven live native UDP publication responses.
+It resolves checksum and signed-root conventions. Live suite-C admission,
+direct-route recovery, and default-mode migration remain open. The original
+inventory below records the phase-0 starting point.
+
 ## Scope and owners
 
 Shrine uses the UDP adapter. Its authors own migration from the pre-PR-11

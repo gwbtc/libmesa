@@ -1,0 +1,3 @@
+=/  m  (strand ,vase)
+;<  ~  bind:m  (poke-our %crash-probe %noun !>([%send ~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub [%reject 201]]))
+(pure:m !>(%dispatched))

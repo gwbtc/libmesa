@@ -14,7 +14,7 @@ pub struct Resources {
     max_unverified_bytes: usize,
 }
 impl Resources {
-    fn config(self) -> Result<core::Config, i32> {
+    pub(super) fn config(self) -> Result<core::Config, i32> {
         if self.version != 1
             || !(1..=256).contains(&self.max_peers)
             || !(1..=1024).contains(&self.max_reads)
@@ -86,8 +86,16 @@ pub unsafe extern "C" fn mesa_engine_create_configured(
             if o.is_null() || r.is_null() || (*o).kind != 1 || nkeys > 256 {
                 return ARG;
             }
-            let result =
-                (|| build_inner(&*o, array(keys, nkeys)?, &[], None, Some((*r).config()?)))();
+            let result = (|| {
+                build_inner(
+                    &*o,
+                    array(keys, nkeys)?,
+                    &[],
+                    None,
+                    Some((*r).config()?),
+                    None,
+                )
+            })();
             match result {
                 Ok(h) => {
                     *out = Box::into_raw(Box::new(h));

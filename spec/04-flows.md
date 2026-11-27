@@ -1,5 +1,15 @@
 # libmesa spec — 4: Flows and messages
 
+**Current design direction, 2026-11-25:** implement reusable typed flow and
+durability mechanisms with the **Urbit-Mesa profile** over **Mesa-v1**. Keep
+Urbit envelopes, paths, bone/direction conventions and control mappings in
+`mesa-urbit`. Review the
+[proposed flow/durability mapping](../doc/23-mesa-default-and-flow-durability.md)
+before implementation. It distinguishes plea completion from boon receipt,
+and preserves host commit boundaries without importing libmesa-flow/2's
+`release/released` handshake. The outline below is historical design input,
+not a completed compatibility or bounded-retirement proof.
+
 > **Design outline.** The flow engine is sequencing/window mechanism + policy
 > modules (retransmission, congestion) selected from complete-path guarantees — option C in
 > `../doc/02-rina.md` §6.1.

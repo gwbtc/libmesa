@@ -36,3 +36,8 @@ echo 'C ABI smoke test passed'
   "${key_flags[@]}" -I crates/mesa-ffi/include crates/mesa-ffi/tests/keys.c \
   "$target_dir/debug/libmesa_ffi.a" "${libs[@]}" -o "$target_dir/mesa-ffi-keys"
 "$target_dir/mesa-ffi-keys"
+
+"${CC:-cc}" -std=c11 -Wall -Wextra -Werror -DMESA_TEST_MESA \
+  -I crates/mesa-ffi/include crates/mesa-ffi/tests/raw_udp.c \
+  "$target_dir/debug/libmesa_ffi.a" "${libs[@]}" -o "$target_dir/mesa-ffi-mesa-udp"
+"$target_dir/mesa-ffi-mesa-udp" 16

@@ -1,0 +1,59 @@
+play: events 1552-1571
+play (1571): done (~2026.11.22..18.29.18, now=~2026.11.25..17.23.57)
+pier (1589): live
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: sink %plea [bone=8 seq=1]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: ack message [bone=8 seq=1]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: sink %plea [bone=8 seq=2]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: ack message [bone=8 seq=2]
+play: events 1668-1675
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: sink %plea [bone=8 seq=2]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: ack message [bone=8 seq=2]
+play (1675): done (~2026.11.25..17.25.58, now=~2026.11.25..17.26.19)
+pier (1696): live
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: sink %plea [bone=8 seq=3]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: ack message [bone=8 seq=3]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: sink %plea [bone=8 seq=4]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: ack message [bone=8 seq=4]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: sink %plea [bone=8 seq=5]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: nack message [bone=8 seq=5]
+play: events 1740-1744
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: sink %plea [bone=8 seq=5]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: nack message [bone=8 seq=5]
+play (1744): done (~2026.11.25..17.28.23, now=~2026.11.25..17.28.45)
+pier (1765): live
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: sink %plea [bone=12 seq=1]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: ack message [bone=12 seq=1]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: send %boon [bone=12 seq=1]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear %ack for [bone=12 seq=1]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: sink %plea [bone=12 seq=2]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: ack message [bone=12 seq=2]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: sink %plea [bone=12 seq=3]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: peek for %cork bone=12
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: ack message [bone=12 seq=3]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: send %peek for page=/a/x/1//flow/12/cork/for/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: add "/a/x/1//flow/12/cork/for/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub" to .pit
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: give %sage=/a/x/1//flow/12/cork/for/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: cork received; delete [bone=12 dire=%bak]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: sink %plea [bone=16 seq=1]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: ack message [bone=16 seq=1]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: send %boon [bone=16 seq=1]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear %ack for [bone=16 seq=1]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: sink %plea [bone=16 seq=2]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: ack message [bone=16 seq=2]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: sink %plea [bone=16 seq=3]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: peek for %cork bone=16
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: ack message [bone=16 seq=3]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: send %peek for page=/a/x/1//flow/16/cork/for/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: add "/a/x/1//flow/16/cork/for/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub" to .pit
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: give %sage=/a/x/1//flow/16/cork/for/~hantyl-dochus-dilryl-narmul--tabtyv-tantel-dotmeb-nacnub
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: cork received; delete [bone=16 dire=%bak]
+play: events 1840-1849
+play (1849): done (~2026.11.25..17.30.45, now=~2026.11.25..17.31.03)
+pier (1863): live
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: sink %plea [bone=20 seq=1]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: ack message [bone=20 seq=1]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: send %boon [bone=20 seq=1]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: hear %ack for [bone=20 seq=1]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: skip %plea; flow is corked [bone=16 seq=1]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: skip %plea; flow is corked [bone=16 seq=1]
+mesa: ~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb: skip %plea; flow is corked [bone=16 seq=1]

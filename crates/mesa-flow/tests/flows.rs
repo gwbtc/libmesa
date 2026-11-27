@@ -778,7 +778,7 @@ fn same_epoch_signing_key_update_preserves_pending_flow_identity() {
     let mut local = view(1);
     local.life = 2;
     local.key = mesa_core::KeyHandle(9);
-    let protection = mesa_core::protection::SignedPublic::new(
+    let protection = mesa_core::protection::SignedPublic::experimental_v2(
         local.key,
         mesa_crypto::KeyPair::from_seed(&[9; 32]),
         std::collections::BTreeMap::from([(

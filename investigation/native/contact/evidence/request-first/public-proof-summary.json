@@ -1,0 +1,36 @@
+[
+  {
+    "direction": "client-to-c",
+    "name": {
+      "fragment": "Init",
+      "path": "publ/1/a/x/1//pawn/proof/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "time_ns": 1795371949910385000,
+    "type": "peek",
+    "width": 115
+  },
+  {
+    "auth": "signature",
+    "body_bytes": 131,
+    "direction": "c-to-client",
+    "name": {
+      "fragment": "Init",
+      "path": "publ/1/a/x/1//pawn/proof/1/~havnum-witsyl-walhex-hacrup--matpyx-nathus-bicnex-palreb/1",
+      "rift": 0,
+      "ship_hex": "293592d131de4151281d76f92f72db7e"
+    },
+    "next": null,
+    "proof_signature_valid": true,
+    "signature_valid": true,
+    "source": [
+      "127.0.0.1",
+      31739
+    ],
+    "time_ns": 1795371949910388000,
+    "total_bytes": 131,
+    "type": "page",
+    "width": 313
+  }
+]

@@ -10,7 +10,7 @@ use std::{
 fn engine() -> Engine<SignedPublic> {
     let local = PreconfiguredPeer::new(PeerId(1), "gw-btc", 1, 0, KeyHandle(1)).unwrap();
     let peer = PreconfiguredPeer::new(PeerId(2), "gw-btc", 1, 0, KeyHandle(2)).unwrap();
-    let profile = SignedPublic::new(
+    let profile = SignedPublic::experimental_v2(
         local.key,
         KeyPair::from_seed(&[1; 32]),
         BTreeMap::from([(peer.key, KeyPair::from_seed(&[2; 32]).public_key())]),

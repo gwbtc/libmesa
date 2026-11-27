@@ -2,7 +2,7 @@
 //! send submission with cutover, including caller-retained packets.
 use crate::*;
 use std::sync::{Arc, Mutex};
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct SendGate(Arc<Mutex<u64>>);
 impl Default for SendGate {
     fn default() -> Self {
@@ -43,7 +43,7 @@ impl SendGate {
 }
 /// Immutable bytes plus a revocable send capability. Never restamp an old
 /// packet. Engines/flow nodes stamp newly generated outputs in their wrappers.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct FencedPacket {
     gate: SendGate,
     stamp: u64,

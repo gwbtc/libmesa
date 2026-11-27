@@ -148,7 +148,7 @@ fn reader() -> Engine<SignedPublic> {
             ..Config::default()
         },
         view(1, 1),
-        SignedPublic::new(KeyHandle(1), key(1), BTreeMap::new()),
+        SignedPublic::experimental_v2(KeyHandle(1), key(1), BTreeMap::new()),
     )
     .unwrap()
 }
@@ -156,7 +156,7 @@ fn publisher(life: u32, seed: u8) -> Engine<SignedPublic> {
     let mut e = Engine::new(
         Config::default(),
         view(2, life),
-        SignedPublic::new(
+        SignedPublic::experimental_v2(
             KeyHandle(2),
             key(seed),
             BTreeMap::from([(KeyHandle(1), key(1).public_key())]),
@@ -326,7 +326,7 @@ fn unknown_authority_and_withdrawal_fences_close_preconfigured_engine_gates() {
     let mut engine = Engine::new(
         Config::default(),
         view(1, 1),
-        SignedPublic::new(
+        SignedPublic::experimental_v2(
             KeyHandle(1),
             key(1),
             BTreeMap::from([(KeyHandle(2), key(2).public_key())]),

@@ -42,8 +42,12 @@ enum {
   MESA_KEYS_SIGNATURE = 17,
   MESA_KEYS_CANCEL_OPERATION = 18,
   MESA_KEYS_IMPORT_RING = 19,
-  MESA_KEYS_QUIESCE_FLOW = 20
+  MESA_KEYS_QUIESCE_FLOW = 20,
+  MESA_KEYS_MESA_ROOT = 21
 };
+/* MESA_ROOT: data=path, seed=immutable namespace prefix (public bytes in this
+ * event only), root=ROOT hash. Existing ROOT is explicitly libmesa-exp-v2.
+ * Both are trusted protocol-module operations, never packet-chosen signing. */
 /* Zero initialize. IMPORT_SEED: trusted profile supplies peer/life/rift/key,
  * data=full public pass/evidence, seed=32 exact bytes; grants no authority.
  * IMPORT_RING: data=current-layout suite-C ring, peer/life/rift; available only

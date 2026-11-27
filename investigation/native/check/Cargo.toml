@@ -1,0 +1,15 @@
+[package]
+name = "native-capture-check"
+version = "0.0.0"
+edition = "2021"
+publish = false
+default-run = "native-capture-check"
+
+[workspace]
+
+[dependencies]
+blake3 = "1"
+mesa-crypto = { path = "../../../crates/mesa-crypto" }
+mesa-wire = { path = "../../../crates/mesa-wire" }
+mesa-lss = { path = "../../../crates/mesa-lss" }
+serde_json = "1"

@@ -1,0 +1,89 @@
+{
+  "schema": 1,
+  "date": "2026-11-20",
+  "libmesa_base": "c3d34bf473f1912a575243783e399b2001f4a658",
+  "sources": {
+    "urbit": {
+      "repo": "https://github.com/gwbtc/urbit",
+      "commit": "9f437ff097a0e3836fea7875a568b6192eef6a27",
+      "branch_observed": "gw/final",
+      "files_sha256": {
+        "pkg/arvo/sys/vane/ames.hoon": "3d591f99f8657eba4f3484da40f4dc133d67b7a3c0d241512532b224f9d99fdf",
+        "pkg/arvo/sys/vane/jael.hoon": "9516e5479f91aff2311a538d6be1a4b7dea43dc1ea3960e6adb7f2d3b5d3a01e",
+        "pkg/arvo/sys/zuse.hoon": "cb3f5b09d0122b7230bc3cb7b3bcff79bcac841ebf961187760855d7f5ca595e",
+        "pkg/arvo/sys/lull.hoon": "52aad6be206848f5065376e11d23ead85d0600558c0b9835183bf1282d920fb3",
+        "tests/sys/vane/ames.hoon": "e0e4555e578902cf833da4f31f45c44014b666ae2cf75d23373c467afba94504",
+        "tests/sys/vane/jael.hoon": "84f91943703112f72af6b11ac7ac58030c6dc42e29bad601f1d92ed144da3647",
+        "pkg/arvo/lib/hood/ahoy.hoon": "3f7bb9964708bcb3b03fd92d39e089d6f90b800bc1d2b2ead1b4703aeef7f3d9",
+        "pkg/arvo/lib/ph/cc/util.hoon": "a1079514d382d520ae95bac396a767f7a6d6a56fd4c87a182667c5cb30aa510f"
+      }
+    },
+    "groundwire": {
+      "repo": "https://github.com/gwbtc/groundwire",
+      "commit": "a5cf857e2de90c283aa18087db9d4a3981f3ab55",
+      "branch_observed": "gw/final",
+      "files_sha256": {}
+    },
+    "vere": {
+      "repo": "https://github.com/gwbtc/vere",
+      "commit": "828244e7751ffc2c7a91c34907c49a9d51f2cc8f",
+      "runtime_version": "4.6-828244e",
+      "files_sha256": {
+        "pkg/vere/io/mesa.c": "f76a5650a0c58250e7463111e17439c9f8b2fdbca4af25f9d27c6cc99488ee5f",
+        "pkg/vere/io/mesa/pact.c": "c895055ff82dd8dc838f6c6000722559fb6912dcee885d2bac245e6a51ddd60e",
+        "pkg/vere/dawn.c": "68faac0423ebe91ee147e6a3dc586c8a80066d96a2ea3640401e1bdfb01a1207"
+      }
+    }
+  },
+  "artifacts": [
+    {
+      "name": "gw-vere",
+      "sha256": "f5a45c0e306dcdf657e60da0e79b90a99e56d8dc5f82c5c5962e1c1de8c8506f",
+      "bytes": 8279832,
+      "executed": true
+    },
+    {
+      "name": "experimental-live.pill",
+      "sha256": "58b23808442be2c3f364d52fae5f8d2d254f271f0188d04df3cacc1d79c50805",
+      "bytes": 12012983,
+      "executed": true
+    }
+  ],
+  "release_label": "groundwire-alpha-2026.11.4_3",
+  "platform": "macOS arm64",
+  "provenance_limits": [
+    "Binary was executed, not independently rebuilt",
+    "Version commit resolution does not prove reproducible source provenance",
+    "Pill is a local integration artifact, not release gw-base.pill",
+    "All 16 mounted kernel Hoon files matched the selected Urbit source",
+    "No real Groundwire verifier was exercised",
+    "No complete live suite-C admission was established"
+  ],
+  "generated_capture_test_sha256": "9ab94a9d6730a119a480c4aeca760c1d6fa952cae4fed614d02d48e6cde0af95",
+  "evidence_sha256": {
+    "evidence/capture-results.json": "baa5e40b250a5e75019869d8da7e38556e662ad6be8e24a60d081706df4bd9f4",
+    "evidence/crypto-vector.json": "c2069dfb04b3c9287ac1e1f60deae53c0406e77f20244df536928982da1851b6",
+    "evidence/kernel-capture.log": "ce170e1e22faca449bf50ad27adc39219a90d57e131624a1c8611f195948c6b2",
+    "evidence/kernel-hashes.json": "ee84c33328aa1f72061b42b5a37324e8919a32b511bf6c91ec4a32589a9242f1",
+    "evidence/kernel-packets.json": "7125b1aa43d4cb7888341359557773a25e4447ece33d2f26a1a31abf5e4ef481",
+    "evidence/kernel-unit-results.log": "ce868b56a23b0ee2a506506adc8bbbb71e70b6d54d4ef2eb8e2e6fb148b1a779",
+    "evidence/public-key.json": "772319c23d9068fdec5e018dcd5af96cd406e40aa48b13fd2e2502e31358df44",
+    "evidence/suite-c-attempts.json": "181d8bb908de3fee1b08d19a516ab072d715cbb16adf31501374b9a2895095b7",
+    "evidence/suite-c-attempts.log": "09e72c10a06ebd59003d0d8ddd3f33e27e3a4ec8d80610ace57faed2ab719ee4",
+    "evidence/udp-packets.json": "d9aa0614981d2c5542841e3032c2388a65ba09a7b8960fae11224eace7e12dec",
+    "evidence/unit-results.json": "48373fa1024ba213c697a4bd93c9b33f657babde0aca9c939581e196df9b18a4",
+    "evidence/wire-check.json": "b8974f889844744e6c78d2389e39289d4d2acf103580c81696c1f260e9b8d087"
+  },
+  "validation": {
+    "kernel_tests_passed": 164,
+    "instrumented_tests_passed": 109,
+    "kernel_packets": 86,
+    "kernel_cases_with_packets": 47,
+    "udp_responses": 7,
+    "udp_repeat_byte_identical": true,
+    "offline_signature_checks": 2,
+    "hoon_checksum_rejections": 4,
+    "lss_data_fragments": 5,
+    "native_suite_c_network_gate": "open"
+  }
+}

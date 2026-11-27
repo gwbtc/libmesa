@@ -27,7 +27,7 @@ pub fn flows(i: usize) -> Vec<FlowConfig> {
     }]
 }
 pub fn protection(i: usize) -> SignedPublic {
-    SignedPublic::new(
+    SignedPublic::experimental_v2(
         view(i).key,
         KeyPair::from_seed(&[i as u8 + 1; 32]),
         BTreeMap::from([

@@ -29,6 +29,9 @@ struct Ticket {
 pub struct FixtureProtection(Rc<RefCell<Option<Ticket>>>);
 
 impl Protection for FixtureProtection {
+    fn profile(&self) -> mesa_core::Profile {
+        mesa_core::Profile::LibmesaExpV2
+    }
     fn verify(
         &mut self,
         local: &PreconfiguredPeer,

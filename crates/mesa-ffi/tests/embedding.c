@@ -48,7 +48,7 @@ static const mesa_buffer *buf(const void *data, size_t n, size_t wid) {
 }
 static void setup(void) {
   for (int i = 0; i < 2; i++) {
-    OK(mesa_options_default(&opt[i]));
+    OK(mesa_options_exp_v2(&opt[i]));
     opt[i].local.id[0] = (uint8_t)(i + 1);
     memcpy(opt[i].local.domain, "gw-btc", 7);
     opt[i].local.key = (uint64_t)i + 1;

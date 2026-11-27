@@ -16,9 +16,8 @@ pub mod protection;
 use policy::{Controller, TransferPolicy, TransferState};
 const AUTH_INDEX: u64 = u64::MAX;
 
-use mesa_wire::{
-    decode, encode, reconstruct_data_fragment, Auth, Body, Data, Fragment, Limits, Name, Packet,
-};
+pub use mesa_wire::profile::Profile;
+use mesa_wire::{reconstruct_data_fragment, Auth, Body, Data, Fragment, Limits, Name, Packet};
 pub use mesa_wire::{DomainTag, PeerId};
 
 pub type Tick = u64;
@@ -71,9 +70,59 @@ impl PreconfiguredPeer {
 ///
 /// The original `verify` hook remains for controlled fixture tests, not UDP.
 /// A route, claimed peer, publisher field, or checksum never proves identity.
+#[derive(Clone, Copy)]
+pub enum RootAuth {
+    Signature([u8; 64]),
+    Mac([u8; 16]),
+}
+impl RootAuth {
+    fn wire(&self) -> Auth<'_> {
+        match self {
+            Self::Signature(s) => Auth::Signature(s),
+            Self::Mac(m) => Auth::Mac(m),
+        }
+    }
+}
 pub trait Protection {
     /// Explicit host-selected profile; never inferred from received bytes.
     const SIGNED_PUBLIC: bool = false;
+    fn profile(&self) -> Profile {
+        Profile::default()
+    }
+    fn sign_object(
+        &self,
+        local: &PreconfiguredPeer,
+        recipient: Option<&PreconfiguredPeer>,
+        name: Name<'_>,
+        total: u64,
+        root: &[u8; 32],
+    ) -> Option<RootAuth> {
+        if recipient.is_some() {
+            return None;
+        }
+        self.sign_root(local, name, total, root)
+            .map(RootAuth::Signature)
+    }
+    fn verify_object(
+        &self,
+        local: &PreconfiguredPeer,
+        peer: &PreconfiguredPeer,
+        private: bool,
+        name: Name<'_>,
+        data: Data<'_>,
+        root: &[u8; 32],
+    ) -> bool {
+        let _ = local;
+        if private {
+            return false;
+        }
+        match data.auth {
+            Auth::Signature(s) => s
+                .try_into()
+                .is_ok_and(|s| self.verify_root(peer, name, data.total_bytes, root, s)),
+            _ => false,
+        }
+    }
     fn local_key_available(&self, _local: &PreconfiguredPeer) -> bool {
         true
     }
@@ -155,6 +204,15 @@ impl Default for Config {
 }
 
 impl Config {
+    pub fn mesa_v1() -> Self {
+        Self {
+            wire: Limits {
+                max_path: 320,
+                ..Limits::DATAGRAM
+            },
+            ..Self::default()
+        }
+    }
     fn capacity(&self) -> Result<usize, Error> {
         let shift = self.bloq.checked_sub(3).ok_or(Error::InvalidConfig)?;
         let cap = 1usize
@@ -231,6 +289,26 @@ pub enum Event<'a> {
     RetireBefore {
         prefix: Vec<u8>,
         suffix: Vec<u8>,
+    },
+    SendPage {
+        peer: PeerId,
+        path: Vec<u8>,
+    },
+    ReadPoke {
+        id: ReadId,
+        peer: PeerId,
+        path: Vec<u8>,
+        payload: Vec<u8>,
+    },
+    Poke {
+        peer: PeerId,
+        path: Vec<u8>,
+        ack: Vec<u8>,
+    },
+    ReadPrivate {
+        id: ReadId,
+        peer: PeerId,
+        path: Vec<u8>,
     },
     Read {
         id: ReadId,
@@ -356,7 +434,7 @@ struct Binding {
     bytes: Buffer,
     access: Access,
     tree: Option<mesa_lss::Tree>,
-    signature: Option<[u8; 64]>,
+    signature: Option<RootAuth>,
     signature_life: u32,
 }
 struct Attempt {
@@ -374,6 +452,8 @@ impl Attempt {
     }
 }
 struct Read {
+    private: bool,
+    poke: Option<Vec<u8>>,
     peer: PeerId,
     path: Vec<u8>,
     rift: u32,
@@ -426,7 +506,13 @@ impl<P: Protection> Engine<P> {
             && (config.bloq != 13
                 || config.max_fragments > mesa_lss::MAX_LEAVES
                 || config.max_read_bytes > mesa_lss::MAX_LEAVES * mesa_lss::LEAF_BYTES
-                || 118 + config.wire.max_path + capacity + 66 > config.wire.max_packet)
+                || (if protection.profile() == Profile::MesaV1 {
+                    116
+                } else {
+                    184
+                }) + config.wire.max_path
+                    + capacity
+                    > config.wire.max_packet)
         {
             return Err(Error::InvalidConfig);
         }
@@ -505,13 +591,40 @@ impl<P: Protection> Engine<P> {
         Some(state)
     }
 
+    /// Reclaim a service-owned object after its enclosing durable protocol has
+    /// established a replay fence. The service must never republish a different
+    /// value at this name, including after restore. Raw publication callers use
+    /// Unbind/RetireBefore instead. Active poke retries retain their payload.
+    pub fn release_protocol_object(&mut self, path: &[u8]) -> Result<(), Error> {
+        if self.protection.profile() != Profile::MesaV1 {
+            return Err(Error::UnsupportedAccess);
+        }
+        if self.reads.values().any(|r| r.poke.as_deref() == Some(path)) {
+            return Err(Error::AlreadyPending);
+        }
+        let revision = self
+            .revision
+            .checked_add(1)
+            .ok_or(Error::GenerationOverflow)?;
+        self.bindings.remove(path).ok_or(Error::Unbound)?;
+        self.revision = revision;
+        Ok(())
+    }
     pub fn max_packet_bytes(&self) -> usize {
         self.config.wire.max_packet
     }
 
     pub fn step(&mut self, event: Event<'_>) -> Result<Vec<Action>, Error> {
         if (self.quiescent || !self.send_gate.is_open())
-            && matches!(event, Event::Read { .. } | Event::Receive { .. })
+            && matches!(
+                event,
+                Event::Read { .. }
+                    | Event::ReadPrivate { .. }
+                    | Event::ReadPoke { .. }
+                    | Event::SendPage { .. }
+                    | Event::Poke { .. }
+                    | Event::Receive { .. }
+            )
         {
             return Err(Error::Blocked);
         }
@@ -596,7 +709,86 @@ impl<P: Protection> Engine<P> {
                 });
                 self.retired.insert(prefix, suffix);
             }
-            Event::Read { id, peer, path } => self.start_read(id, peer, path)?,
+            Event::SendPage { peer, path } => {
+                if self.protection.profile() != Profile::MesaV1 {
+                    return Err(Error::UnsupportedAccess);
+                }
+                self.check_path(&path)?;
+                let remote = self.peers.get(&peer).ok_or(Error::UnknownPeer)?;
+                if !remote.view.service_allowed {
+                    return Err(Error::Blocked);
+                }
+                let attachment = remote.attachment.ok_or(Error::NoRoute)?;
+                let name = Name {
+                    publisher: self.local.id,
+                    domain: self.local.domain(),
+                    rift: self.local.rift,
+                    bloq: self.config.bloq,
+                    fragment: Fragment::Init,
+                    path: &path,
+                };
+                self.serve(peer, attachment, name, &mut actions)
+                    .map_err(|_| Error::ResourceLimit)?;
+            }
+            Event::ReadPoke {
+                id,
+                peer,
+                path,
+                payload,
+            } => {
+                if self.protection.profile() != Profile::MesaV1 {
+                    return Err(Error::UnsupportedAccess);
+                }
+                let binding = self
+                    .bindings
+                    .get(&payload)
+                    .and_then(Option::as_ref)
+                    .ok_or(Error::Unbound)?;
+                if binding.access != Access::Peer(peer) {
+                    return Err(Error::UnsupportedAccess);
+                }
+                self.start_read(id, peer, path, true, Some(payload))?;
+            }
+            Event::Poke { peer, path, ack } => {
+                if self.protection.profile() != Profile::MesaV1 {
+                    return Err(Error::UnsupportedAccess);
+                }
+                self.check_path(&path)?;
+                self.check_path(&ack)?;
+                let remote = self.peers.get(&peer).ok_or(Error::UnknownPeer)?;
+                if !remote.view.service_allowed {
+                    return Err(Error::Blocked);
+                }
+                let attachment = remote.attachment.ok_or(Error::NoRoute)?;
+                let binding = self
+                    .bindings
+                    .get(&path)
+                    .and_then(Option::as_ref)
+                    .ok_or(Error::Unbound)?;
+                if binding.access != Access::Public && binding.access != Access::Peer(peer) {
+                    return Err(Error::UnsupportedAccess);
+                }
+                let name = Name {
+                    publisher: self.local.id,
+                    domain: self.local.domain(),
+                    rift: self.local.rift,
+                    bloq: self.config.bloq,
+                    fragment: Fragment::Init,
+                    path: &path,
+                };
+                let ack = Name {
+                    publisher: peer,
+                    domain: remote.view.domain(),
+                    rift: remote.view.rift,
+                    bloq: self.config.bloq,
+                    fragment: Fragment::Init,
+                    path: &ack,
+                };
+                self.serve_protected(peer, attachment, name, binding, Some(ack), &mut actions)
+                    .map_err(|_| Error::ResourceLimit)?;
+            }
+            Event::Read { id, peer, path } => self.start_read(id, peer, path, false, None)?,
+            Event::ReadPrivate { id, peer, path } => self.start_read(id, peer, path, true, None)?,
             Event::Cancel { id } => {
                 if !self.reads.contains_key(&id) {
                     return Err(Error::UnknownRead);
@@ -637,7 +829,10 @@ impl<P: Protection> Engine<P> {
         }) {
             return Err(Error::RetiredName);
         }
-        if P::SIGNED_PUBLIC && access != Access::Public {
+        if P::SIGNED_PUBLIC
+            && access != Access::Public
+            && self.protection.profile() != Profile::MesaV1
+        {
             return Err(Error::UnsupportedAccess);
         }
         if let Some(old) = self.bindings.get(&path) {
@@ -675,9 +870,23 @@ impl<P: Protection> Engine<P> {
                 fragment: Fragment::Auth(0),
                 path: &path,
             };
+            let recipient = match access {
+                Access::Public => None,
+                Access::Peer(peer) => Some(&self.peers.get(&peer).ok_or(Error::UnknownPeer)?.view),
+            };
             Some(
                 self.protection
-                    .sign_root(&self.local, name, bytes.len() as u64, &tree.root())
+                    .sign_object(
+                        &self.local,
+                        recipient,
+                        name,
+                        bytes.len() as u64,
+                        &if self.protection.profile() == Profile::MesaV1 {
+                            tree.mesa_root()
+                        } else {
+                            tree.root()
+                        },
+                    )
                     .ok_or(Error::MissingKey)?,
             )
         } else {
@@ -787,7 +996,17 @@ impl<P: Protection> Engine<P> {
         Ok(())
     }
 
-    fn start_read(&mut self, id: ReadId, peer: PeerId, path: Vec<u8>) -> Result<(), Error> {
+    fn start_read(
+        &mut self,
+        id: ReadId,
+        peer: PeerId,
+        path: Vec<u8>,
+        private: bool,
+        poke: Option<Vec<u8>>,
+    ) -> Result<(), Error> {
+        if private && self.protection.profile() != Profile::MesaV1 {
+            return Err(Error::UnsupportedAccess);
+        }
         self.check_path(&path)?;
         if self.reads.contains_key(&id) {
             return Err(Error::ReadIdInUse);
@@ -816,6 +1035,8 @@ impl<P: Protection> Engine<P> {
         self.reads.insert(
             id,
             Read {
+                private,
+                poke,
                 peer,
                 path,
                 rift: remote.view.rift,
@@ -846,20 +1067,52 @@ impl<P: Protection> Engine<P> {
                 rift: read.rift,
                 bloq: self.config.bloq,
                 fragment: if index == AUTH_INDEX {
-                    Fragment::Auth(0)
+                    if self.protection.profile() == Profile::MesaV1 {
+                        Fragment::Init
+                    } else {
+                        Fragment::Auth(0)
+                    }
                 } else {
                     Fragment::Data(index)
                 },
                 path: &read.path,
             };
-            let bytes = encode(
-                &Packet {
-                    hop: 0,
-                    body: Body::Peek(name),
-                },
-                self.config.wire,
-            )
-            .expect("validated config/path");
+            if index == AUTH_INDEX {
+                if let Some(path) = &read.poke {
+                    let payload = Name {
+                        publisher: self.local.id,
+                        domain: self.local.domain(),
+                        rift: self.local.rift,
+                        bloq: self.config.bloq,
+                        fragment: Fragment::Init,
+                        path,
+                    };
+                    if let Some(binding) = self.bindings.get(path).and_then(Option::as_ref) {
+                        if let Err(reason) = self.serve_protected(
+                            read.peer,
+                            attachment,
+                            payload,
+                            binding,
+                            Some(name),
+                            actions,
+                        ) {
+                            actions.push(Action::Dropped(reason));
+                        }
+                    }
+                    return;
+                }
+            }
+            let bytes = self
+                .protection
+                .profile()
+                .encode(
+                    &Packet {
+                        hop: 0,
+                        body: Body::Peek(name),
+                    },
+                    self.config.wire,
+                )
+                .expect("validated config/path");
             actions.push(Action::Send {
                 peer: read.peer,
                 attachment,
@@ -885,7 +1138,27 @@ impl<P: Protection> Engine<P> {
         if peer.attachment != Some(attachment) {
             return Err(DropReason::Attachment);
         }
-        let packet = decode(bytes, self.config.wire).map_err(|_| DropReason::Malformed)?;
+        // Incoming Page and Poke payloads name the remote publisher; Peek
+        // targets name this local server. Keep the trusted credential domain
+        // independent of the mutable engine borrow.
+        let domain = if mesa_wire::mesa_v1::sift_head(bytes)
+            .is_some_and(|h| matches!(h.typ, mesa_wire::PactType::Page | mesa_wire::PactType::Poke))
+        {
+            peer.view.domain()
+        } else {
+            self.local.domain()
+        }
+        .as_str()
+        .to_owned();
+        let packet = self
+            .protection
+            .profile()
+            .decode(
+                bytes,
+                self.config.wire,
+                DomainTag::new(&domain).map_err(|_| DropReason::Name)?,
+            )
+            .map_err(|_| DropReason::Malformed)?;
         if !P::SIGNED_PUBLIC && !self.protection.verify(&self.local, &peer.view, bytes) {
             return Err(DropReason::Protection);
         }
@@ -896,6 +1169,9 @@ impl<P: Protection> Engine<P> {
                 data,
                 next: None,
             } => self.page(claimed_peer, name, data, actions),
+            Body::Poke { payload, data, .. } if self.protection.profile() == Profile::MesaV1 => {
+                self.page(claimed_peer, payload, data, actions)
+            }
             _ => Err(DropReason::Unsupported),
         }
     }
@@ -923,7 +1199,7 @@ impl<P: Protection> Engine<P> {
             return Err(DropReason::Unavailable);
         }
         if P::SIGNED_PUBLIC {
-            return self.serve_protected(peer, attachment, name, binding, actions);
+            return self.serve_protected(peer, attachment, name, binding, None, actions);
         }
         let index = match name.fragment {
             Fragment::Init if binding.bytes.len() <= self.capacity => 0,
@@ -951,18 +1227,21 @@ impl<P: Protection> Engine<P> {
             auth: Auth::None,
             fragment: &fragment,
         };
-        let bytes = encode(
-            &Packet {
-                hop: 0,
-                body: Body::Page {
-                    name,
-                    data,
-                    next: None,
+        let bytes = self
+            .protection
+            .profile()
+            .encode(
+                &Packet {
+                    hop: 0,
+                    body: Body::Page {
+                        name,
+                        data,
+                        next: None,
+                    },
                 },
-            },
-            self.config.wire,
-        )
-        .expect("validated config/binding");
+                self.config.wire,
+            )
+            .expect("validated config/binding");
         actions.push(Action::Send {
             peer,
             attachment,
