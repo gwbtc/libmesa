@@ -41,22 +41,28 @@ pub fn parse_ship(text: &str) -> Result<u128, Error> {
     if compact.len() == 3 {
         id = SUFFIX
             .as_bytes()
-            .chunks_exact(3)
+            .as_chunks::<3>()
+            .0
+            .iter()
             .position(|s| s == compact.as_bytes())
             .ok_or(Error::Coordinate)? as u128;
     } else {
         if compact.is_empty() || !compact.len().is_multiple_of(6) || compact.len() > 48 {
             return Err(Error::Coordinate);
         }
-        for chunk in compact.as_bytes().chunks_exact(6) {
+        for chunk in compact.as_bytes().as_chunks::<6>().0 {
             let p = PREFIX
                 .as_bytes()
-                .chunks_exact(3)
+                .as_chunks::<3>()
+                .0
+                .iter()
                 .position(|s| s == &chunk[..3])
                 .ok_or(Error::Coordinate)?;
             let s = SUFFIX
                 .as_bytes()
-                .chunks_exact(3)
+                .as_chunks::<3>()
+                .0
+                .iter()
                 .position(|s| s == &chunk[3..])
                 .ok_or(Error::Coordinate)?;
             id = (id << 16) | ((p as u128) << 8) | s as u128;
