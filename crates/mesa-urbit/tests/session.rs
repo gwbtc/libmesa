@@ -320,37 +320,35 @@ fn simultaneous_life_changes_revoke_retained_packets_and_preserve_outbox_identit
         .collect();
     assert!(!retained.is_empty());
     let stable = h.nodes[0].state().flow(forward()).unwrap().outbox.clone();
-    for i in 0..2 {
+    for (i, node) in h.nodes.iter_mut().enumerate() {
         let mut local = view(i);
         local.life = 2;
-        h.nodes[i]
-            .activate_local(
-                local,
-                std::sync::Arc::new(KeyPair::from_seed(&[10 + i as u8; 32])),
-                0,
-                1,
-            )
-            .unwrap();
+        node.activate_local(
+            local,
+            std::sync::Arc::new(KeyPair::from_seed(&[10 + i as u8; 32])),
+            0,
+            1,
+        )
+        .unwrap();
     }
     for packet in retained {
         assert!(packet
             .submit(|_, _, _| panic!("retired packet reached transport"))
             .is_err());
     }
-    for i in 0..2 {
+    for (i, node) in h.nodes.iter_mut().enumerate() {
         let mut remote = view(1 - i);
         remote.life = 2;
-        h.nodes[i]
-            .install_remote(
-                core::host::CredentialUpdate {
-                    peer: remote,
-                    expected_generation: 0,
-                    generation: 1,
-                    breach: false,
-                },
-                KeyPair::from_seed(&[10 + (1 - i) as u8; 32]).public_key(),
-            )
-            .unwrap();
+        node.install_remote(
+            core::host::CredentialUpdate {
+                peer: remote,
+                expected_generation: 0,
+                generation: 1,
+                breach: false,
+            },
+            KeyPair::from_seed(&[10 + (1 - i) as u8; 32]).public_key(),
+        )
+        .unwrap();
     }
     assert_eq!(h.nodes[0].state().flow(forward()).unwrap().outbox, stable);
     // Announcements and first replacement packets were lost. CORE retries.

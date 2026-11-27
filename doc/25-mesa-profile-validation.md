@@ -35,7 +35,9 @@ Local validation on 2026-11-27 passed 271 workspace tests with no failures or
 ignored tests, strict Clippy, formatting, both C configurations, the three
 examples, dependency isolation, codec conformance and both evidence checks.
 The final generic-protection default change also passed the core regression
-suite. GitHub CI runs the workspace and C checks plus both evidence checks.
+suite. Follow-up lint checks use Rust 1.100, matching CI; the full all-target,
+all-feature Clippy check and the rotation/session tests pass on that toolchain.
+GitHub CI runs the workspace and C checks plus both evidence checks.
 
 The check sequence is:
 
